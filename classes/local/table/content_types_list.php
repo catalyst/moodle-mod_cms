@@ -28,8 +28,8 @@ use moodle_url;
 use html_writer;
 use flexible_table;
 use mod_cms\helper;
-use mod_cms\model\cms_types;
 use mod_cms\manage_content_types;
+use mod_cms\local\model\cms_types;
 
 defined('MOODLE_INTERNAL') || die();
 
