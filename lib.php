@@ -24,8 +24,11 @@
  */
 
 use core_course\local\entity\content_item;
+use mod_cms\local\lib;
 
 /**
+ * Returns whether a feature is supported or not.
+ *
  * @uses FEATURE_IDNUMBER
  * @uses FEATURE_GROUPS
  * @uses FEATURE_GROUPINGS
@@ -60,19 +63,14 @@ function cms_supports($feature) {
 }
 
 /**
- * Return the custom content types which have been predefined.
+ * Obtains a list of defined content types to be included in the activity chooser panel.
  *
  * @param content_item $defaultmodulecontentitem
- * @param stdClass     $user
- * @param stdClass     $course
- *
+ * @param stdClass $user
+ * @param stdClass $course
  * @return array
  */
-function cms_get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
-        stdClass $course) {
-    global $CFG, $OUTPUT;
-
-    $types = [];
-
-    return $types;
+function cms_get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
+    \stdClass $course) {
+    return lib::get_course_content_items($defaultmodulecontentitem, $user, $course);
 }
