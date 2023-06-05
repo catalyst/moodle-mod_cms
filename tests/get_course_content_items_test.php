@@ -16,10 +16,12 @@
 
 namespace mod_cms;
 
+use advanced_testcase;
 use core_course\local\entity\content_item;
+use core_course\local\entity\lang_string_title;
 use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
-
+use moodle_url;
 
 /**
  * Unit tests for mod_cms
@@ -29,7 +31,7 @@ use mod_cms\local\model\cms_types;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_course_content_items_test extends \advanced_testcase {
+class get_course_content_items_test extends advanced_testcase {
     /**
      * Set up before each test
      */
@@ -56,13 +58,13 @@ class get_course_content_items_test extends \advanced_testcase {
         return new content_item(
             $mod->id,
             $mod->name,
-            new \core_course\local\entity\lang_string_title("modulename", $mod->name),
-            new \moodle_url('/course/mod.php', ['id' => 0, 'add' => $mod->name]),
+            new lang_string_title("modulename", $mod->name),
+            new moodle_url('/course/mod.php', ['id' => 0, 'add' => $mod->name]),
             $OUTPUT->pix_icon($icon, '', $mod->name, ['class' => "activityicon"]),
             'help',
             $archetype,
             'mod_' . $mod->name,
-            $purpose,
+            $purpose
         );
     }
 

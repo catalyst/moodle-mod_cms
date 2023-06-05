@@ -70,7 +70,17 @@ function cms_supports($feature) {
  * @param stdClass $course
  * @return array
  */
-function cms_get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
-    \stdClass $course) {
+function cms_get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
+    stdClass $course) {
     return lib::get_course_content_items($defaultmodulecontentitem, $user, $course);
+}
+
+/**
+ * Adds an instance of a CMS activity.
+ *
+ * @param stdClass $data Data to populate the instance.
+ * @return int The ID of the newly crated instance.
+ */
+function cms_add_instance($data) {
+    return lib::add_instance($data);
 }

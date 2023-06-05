@@ -17,6 +17,10 @@
 namespace mod_cms\local;
 
 use core_course\local\entity\content_item;
+use core_course\local\entity\string_title;
+use mod_cms\local\model\cms;
+use moodle_url;
+use stdClass;
 
 /**
  * Generic library functions for mod_cms.
@@ -27,6 +31,9 @@ use core_course\local\entity\content_item;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class lib {
+    /** @var string The URL for editing a mod instance. */
+    protected const MODEDIT_URL = '/course/modedit.php';
+
     /**
      * Obtains a list of defined content types to be included in the activity chooser panel.
      *
@@ -35,17 +42,26 @@ class lib {
      * @param \stdClass $course Not used.
      * @return array
      */
-    public static function get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
-        \stdClass $course) : array {
+    public static function get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
+        stdClass $course) : array {
+        global $COURSE;
+
         $items = [];
+
+        $baseurl = $defaultmodulecontentitem->get_link();
+        $linkurl = new moodle_url(
+            self::MODEDIT_URL,
+            ['id' => $baseurl->param('id'), 'course' => $COURSE->id, 'add' => 'cms']
+        );
 
         $types = model\cms_types::get_records();
         foreach ($types as $type) {
-            $items[] = new \core_course\local\entity\content_item(
+            $linkurl->param('typeid', $type->get('id'));
+            $items[] = new content_item(
                 $type->get('id'),
                 $defaultmodulecontentitem->get_name(),
-                new \core_course\local\entity\string_title($type->get('name')),
-                $defaultmodulecontentitem->get_link(),
+                new string_title($type->get('name')),
+                clone($linkurl),
                 $defaultmodulecontentitem->get_icon(),
                 $type->get('description'),
                 $defaultmodulecontentitem->get_archetype(),
@@ -55,5 +71,21 @@ class lib {
         }
 
         return $items;
+    }
+
+    /**
+     * Adds an instance of a CMS activity.
+     *
+     * @param stdClass $data Data to populate the instance.
+     * @return int The ID of the newly crated instance.
+     */
+    public static function add_instance(stdClass $data): int {
+        // TODO: This is a stub.
+        $cms = new cms();
+        $cms->set('name', $data->name);
+        $cms->set('typeid', $data->typeid);
+        $cms->set('intro', '');
+        $cms->save();
+        return $cms->get('id');
     }
 }
