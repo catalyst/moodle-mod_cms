@@ -46,4 +46,4 @@ $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
 $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
-$string['cms:addinstance'] = 'Add a new instance';
+$string['cms:addinstance'] = 'Add a new custom content instance';

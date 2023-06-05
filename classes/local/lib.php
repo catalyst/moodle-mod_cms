@@ -19,6 +19,7 @@ namespace mod_cms\local;
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
 use mod_cms\local\model\cms;
+use mod_cms\local\model\cms_types;
 use moodle_url;
 use stdClass;
 
@@ -38,12 +39,12 @@ class lib {
      * Obtains a list of defined content types to be included in the activity chooser panel.
      *
      * @param content_item $defaultmodulecontentitem
-     * @param \stdClass $user Not used.
-     * @param \stdClass $course Not used.
+     * @param stdClass $user Not used.
+     * @param stdClass $course Not used.
      * @return array
      */
     public static function get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
-        stdClass $course) : array {
+            stdClass $course) : array {
         global $COURSE;
 
         $items = [];
@@ -54,7 +55,7 @@ class lib {
             ['id' => $baseurl->param('id'), 'course' => $COURSE->id, 'add' => 'cms']
         );
 
-        $types = model\cms_types::get_records();
+        $types = cms_types::get_records();
         foreach ($types as $type) {
             $linkurl->param('typeid', $type->get('id'));
             $items[] = new content_item(

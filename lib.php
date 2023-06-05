@@ -84,3 +84,7 @@ function cms_get_course_content_items(content_item $defaultmodulecontentitem, st
 function cms_add_instance($data) {
     return lib::add_instance($data);
 }
+
+function cms_update_instance($data) {
+    // TODO stub.
+}
