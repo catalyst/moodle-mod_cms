@@ -15,38 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Capability definitions.
+ * Index page for custom content types.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+require_once('../../config.php');
 
-$capabilities = [
-    // Add an External tool activity to a course.
-    'mod/cms:addinstance' => [
-        'riskbitmask' => RISK_XSS,
+// TODO: This is a stub.
 
-        'captype' => 'write',
-        'contextlevel' => CONTEXT_COURSE,
-        'archetypes' => [
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        ],
-        'clonepermissionsfrom' => 'moodle/course:manageactivities'
-    ],
+$id = required_param('id', PARAM_INT);   // Course id.
 
-    // View an activity instance.
-    'mod/cms:view' => [
-        'captype' => 'read',
-        'contextlevel' => CONTEXT_MODULE,
-        'archetypes' => [
-            'student' => CAP_ALLOW,
-            'teacher' => CAP_ALLOW,
-            'editingteacher' => CAP_ALLOW,
-            'manager' => CAP_ALLOW
-        ]
-    ],
-];
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+
+require_login($course);

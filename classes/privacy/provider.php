@@ -42,7 +42,7 @@ class provider implements
      * @param  collection $collection An object for storing metadata.
      * @return collection The metadata.
      */
-    public static function get_metadata(collection $collection) : collection {
+    public static function get_metadata(collection $collection): collection {
         $collection->add_database_table(
             'cms',
             [
@@ -68,7 +68,7 @@ class provider implements
      *
      * @return contextlist
      */
-    public static function get_contexts_for_userid(int $userid) : contextlist {
+    public static function get_contexts_for_userid(int $userid): contextlist {
         // Just enough to pass unit tests.
         return new contextlist();
     }

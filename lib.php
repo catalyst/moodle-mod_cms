@@ -25,6 +25,7 @@
 
 use core_course\local\entity\content_item;
 use mod_cms\local\lib;
+use mod_cms\local\model\cms;
 
 /**
  * Returns whether a feature is supported or not.
@@ -78,13 +79,52 @@ function cms_get_course_content_items(content_item $defaultmodulecontentitem, st
 /**
  * Adds an instance of a CMS activity.
  *
- * @param stdClass $data Data to populate the instance.
+ * @param stdClass $instancedata Data to populate the instance.
+ * @param moodleform_mod|null $mform
  * @return int The ID of the newly crated instance.
  */
-function cms_add_instance($data) {
-    return lib::add_instance($data);
+function cms_add_instance(stdClass $instancedata, $mform = null): int {
+    return lib::add_instance($instancedata, $mform);
 }
 
-function cms_update_instance($data) {
+/**
+ * Updates an activity instance.
+ *
+ * @param stdClass $instancedata
+ * @param moodleform_mod $mform
+ * @return bool
+ */
+function cms_update_instance(stdClass $instancedata, $mform): bool {
     // TODO stub.
+    return false;
+}
+
+/**
+ * Removes an instance of an activity.
+ *
+ * @param int $id
+ * @return bool
+ */
+function cms_delete_instance(int $id): bool {
+    // TODO stub.
+    return false;
+}
+
+/**
+ * Obtains info on course module.
+ *
+ * @param stdClass $coursemodule
+ * @return cached_cm_info
+ * @throws coding_exception
+ * @throws moodle_exception
+ */
+function cms_get_coursemodule_info($coursemodule) {
+    // TODO This is a stub to provide minimum functionality.
+    $cms = new cms($coursemodule->instance);
+
+    $info = new cached_cm_info();
+    $info->name = $cms->get('name');
+    $link = new moodle_url('/mod/cms/view.php', ['id' => $coursemodule->id, 'forcedview' => 1]);
+    $info->content = html_writer::link($link, $info->name);
+    return $info;
 }

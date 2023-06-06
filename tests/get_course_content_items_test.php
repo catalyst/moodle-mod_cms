@@ -51,7 +51,6 @@ class get_course_content_items_test extends advanced_testcase {
         $mod = $DB->get_record('modules', ['name' => 'cms']);
 
         $archetype = plugin_supports('mod', $mod->name, FEATURE_MOD_ARCHETYPE, MOD_ARCHETYPE_OTHER);
-        $purpose = plugin_supports('mod', $mod->name, FEATURE_MOD_PURPOSE, MOD_PURPOSE_OTHER);
 
         $icon = 'monologo';
 
@@ -64,7 +63,7 @@ class get_course_content_items_test extends advanced_testcase {
             'help',
             $archetype,
             'mod_' . $mod->name,
-            $purpose
+            'other'
         );
     }
 

@@ -21,6 +21,7 @@ use core_course\local\entity\string_title;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 use moodle_url;
+use moodleform_mod;
 use stdClass;
 
 /**
@@ -44,7 +45,7 @@ class lib {
      * @return array
      */
     public static function get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
-            stdClass $course) : array {
+            stdClass $course): array {
         global $COURSE;
 
         $items = [];
@@ -77,10 +78,11 @@ class lib {
     /**
      * Adds an instance of a CMS activity.
      *
-     * @param stdClass $data Data to populate the instance.
+     * @param stdClass $instancedata Data to populate the instance.
+     * @param moodleform_mod|null $mform Not used.
      * @return int The ID of the newly crated instance.
      */
-    public static function add_instance(stdClass $data): int {
+    public static function add_instance(stdClass $instancedata, $mform = null): int {
         // TODO: This is a stub.
         $cms = new cms();
         $cms->set('name', $data->name);
