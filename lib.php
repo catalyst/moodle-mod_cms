@@ -95,8 +95,7 @@ function cms_add_instance(stdClass $instancedata, $mform = null): int {
  * @return bool
  */
 function cms_update_instance(stdClass $instancedata, $mform): bool {
-    // TODO stub.
-    return false;
+    return lib::update_instance($instancedata, $mform);
 }
 
 /**

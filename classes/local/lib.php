@@ -68,7 +68,7 @@ class lib {
                 $type->get('description'),
                 $defaultmodulecontentitem->get_archetype(),
                 $defaultmodulecontentitem->get_component_name(),
-                $defaultmodulecontentitem->get_purpose()
+                method_exists($defaultmodulecontentitem, 'get_purpose') ? $defaultmodulecontentitem->get_purpose() : null
             );
         }
 
@@ -85,10 +85,27 @@ class lib {
     public static function add_instance(stdClass $instancedata, $mform = null): int {
         // TODO: This is a stub.
         $cms = new cms();
-        $cms->set('name', $data->name);
-        $cms->set('typeid', $data->typeid);
+        $cms->set('name', $instancedata->name);
+        $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->save();
         return $cms->get('id');
+    }
+
+    /**
+     * Updates an activity instance.
+     *
+     * @param stdClass $instancedata
+     * @param moodleform_mod $mform
+     * @return bool
+     */
+    public static function update_instance(stdClass $instancedata, $mform): bool {
+        $cm = get_coursemodule_from_id('cms', $instancedata->update, 0, false, MUST_EXIST);
+        $cms = new cms($cm->instance);
+        $cms->set('name', $instancedata->name);
+        $cms->set('typeid', $instancedata->typeid);
+        $cms->set('intro', '');
+        $cms->save();
+        return true;
     }
 }
