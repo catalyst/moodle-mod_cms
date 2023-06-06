@@ -51,7 +51,7 @@ $settings = new admin_settingpage(
 );
 
 if ($ADMIN->fulltree) {
-    // TODO: There will probably be some more interesting settings to add here in the future.
+    ;// TODO: There will probably be some more interesting settings to add here in the future.
 }
 
 $ADMIN->add('modcmsfolder', $settings);

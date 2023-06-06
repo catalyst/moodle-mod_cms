@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,21 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the cms plugin.
+ * Index page for custom content types.
  *
- * @package     mod_cms
- * @author      Marcus Boon<marcus@catalyst-au.net>
- * @copyright   Catalyst IT
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_cms
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2023, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+require_once('../../config.php');
 
-defined('MOODLE_INTERNAL') || die();
+// TODO: This is a stub.
 
-$plugin->version = 2023060600;
-$plugin->requires = 2020061500; // Moodle 3.9.0 and above.
-$plugin->supported = [39, 401]; // Moodle 3.9 to 4.1 inclusive.
-$plugin->component = 'mod_cms';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 2023051800;
+$id = required_param('id', PARAM_INT);   // Course id.
 
-$plugin->dependencies = [];
+$course = $DB->get_record('course', array('id' => $id), '*', MUST_EXIST);
+
+require_login($course);

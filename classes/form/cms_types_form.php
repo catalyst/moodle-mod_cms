@@ -37,7 +37,7 @@ use core\form\persistent as persistent_form;
 class cms_types_form extends persistent_form {
 
     /** @var string Persistent class name. */
-    protected static $persistentclass = 'mod_cms\\model\\cms_types';
+    protected static $persistentclass = 'mod_cms\\local\\model\\cms_types';
 
     /**
      * Form definition.

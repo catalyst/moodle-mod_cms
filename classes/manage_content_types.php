@@ -27,8 +27,8 @@ namespace mod_cms;
 use stdClass;
 use moodle_url;
 use core\notification;
-use mod_cms\model\cms_types;
 use mod_cms\form\cms_types_form;
+use mod_cms\local\model\cms_types;
 use mod_cms\local\table\content_types_list;
 
 /**

@@ -22,7 +22,7 @@
  * @copyright   Catalyst IT
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-namespace mod_cms\model;
+namespace mod_cms\local\model;
 
 use stdClass;
 use core\persistent;
