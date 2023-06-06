@@ -44,10 +44,10 @@ use mod_cms\local\model\cms;
 function cms_supports($feature) {
     switch($feature) {
         case FEATURE_IDNUMBER:
-        case FEATURE_MOD_INTRO:
         case FEATURE_BACKUP_MOODLE2:
         case FEATURE_NO_VIEW_LINK:
             return true;
+        case FEATURE_MOD_INTRO:
         case FEATURE_GROUPS:
         case FEATURE_GROUPINGS:
         case FEATURE_COMPLETION_TRACKS_VIEWS:
