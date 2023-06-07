@@ -25,7 +25,6 @@
 
 use core_course\local\entity\content_item;
 use mod_cms\local\lib;
-use mod_cms\local\model\cms;
 
 /**
  * Returns whether a feature is supported or not.
@@ -44,10 +43,10 @@ use mod_cms\local\model\cms;
 function cms_supports($feature) {
     switch($feature) {
         case FEATURE_IDNUMBER:
-        case FEATURE_MOD_INTRO:
         case FEATURE_BACKUP_MOODLE2:
         case FEATURE_NO_VIEW_LINK:
             return true;
+        case FEATURE_MOD_INTRO:
         case FEATURE_GROUPS:
         case FEATURE_GROUPINGS:
         case FEATURE_COMPLETION_TRACKS_VIEWS:
@@ -114,16 +113,7 @@ function cms_delete_instance(int $id): bool {
  *
  * @param stdClass $coursemodule
  * @return cached_cm_info
- * @throws coding_exception
- * @throws moodle_exception
  */
 function cms_get_coursemodule_info($coursemodule) {
-    // TODO This is a stub to provide minimum functionality.
-    $cms = new cms($coursemodule->instance);
-
-    $info = new cached_cm_info();
-    $info->name = $cms->get('name');
-    $link = new moodle_url('/mod/cms/view.php', ['id' => $coursemodule->id, 'forcedview' => 1]);
-    $info->content = html_writer::link($link, $info->name);
-    return $info;
+    return lib::get_coursemodule_info($coursemodule);
 }

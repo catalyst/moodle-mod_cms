@@ -193,21 +193,28 @@ class manage_content_types {
         if ($form->is_cancelled()) {
             redirect(new moodle_url(self::get_base_url()));
         } else if ($data = $form->get_data()) {
-            unset($data->submitbutton);
+            $stayonpage = isset($data->saveanddisplay);
+            unset($data->saveandreturn);
+            unset($data->saveanddisplay);
             try {
                 // Create new.
                 if (empty($data->id)) {
                     $contenttype = $this->get_instance(0, $data);
-                    $contenttype->create();
+                    $instance = $contenttype->create();
                 } else { // Update existing.
                     $instance->from_record($data);
                     $instance->update();
                 }
                 notification::success(get_string('changessaved'));
-            } catch (Exception $e) {
+            } catch (\Exception $e) {
                 notification::error($e->getMessage());
             }
-            redirect(new moodle_url(self::get_base_url()));
+            $redirecturl = new moodle_url(self::get_base_url());
+            if ($stayonpage) {
+                $redirecturl->param('action', 'edit');
+                $redirecturl->param('id', $instance->get('id'));
+            }
+            redirect($redirecturl);
         } else {
             if (empty($instance)) {
                 $this->header($this->get_new_heading());
