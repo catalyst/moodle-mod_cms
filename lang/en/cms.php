@@ -48,3 +48,7 @@ $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
 $string['cms:addinstance'] = 'Add a new custom content instance';
 $string['pluginadministration'] = 'Plugin administration';
+$string['mustache'] = 'Mustache template';
+$string['mustache_help'] = 'The above content will need to be a valid {$a}. Sample variables that are available for use in this template are given below.';
+$string['mustache_template'] = 'mustache template';
+$string['preview'] = 'Preview (click "{$a}" to update)';

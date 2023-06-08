@@ -73,4 +73,13 @@ class cms extends persistent {
             ],
         ];
     }
+
+    /**
+     * Gets the type object for this cms.
+     *
+     * @return cms_types
+     */
+    public function get_type(): cms_types {
+        return new cms_types($this->get('typeid'));
+    }
 }

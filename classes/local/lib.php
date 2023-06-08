@@ -108,4 +108,22 @@ class lib {
         $cms->save();
         return true;
     }
+
+    /**
+     * Obtains info on course module.
+     *
+     * @param stdClass $coursemodule
+     * @return \cached_cm_info
+     */
+    public static function get_coursemodule_info(stdClass $coursemodule): \cached_cm_info {
+        // Put the template contents into the block.
+        $cms = new cms($coursemodule->instance);
+
+        $info = new \cached_cm_info();
+        $info->name = $cms->get('name');
+
+        $renderer = new renderer($cms);
+        $info->content = $renderer->get_html();
+        return $info;
+    }
 }

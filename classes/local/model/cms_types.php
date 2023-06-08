@@ -64,6 +64,10 @@ class cms_types extends persistent {
                 'type' => PARAM_INT,
                 'default' => 1
             ],
+            'mustache' => [
+                'type' => PARAM_RAW,
+                'default' => ''
+            ],
         ];
     }
 
@@ -124,5 +128,17 @@ class cms_types extends persistent {
      */
     public function can_delete(): bool {
         return true;
+    }
+
+    /**
+     * Get a sample cms of this type, filled with arbitrary data.
+     *
+     * @return cms
+     */
+    public function get_sample_cms(): cms {
+        $cms = new cms();
+        $cms->set('typeid', $this->get('id'));
+
+        return $cms;
     }
 }

@@ -25,6 +25,8 @@
 namespace mod_cms\form;
 
 use core\form\persistent as persistent_form;
+use mod_cms\local\model\cms_types;
+use mod_cms\local\renderer;
 
 /**
  * Form for manipulating the content types
@@ -52,6 +54,51 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
+        $mform->addElement(
+            'textarea',
+            'mustache',
+            get_string('mustache', 'cms'),
+            ['rows' => 10, 'style' => 'font-family: monospace; font-size: 12px;']
+        );
+        $mform->setType('mustache', PARAM_RAW);
+
+        // Generate the help text for mustache template.
+        $cmstype = $this->get_persistent();
+        $cms = $cmstype->get_sample_cms();
+        $renderer = new renderer($cms);
+        $data = $renderer->get_data();
+        $syntaxlink = \html_writer::link(
+            new \moodle_url('https://moodledev.io/docs/guides/templates'),
+            get_string('mustache_template', 'cms')
+        );
+        $helptext = get_string('mustache_help', 'cms', $syntaxlink);
+        $helptext .= \html_writer::table($renderer->get_data_as_table());
+        $mform->addElement('static', 'mustache_help', '', $helptext);
+
+        $html = $renderer->get_html();
+        $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
+
         $this->add_action_buttons();
+    }
+
+    /**
+     * Adds submit buttons to the form.
+     *
+     * @param bool $cancel
+     * @param null $submitlabel Not used
+     */
+    public function add_action_buttons($cancel = true, $submitlabel=null) {
+        $mform = $this->_form;
+
+        $classarray = ['class' => 'form-submit'];
+        $buttonarray = [
+            $mform->createElement('submit', 'saveandreturn', get_string('savechangesandreturn'), $classarray),
+            $mform->createElement('submit', 'saveanddisplay', get_string('savechangesanddisplay'), $classarray),
+        ];
+        if ($cancel) {
+            $buttonarray[] = &$mform->createElement('cancel');
+        }
+        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->closeHeaderBefore('buttonar');
     }
 }

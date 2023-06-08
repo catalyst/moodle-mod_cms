@@ -23,9 +23,8 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 use mod_cms\local\model\cms;
+use mod_cms\local\renderer;
 require_once('../../config.php');
-
-// TODO This is a stub.
 
 $id = optional_param('id', 0, PARAM_INT); // Course Module ID.
 $action = optional_param('action', '', PARAM_TEXT);
@@ -50,8 +49,9 @@ $PAGE->set_url($url);
 // Print the page header.
 echo $OUTPUT->header();
 
-// TODO: Replace the following line with the full content.
-echo html_writer::tag('h2', $cms->get('name'));
+// Render the content of the mod.
+$renderer = new renderer($cms);
+echo $renderer->get_html();
 
 // Finish the page.
 echo $OUTPUT->footer();
