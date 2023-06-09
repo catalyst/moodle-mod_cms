@@ -16,6 +16,7 @@
 
 namespace mod_cms\local;
 
+use cm_info;
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
 use mod_cms\local\model\cms;
@@ -110,20 +111,25 @@ class lib {
     }
 
     /**
-     * Obtains info on course module.
+     * Sets info into cminfo at the dynamic stage.
+     * See lib/modinfolib.php - cm_info for more.
      *
-     * @param stdClass $coursemodule
-     * @return \cached_cm_info
+     * @param cm_info $cminfo
      */
-    public static function get_coursemodule_info(stdClass $coursemodule): \cached_cm_info {
-        // Put the template contents into the block.
-        $cms = new cms($coursemodule->instance);
+    public static function cm_info_dynamic(cm_info $cminfo) {
+        $cms = new cms($cminfo->instance);
+        $cminfo->set_name($cms->get('name'));
+    }
 
-        $info = new \cached_cm_info();
-        $info->name = $cms->get('name');
-
+    /**
+     * Sets info into cminfo at the view stage.
+     * See lib/modinfolib.php - cm_info for more.
+     *
+     * @param cm_info $cminfo
+     */
+    public static function cm_info_view(cm_info $cminfo) {
+        $cms = new cms($cminfo->instance);
         $renderer = new renderer($cms);
-        $info->content = $renderer->get_html();
-        return $info;
+        $cminfo->set_content($renderer->get_html());
     }
 }
