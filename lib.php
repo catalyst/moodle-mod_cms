@@ -109,11 +109,19 @@ function cms_delete_instance(int $id): bool {
 }
 
 /**
- * Obtains info on course module.
+ * Sets info into cminfo at the dynamic stage.
  *
- * @param stdClass $coursemodule
- * @return cached_cm_info
+ * @param \cm_info $cminfo
  */
-function cms_get_coursemodule_info($coursemodule) {
-    return lib::get_coursemodule_info($coursemodule);
+function cms_cm_info_dynamic(cm_info $cminfo) {
+    lib::cm_info_dynamic($cminfo);
+}
+
+/**
+ * Sets info into cminfo at the view stage.
+ *
+ * @param \cm_info $cminfo
+ */
+function cms_cm_info_view(cm_info $cminfo) {
+    lib::cm_info_view($cminfo);
 }
