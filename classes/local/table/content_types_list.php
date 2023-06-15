@@ -61,7 +61,7 @@ class content_types_list extends flexible_table {
         parent::__construct('mod_cms'.$id);
 
         $this->define_baseurl($PAGE->url);
-        $this->set_attribute('class', 'generaltable admintable');
+        $this->set_attribute('class', 'generaltable admintable w-auto');
 
         // Column definition.
         $this->define_columns([
