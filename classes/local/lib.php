@@ -19,11 +19,13 @@ namespace mod_cms\local;
 use cm_info;
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
+use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 use moodle_url;
 use moodleform_mod;
 use stdClass;
+
 
 /**
  * Generic library functions for mod_cms.
@@ -90,6 +92,12 @@ class lib {
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->save();
+
+        // Save the custom field data.
+        $instancedata->id = $cms->get('id');
+        $cfhandler = cmsfield_handler::create($instancedata->typeid);
+        $cfhandler->instance_form_save($instancedata, true);
+
         return $cms->get('id');
     }
 
@@ -107,6 +115,12 @@ class lib {
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->save();
+
+        // Save the custom field data.
+        $instancedata->id = $cm->instance;
+        $cfhandler = cmsfield_handler::create($instancedata->typeid);
+        $cfhandler->instance_form_save($instancedata);
+
         return true;
     }
 

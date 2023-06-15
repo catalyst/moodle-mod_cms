@@ -52,3 +52,5 @@ $string['mustache'] = 'Mustache template';
 $string['mustache_help'] = 'The above content will need to be a valid {$a}. Sample variables that are available for use in this template are given below.';
 $string['mustache_template'] = 'mustache template';
 $string['preview'] = 'Preview (click "{$a}" to update)';
+$string['customfield_manage_heading'] = 'Manage custom fields for CMS type "{$a}"';
+$string['manage_types_return'] = 'Return to manage types';
