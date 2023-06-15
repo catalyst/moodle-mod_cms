@@ -25,8 +25,9 @@
 namespace mod_cms\form;
 
 use core\form\persistent as persistent_form;
-use mod_cms\local\model\cms_types;
+use html_writer;
 use mod_cms\local\renderer;
+use moodle_url;
 
 /**
  * Form for manipulating the content types
@@ -67,15 +68,15 @@ class cms_types_form extends persistent_form {
         $cms = $cmstype->get_sample_cms();
         $renderer = new renderer($cms);
         $data = $renderer->get_data();
-        $syntaxlink = \html_writer::link(
-            new \moodle_url('https://moodledev.io/docs/guides/templates'),
+        $syntaxlink = html_writer::link(
+            new moodle_url('https://moodledev.io/docs/guides/templates'),
             get_string('mustache_template', 'cms')
         );
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
-        $helptext .= \html_writer::table($renderer->get_data_as_table());
+        $helptext .= html_writer::table($renderer->get_data_as_table(true));
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
-        $html = $renderer->get_html();
+        $html = $renderer->get_html(true);
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
