@@ -30,7 +30,7 @@ https://docs.moodle.org/en/Installing_plugins
 
 Issues and pull requests using github are welcome and encouraged!
 
-https:/github.com/catalyst/moodle-mod_cms/issues
+https://github.com/catalyst/moodle-mod_cms/issues
 
 If you would like commercial support or would like to sponsor additional improvements to this plugin please contact us:
 
