@@ -16,8 +16,9 @@
 
 namespace mod_cms\local;
 
-use Mustache_Engine;
+use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\model\cms;
+use Mustache_Engine;
 
 /**
  * Renders the contents of a mustache template.
@@ -43,12 +44,15 @@ class renderer {
     /**
      * Get the data array for the cms.
      *
+     * @param bool $sample Fill with sample data rather than actual data.
      * @return array
      */
-    public function get_data(): array {
+    public function get_data($sample = false): array {
         global $CFG, $SITE;
 
-        $data = [];
+        $data = [
+            'name' => $this->cms->get('name'),
+        ];
 
         $data['site'] = [
             'fullname'  => $SITE->fullname,
@@ -56,7 +60,36 @@ class renderer {
             'wwwroot'   => $CFG->wwwroot,
         ];
 
+        $cfhandler = cmsfield_handler::create($this->cms->get('typeid'));
+        $instancedata = $cfhandler->get_instance_data($this->cms->get('id'), true);
+        $data['customfield'] = [];
+        foreach ($instancedata as $field) {
+            $shortname = $field->get_field()->get('shortname');
+            $data['customfield'][$shortname] = $sample ? $this->get_sample($field) : $field->export_value();
+        }
+
         return $data;
+    }
+
+    /**
+     * Get a sample value for a custom field.
+     *
+     * @param \core_customfield\data_controller $field
+     * @return string
+     */
+    public function get_sample($field): string {
+        if ($field->get_field()->get('type') === 'date') {
+            return 'Thursday, 15 June 2023, 12:00 AM';
+        } else {
+            switch ($field->datafield()) {
+                case 'intvalue':
+                    return '10';
+                case 'decvalue':
+                    return '10.5';
+                default:
+                    return 'text';
+            }
+        }
     }
 
     /**
@@ -69,7 +102,7 @@ class renderer {
     public static function flatten(array &$output, array $source, string $prefix = '') {
         foreach ($source as $key => $value) {
             if (is_array($value)) {
-                self::flatten($output, $value, $prefix .= '.' . $key);
+                self::flatten($output, $value, $prefix . '.' . $key);
             } else {
                 $output[ltrim($prefix . '.' . $key, '.')] = $value;
             }
@@ -79,15 +112,16 @@ class renderer {
     /**
      * Retrieves the data for the cms as a flat array, with the keys concatenated using dots.
      *
+     * @param bool $sample Fill with sample data rather than actual data.
      * @return \html_table
      */
-    public function get_data_as_table(): \html_table {
+    public function get_data_as_table($sample = false): \html_table {
         $flatarray = [];
-        self::flatten($flatarray, $this->get_data());
+        self::flatten($flatarray, $this->get_data($sample));
 
         $table = new \html_table();
         $table->attributes['class'] = 'noclass';
-        $table->head = [ 'Name', 'Sample value' ];
+        $table->head = [get_string('name'), get_string('sample_value', 'mod_cms')];
         foreach ($flatarray as $name => $value) {
             $left = new \html_table_cell('{{' . $name . '}}');
             $right = new \html_table_cell($value);
@@ -100,10 +134,11 @@ class renderer {
     /**
      * Renders the template with the data and returns the content.
      *
+     * @param bool $sample Fill with sample data rather than actual data.
      * @return string
      */
-    public function get_html(): string {
-        $data = $this->get_data();
+    public function get_html($sample = false): string {
+        $data = $this->get_data($sample);
 
         $mustache = self::get_mustache();
         $template = $this->cms->get_type()->get('mustache');

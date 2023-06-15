@@ -139,6 +139,8 @@ class cms_types extends persistent {
         $cms = new cms();
         $cms->set('typeid', $this->get('id'));
 
+        $cms->set('name', 'Some name');
+
         return $cms;
     }
 }

@@ -54,3 +54,4 @@ $string['mustache_template'] = 'mustache template';
 $string['preview'] = 'Preview (click "{$a}" to update)';
 $string['customfield_manage_heading'] = 'Manage custom fields for CMS type "{$a}"';
 $string['manage_types_return'] = 'Return to manage types';
+$string['sample_value'] = 'Sample value';

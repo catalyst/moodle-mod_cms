@@ -78,18 +78,23 @@ class renderer_test extends advanced_testcase {
         $cmstype->set('name', 'somename');
         $cmstype->save();
 
-        $cms = new cms();
-        $cms->set('typeid', $cmstype->get('id'));
+        $cms = $cmstype->get_sample_cms();
         $renderer = new renderer($cms);
-        $table = $renderer->get_data_as_table();
+        $table = $renderer->get_data_as_table(true);
 
         $this->assertInstanceOf(\html_table::class, $table);
-        $this->assertEquals('{{site.fullname}}', $table->data[0]->cells[0]->text);
-        $this->assertEquals($SITE->fullname, $table->data[0]->cells[1]->text);
-        $this->assertEquals('{{site.shortname}}', $table->data[1]->cells[0]->text);
-        $this->assertEquals($SITE->shortname, $table->data[1]->cells[1]->text);
-        $this->assertEquals('{{site.wwwroot}}', $table->data[2]->cells[0]->text);
-        $this->assertEquals($CFG->wwwroot, $table->data[2]->cells[1]->text);
+
+        $this->assertEquals('{{name}}', $table->data[0]->cells[0]->text);
+        $this->assertEquals('Some name', $table->data[0]->cells[1]->text);
+
+        $this->assertEquals('{{site.fullname}}', $table->data[1]->cells[0]->text);
+        $this->assertEquals($SITE->fullname, $table->data[1]->cells[1]->text);
+
+        $this->assertEquals('{{site.shortname}}', $table->data[2]->cells[0]->text);
+        $this->assertEquals($SITE->shortname, $table->data[2]->cells[1]->text);
+
+        $this->assertEquals('{{site.wwwroot}}', $table->data[3]->cells[0]->text);
+        $this->assertEquals($CFG->wwwroot, $table->data[3]->cells[1]->text);
     }
 
     /**
@@ -100,7 +105,7 @@ class renderer_test extends advanced_testcase {
     public function test_get_html() {
         global $SITE;
 
-        $template = '<p>{{#site}}{{fullname}}{{/site}}</p>';
+        $template = '<p>{{site.fullname}}</p>';
         $expected = '<p>' . $SITE->fullname . '</p>';
 
         $cmstype = new cms_types();
@@ -108,11 +113,10 @@ class renderer_test extends advanced_testcase {
         $cmstype->set('mustache', $template);
         $cmstype->save();
 
-        $cms = new cms();
-        $cms->set('typeid', $cmstype->get('id'));
+        $cms = $cmstype->get_sample_cms();
 
         $renderer = new renderer($cms);
-        $html = $renderer->get_html();
+        $html = $renderer->get_html(true);
 
         $this->assertEquals($expected, $html);
     }
