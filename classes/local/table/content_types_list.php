@@ -24,12 +24,13 @@
  */
 namespace mod_cms\local\table;
 
-use moodle_url;
-use html_writer;
 use flexible_table;
+use html_writer;
+use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
 use mod_cms\manage_content_types;
 use mod_cms\local\model\cms_types;
+use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -117,6 +118,15 @@ class content_types_list extends flexible_table {
             ),
             't/edit',
             get_string('edit')
+        );
+
+        // Link for custom fields.
+        $cfhandler = cmsfield_handler::create($type->get('id'));
+        $actions[] = helper::format_icon_link(
+            $cfhandler->get_configuration_url(),
+            't/index_drawer',
+            'Custom fields',
+            null
         );
 
         $actions[] = helper::format_icon_link(
