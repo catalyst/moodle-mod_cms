@@ -64,6 +64,7 @@ class manage_content_types {
      */
     public function execute(string $action): void {
         $this->set_external_page();
+        $this->add_breadcrumb($action);
         switch($action) {
             case 'add':
             case 'edit':
@@ -86,6 +87,31 @@ class manage_content_types {
      */
     protected function set_external_page(): void {
         admin_externalpage_setup('mod_cms/managetypes');
+    }
+
+    /**
+     * Adds breadcrumbs depending on the action being taken.
+     *
+     * @param string $action
+     */
+    protected function add_breadcrumb(string $action) {
+        global $PAGE, $FULLME;
+
+        switch($action) {
+            case 'add':
+                $PAGE->navbar->add($this->get_new_heading());
+                break;
+            case 'edit':
+                // Need to add extra breadcrumbs when URL does not exactly match admin setting page URL.
+                foreach (['modcmsfolder', 'mod_cms/managetypes'] as $label) {
+                    if ($node = $PAGE->settingsnav->find($label, \navigation_node::TYPE_SETTING)) {
+                        $PAGE->navbar->add($node->get_content(), $node->action());
+                    }
+                }
+                $PAGE->navbar->add($this->get_edit_heading());
+                break;
+            default:
+        }
     }
 
     /**

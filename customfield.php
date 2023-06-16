@@ -33,8 +33,9 @@ $itemid  = required_param('itemid', PARAM_INT);
 
 admin_externalpage_setup('mod_cms/managetypes');
 
+$url = new moodle_url('/mod/cms/customfield.php', ['itemid' => $itemid]);
 $PAGE->set_context(context_system::instance());
-$PAGE->set_url(new moodle_url('/mod/cms/customfield.php', ['itemid' => $itemid]));
+$PAGE->set_url($url);
 
 $cfhandler = cmsfield_handler::create($itemid);
 
@@ -42,12 +43,21 @@ $cmstype = new cms_types($itemid);
 
 $returnurl = new moodle_url('/mod/cms/managetypes.php');
 
+$pageheading = get_string('customfield_manage_heading', 'mod_cms', $cmstype->get('name'));
+
+// Need to add extra breadcrumbs when URL does not exactly match admin setting page URL.
+foreach (['modsettings', 'modcmsfolder', 'mod_cms/managetypes'] as $label) {
+    if ($node = $PAGE->settingsnav->find($label, \navigation_node::TYPE_SETTING)) {
+        $PAGE->navbar->add($node->get_content(), $node->action());
+    }
+}
+$PAGE->navbar->add($pageheading);
+
 $output = $PAGE->get_renderer('core_customfield');
 $outputpage = new management($cfhandler);
 
 echo $output->header();
-echo $output->heading(get_string('customfield_manage_heading', 'mod_cms', $cmstype->get('name')));
-echo html_writer::link($returnurl, get_string('manage_types_return', 'mod_cms'));
+echo $output->heading($pageheading);
 
 echo $output->render($outputpage);
 echo $output->footer();
