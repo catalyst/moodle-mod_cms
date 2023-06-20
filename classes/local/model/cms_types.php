@@ -131,6 +131,21 @@ class cms_types extends persistent {
     }
 
     /**
+     * Get the metadata for the images stored with this template.
+     *
+     * @return array
+     */
+    public function get_images(): array {
+        $fs = get_file_storage();
+        return $fs->get_area_files(
+            context_system::instance()->id,
+            'mod_cms',
+            'cms_type_images',
+            $this->get('id')
+        );
+    }
+
+    /**
      * Get a sample cms of this type, filled with arbitrary data.
      *
      * @return cms

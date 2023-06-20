@@ -16,6 +16,7 @@
 
 namespace mod_cms\local;
 
+use context_system;
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\model\cms;
 use Mustache_Engine;
@@ -60,6 +61,7 @@ class renderer {
             'wwwroot'   => $CFG->wwwroot,
         ];
 
+        $data['images'] = $this->get_images();
         $cfhandler = cmsfield_handler::create($this->cms->get('typeid'));
         $instancedata = $cfhandler->get_instance_data($this->cms->get('id'), true);
         $data['customfield'] = [];
@@ -69,6 +71,34 @@ class renderer {
         }
 
         return $data;
+    }
+
+    /**
+     * Get the images stored with the template to be added to the data.
+     *
+     * @return array
+     */
+    protected function get_images() {
+        $files = $this->cms->get_type()->get_images();
+
+        $imagedata = [];
+        foreach ($files as $file) {
+            $filename = $file->get_filename();
+            $shortfilename = pathinfo($filename, PATHINFO_FILENAME);
+            if ($filename == '.') {
+                continue;
+            }
+            $url = \moodle_url::make_pluginfile_url(
+                context_system::instance()->id,
+                'mod_cms',
+                'cms_type_images',
+                $this->cms->get('typeid'),
+                '/',
+                $filename
+            );
+            $imagedata[$shortfilename] = $url->out();
+        }
+        return $imagedata;
     }
 
     /**

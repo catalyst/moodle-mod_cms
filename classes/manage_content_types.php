@@ -26,6 +26,7 @@ namespace mod_cms;
 
 use stdClass;
 use moodle_url;
+use context_system;
 use core\notification;
 use mod_cms\form\cms_types_form;
 use mod_cms\local\model\cms_types;
@@ -231,6 +232,13 @@ class manage_content_types {
                     $instance->from_record($data);
                     $instance->update();
                 }
+                file_save_draft_area_files(
+                    $data->images,
+                    context_system::instance()->id,
+                    'mod_cms',
+                    'cms_type_images',
+                    $instance->get('id')
+                );
                 notification::success(get_string('changessaved'));
             } catch (\Exception $e) {
                 notification::error($e->getMessage());
