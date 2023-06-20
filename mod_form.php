@@ -14,8 +14,9 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-use mod_cms\customfield\cmsfield_handler;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
+use mod_cms\local\model\cms_types;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -33,8 +34,9 @@ class mod_cms_mod_form extends moodleform_mod {
 
     /** @var int ID of the CMS type.  */
     protected $typeid;
-    /** @var cmsfield_handler Custom field handler.   */
-    protected $cfhandler;
+
+    /** @var cms CMS being edited. */
+    protected $cms;
 
     /**
      * Construct an instance of moodleform_mod.
@@ -47,12 +49,13 @@ class mod_cms_mod_form extends moodleform_mod {
     public function __construct($current, $section, $cm, $course) {
         $update = $current->update ?? 0;
         if ($update) {
-            $cms = new cms($cm->instance);
-            $this->typeid = $cms->get('typeid');
+            $this->cms = new cms($cm->instance);
+            $this->typeid = $this->cms->get('typeid');
         } else {
             $this->typeid = optional_param('typeid', false, PARAM_INT);
+            $this->cms = new cms();
+            $this->cms->set('typeid', $this->typeid);
         }
-        $this->cfhandler = cmsfield_handler::create($this->typeid);
 
         parent::__construct($current, $section, $cm, $course);
     }
@@ -72,8 +75,10 @@ class mod_cms_mod_form extends moodleform_mod {
         $mform->addElement('hidden', 'typeid', $this->typeid);
         $mform->setType('typeid', PARAM_INT);
 
-        // Add custom fields.
-        $this->cfhandler->instance_form_definition($mform, $this->cm->instance ?? 0);
+        // Add form elements for datas ources.
+        foreach (dsbase::get_datasources($this->cms) as $ds) {
+            $ds->instance_form_definition($mform);
+        }
 
         $this->standard_coursemodule_elements();
         $this->add_action_buttons();
@@ -85,8 +90,10 @@ class mod_cms_mod_form extends moodleform_mod {
      * @param mixed $defaultvalues object or array of default values
      */
     public function set_data($defaultvalues) {
-        // Add custom field data.
-        $this->cfhandler->instance_form_before_set_data($defaultvalues);
+        // Add form elements for data sources.
+        foreach (dsbase::get_datasources($this->cms) as $ds) {
+            $ds->instance_form_default_data($defaultvalues);
+        }
         parent::set_data($defaultvalues);
     }
 
@@ -98,11 +105,12 @@ class mod_cms_mod_form extends moodleform_mod {
      * @return array
      */
     public function validation($data, $files) {
-        // Validate custom fields.
-        $errors = array_merge(
-            $this->cfhandler->instance_form_validation($data, $files),
-            parent::validation($data, $files)
-        );
+        $errors = parent::validation($data, $files);
+
+        foreach (dsbase::get_datasources($this->cms) as $ds) {
+            $errors = array_merge($errors, $ds->instance_form_validation($data, $files));
+        }
+
         return $errors;
     }
 }

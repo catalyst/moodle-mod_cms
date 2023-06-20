@@ -24,6 +24,7 @@
  */
 namespace mod_cms;
 
+use mod_cms\local\datasource\base as dsbase;
 use stdClass;
 use moodle_url;
 use context_system;
@@ -232,13 +233,10 @@ class manage_content_types {
                     $instance->from_record($data);
                     $instance->update();
                 }
-                file_save_draft_area_files(
-                    $data->images,
-                    context_system::instance()->id,
-                    'mod_cms',
-                    'cms_type_images',
-                    $instance->get('id')
-                );
+                // Do post update actions for data sources.
+                foreach (dsbase::get_datasources($instance) as $ds) {
+                    $ds->config_on_update($data);
+                }
                 notification::success(get_string('changessaved'));
             } catch (\Exception $e) {
                 notification::error($e->getMessage());

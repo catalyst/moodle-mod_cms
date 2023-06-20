@@ -26,6 +26,13 @@ Then run the Moodle upgrade as normal.
 
 https://docs.moodle.org/en/Installing_plugins
 
+## Data sources
+
+Extra detail can be added to CMSs and CMS types via data sources. Within your plugin, add classes that derive from
+<code>mod_cms\local\datasource\base</code>, and define a function in lib.php called
+<code>&lt;component>_modcms_datasources()</code>, which returns an array of fully qualified class names for these
+classes.
+
 # Contributing and Support
 
 Issues and pull requests using github are welcome and encouraged!

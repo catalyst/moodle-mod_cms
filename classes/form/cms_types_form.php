@@ -24,10 +24,9 @@
  */
 namespace mod_cms\form;
 
-use context_system;
 use core\form\persistent as persistent_form;
 use html_writer;
-use mod_cms\local\model\cms_types;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\renderer;
 use moodle_url;
 use stdClass;
@@ -73,30 +72,22 @@ class cms_types_form extends persistent_form {
 
         // Generate the help text for mustache template.
         $cmstype = $this->get_persistent();
-        $cms = $cmstype->get_sample_cms();
-        $renderer = new renderer($cms);
-        $data = $renderer->get_data();
+        $renderer = new renderer($cmstype);
         $syntaxlink = html_writer::link(
             new moodle_url('https://moodledev.io/docs/guides/templates'),
             get_string('mustache_template', 'cms')
         );
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
-        $helptext .= html_writer::table($renderer->get_data_as_table(true));
+        $helptext .= html_writer::table($renderer->get_data_as_table());
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
-        // Images file manager.
-        $mform->addElement('filemanager', 'images', get_string('images', 'cms'),
-            null,
-            [
-                'subdirs' => 0,
-                'maxbytes' => $CFG->maxbytes,
-                'maxfiles' => self::MAX_FILES,
-                'accepted_types' => ['web_image'],
-            ]
-        );
+        // Add form elements for data sources.
+        foreach (dsbase::get_datasources($cmstype) as $ds) {
+            $ds->config_form_definition($mform);
+        }
 
         // Rendered previews.
-        $html = $renderer->get_html(true);
+        $html = $renderer->get_html();
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
@@ -135,28 +126,12 @@ class cms_types_form extends persistent_form {
      * @return stdClass
      */
     protected function get_default_data() {
-        global $CFG;
-
         $data = parent::get_default_data();
 
-        // Get an unused draft itemid which will be used for this form.
-        $draftitemid = file_get_submitted_draft_itemid('attachments');
-
-        // Copy the existing files which were previously uploaded
-        // into the draft area used by this form.
-        file_prepare_draft_area(
-            $draftitemid,
-            context_system::instance()->id,
-            'mod_cms',
-            'cms_type_images',
-            $data->id,
-            [
-                'subdirs' => 0,
-                'maxbytes' => $CFG->maxbytes,
-                'maxfiles' => self::MAX_FILES,
-            ]
-        );
-        $data->images = $draftitemid;
+        // Add form elements for data sources.
+        foreach (dsbase::get_datasources($this->get_persistent()) as $ds) {
+            $ds->config_form_default_data($data);
+        }
         return $data;
     }
 }
