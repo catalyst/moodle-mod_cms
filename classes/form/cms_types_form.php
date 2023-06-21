@@ -24,10 +24,13 @@
  */
 namespace mod_cms\form;
 
+use context_system;
 use core\form\persistent as persistent_form;
 use html_writer;
+use mod_cms\local\model\cms_types;
 use mod_cms\local\renderer;
 use moodle_url;
+use stdClass;
 
 /**
  * Form for manipulating the content types
@@ -39,6 +42,9 @@ use moodle_url;
  */
 class cms_types_form extends persistent_form {
 
+    /** The maximum amount of files allowed. */
+    const MAX_FILES = 50;
+
     /** @var string Persistent class name. */
     protected static $persistentclass = 'mod_cms\\local\\model\\cms_types';
 
@@ -46,6 +52,8 @@ class cms_types_form extends persistent_form {
      * Form definition.
      */
     protected function definition() {
+        global $CFG;
+
         $mform = $this->_form;
 
         $mform->addElement('text', 'name', get_string('name'));
@@ -76,6 +84,18 @@ class cms_types_form extends persistent_form {
         $helptext .= html_writer::table($renderer->get_data_as_table(true));
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
+        // Images file manager.
+        $mform->addElement('filemanager', 'images', get_string('images', 'cms'),
+            null,
+            [
+                'subdirs' => 0,
+                'maxbytes' => $CFG->maxbytes,
+                'maxfiles' => self::MAX_FILES,
+                'accepted_types' => ['web_image'],
+            ]
+        );
+
+        // Rendered previews.
         $html = $renderer->get_html(true);
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
@@ -101,5 +121,42 @@ class cms_types_form extends persistent_form {
         }
         $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
         $mform->closeHeaderBefore('buttonar');
+    }
+
+    /**
+     * Get the default data.
+     *
+     * This is the data that is prepopulated in the form at it loads, we automatically
+     * fetch all the properties of the persistent however some needs to be converted
+     * to map the form structure.
+     *
+     * Extend this class if you need to add more conversion.
+     *
+     * @return stdClass
+     */
+    protected function get_default_data() {
+        global $CFG;
+
+        $data = parent::get_default_data();
+
+        // Get an unused draft itemid which will be used for this form.
+        $draftitemid = file_get_submitted_draft_itemid('attachments');
+
+        // Copy the existing files which were previously uploaded
+        // into the draft area used by this form.
+        file_prepare_draft_area(
+            $draftitemid,
+            context_system::instance()->id,
+            'mod_cms',
+            'cms_type_images',
+            $data->id,
+            [
+                'subdirs' => 0,
+                'maxbytes' => $CFG->maxbytes,
+                'maxfiles' => self::MAX_FILES,
+            ]
+        );
+        $data->images = $draftitemid;
+        return $data;
     }
 }

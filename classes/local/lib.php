@@ -17,6 +17,7 @@
 namespace mod_cms\local;
 
 use cm_info;
+use context;
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
 use mod_cms\customfield\cmsfield_handler;
@@ -145,5 +146,45 @@ class lib {
         $cms = new cms($cminfo->instance);
         $renderer = new renderer($cms);
         $cminfo->set_content($renderer->get_html());
+    }
+
+    /**
+     * Serves file
+     *
+     * @param stdClass $course
+     * @param stdClass $cm
+     * @param context $context
+     * @param string $filearea
+     * @param array $args
+     * @param bool $forcedownload
+     * @param array $options additional options affecting the file serving
+     * @return bool|null false if file not found, does not return anything if found - just send the file
+     */
+    public static function pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+
+        // Make sure the filearea is one of those used by the plugin.
+        if ($filearea !== 'cms_type_images') {
+            return false;
+        }
+
+        $itemid = array_shift($args); // The first item in the $args array.
+
+        // Extract the filename / filepath from the $args array.
+        $filename = array_pop($args); // The last item in the $args array.
+        if (!$args) {
+            $filepath = '/';
+        } else {
+            $filepath = '/'.implode('/', $args).'/';
+        }
+
+        // Retrieve the file from the Files API.
+        $fs = get_file_storage();
+        $file = $fs->get_file($context->id, 'mod_cms', $filearea, $itemid, $filepath, $filename);
+        if (!$file) {
+            return false; // The file does not exist.
+        }
+
+        // We can now send the file back to the browser - in this case with a cache lifetime of 1 day and no filtering.
+        send_stored_file($file, DAYSECS, 0, $forcedownload, $options);
     }
 }

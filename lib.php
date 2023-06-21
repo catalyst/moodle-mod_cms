@@ -125,3 +125,19 @@ function cms_cm_info_dynamic(cm_info $cminfo) {
 function cms_cm_info_view(cm_info $cminfo) {
     lib::cm_info_view($cminfo);
 }
+
+/**
+ * Serves file
+ *
+ * @param stdClass $course
+ * @param stdClass $cm
+ * @param context $context
+ * @param string $filearea
+ * @param array $args
+ * @param bool $forcedownload
+ * @param array $options additional options affecting the file serving
+ * @return bool|null false if file not found, does not return anything if found - just send the file
+ */
+function cms_pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+    return lib::pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options);
+}
