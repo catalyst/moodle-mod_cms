@@ -17,6 +17,7 @@
 namespace mod_cms;
 
 use mod_cms\local\datasource\images as dsimages;
+use mod_cms\local\model\cms_types;
 
 /**
  * Unit test for image datasource.
@@ -27,6 +28,9 @@ use mod_cms\local\datasource\images as dsimages;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class datasource_images_test extends \advanced_testcase {
+    /** Test data for import/export. */
+    const IMPORT_DATAFILE = __DIR__ . '/fixtures/images_data.json';
+
     /**
      * Set up before each test
      */
@@ -42,5 +46,24 @@ class datasource_images_test extends \advanced_testcase {
      */
     public function test_name() {
         $this->assertEquals('images', dsimages::get_shortname());
+    }
+
+    /**
+     * Tests import and export.
+     *
+     * @covers \mod_cms\local\datasource\fields::set_from_import
+     * @covers \mod_cms\local\datasource\fields::get_for_export
+     */
+    public function test_import() {
+        $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->save();
+        $cms = $cmstype->get_sample_cms();
+
+        $ds = new dsimages($cms);
+        $ds->set_from_import($importdata);
+        $exportdata = $ds->get_for_export();
+        $this->assertEquals($importdata, $exportdata);
     }
 }

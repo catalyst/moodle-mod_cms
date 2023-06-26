@@ -33,6 +33,8 @@ $string['event:cms_type_deleted'] = 'Custom content type deleted';
 $string['event_cms_type_deleted_desc'] = 'The user with ID: {$a->userid} has deleted a custom content type with ID: {$a->typeid}';
 $string['event:cms_type_updated'] = 'Custom content type updated';
 $string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has updated a custom content type with ID: {$a->typeid}';
+$string['export'] = 'Export';
+$string['import'] = 'Import';
 $string['managetypes'] = 'Manage content types';
 $string['maxgrade'] = 'Default max grade';
 $string['maxgrade_desc'] = 'The default max grade when creating a new custom content type instance.';
@@ -52,9 +54,14 @@ $string['mustache'] = 'Mustache template';
 $string['mustache_help'] = 'The above content will need to be a valid {$a}. Sample variables that are available for use in this template are given below.';
 $string['mustache_template'] = 'mustache template';
 $string['preview'] = 'Preview (click "{$a}" to update)';
-$string['customfield_manage_heading'] = 'Manage custom fields for CMS type "{$a}"';
+$string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
 $string['manage_types_return'] = 'Return to manage types';
 $string['sample_value'] = 'Sample value';
+$string['some_name'] = 'Some name';
+$string['import_file'] = 'Import file';
+$string['import_cms_type'] = 'Import content type';
+
+
 
 // Image datasource strings.
 $string['images:images'] = 'Images';
@@ -68,3 +75,4 @@ $string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
 $string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
 $string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
 $string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
+$string['error:no_file_uploaded'] = 'No file uploaded';

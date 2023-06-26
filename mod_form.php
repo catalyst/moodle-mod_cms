@@ -16,7 +16,6 @@
 
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
-use mod_cms\local\model\cms_types;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -31,7 +30,6 @@ require_once($CFG->dirroot.'/course/moodleform_mod.php');
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_cms_mod_form extends moodleform_mod {
-
     /** @var int ID of the CMS type.  */
     protected $typeid;
 

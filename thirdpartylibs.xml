@@ -1,0 +1,25 @@
+<?xml version="1.0"?>
+<libraries>
+  <library>
+    <location>vendor/symfony/yaml</location>
+    <name>yaml</name>
+    <version>v3.4</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/symfony/polyfill-ctype</location>
+    <name>Symfony polyfill for ctype functions</name>
+    <version>1.26.0</version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+  <library>
+    <location>vendor/composer</location>
+    <location>vendor/autoload.php</location>
+    <name>Dependency Manager</name>
+    <version></version>
+    <license>MIT</license>
+    <licenseversion></licenseversion>
+  </library>
+</libraries>

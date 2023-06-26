@@ -16,12 +16,18 @@
 
 namespace mod_cms\local\datasource;
 
+use core_customfield\{category_controller, field};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
 use mod_cms\local\model\cms;
 
 /**
  * Data source for custom fields.
+ *
+ * This datasource has the ability to import fields that of an unsupported type. The data will be in the database, but will not
+ * appear in the website, and will not be re-exported.
+ *
+ * If the supporting type is installed, the field will appear on the custom field edit page.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -119,5 +125,70 @@ class fields extends base {
      */
     public function instance_form_validation(array $data, array $files): array {
         return $this->cfhandler->instance_form_validation($data, $files);
+    }
+
+    /**
+     * Get configuration data for exporting.
+     *
+     * @return \stdClass
+     */
+    public function get_for_export(): \stdClass {
+        $data = new \stdClass();
+        $data->categories = [];
+        $categories = $this->cfhandler->get_categories_with_fields();
+
+        foreach ($categories as $category) {
+            $record = $category->to_record();
+            $catexport = (object) [
+                'name' => $record->name,
+                'description' => $record->description,
+                'descriptionformat' => $record->descriptionformat,
+                'sortorder' => $record->sortorder,
+                'fields' => [],
+            ];
+            $fields = $category->get_fields();
+
+            foreach ($fields as $field) {
+                $record = $field->to_record();
+                $catexport->fields[] = (object) [
+                    'name' => $record->name,
+                    'shortname' => $record->shortname,
+                    'type' => $record->type,
+                    'description' => $record->description,
+                    'descriptionformat' => $record->descriptionformat,
+                    'sortorder' => $record->sortorder,
+                    'configdata' => $record->configdata,
+                ];
+            }
+
+            $data->categories[] = $catexport;
+        }
+        return $data;
+    }
+
+    /**
+     * Import configuration from an object.
+     *
+     * @param \stdClass $data
+     */
+    public function set_from_import(\stdClass $data) {
+        if (!empty($data->categories)) {
+            foreach ($data->categories as $category) {
+                $catid = $this->cfhandler->create_category($category->name);
+                $cc = category_controller::create($catid);
+                $cc->set('description', $category->description);
+                $cc->set('descriptionformat', $category->descriptionformat);
+                $cc->save();
+                if (!empty($category->fields)) {
+                    foreach ($category->fields as $fielddata) {
+                        $record = clone $fielddata;
+                        $record->categoryid = $catid;
+                        // Use field rather than field_controller so we can import unsupported fields.
+                        $field = new field(0, $record);
+                        $field->save();
+                    }
+                }
+            }
+        }
     }
 }

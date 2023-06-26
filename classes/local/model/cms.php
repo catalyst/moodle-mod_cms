@@ -24,7 +24,6 @@
  */
 namespace mod_cms\local\model;
 
-use stdClass;
 use core\persistent;
 
 /**

@@ -34,7 +34,6 @@ class images extends base {
     /** File area name used for storing images. */
     const FILE_AREA = 'cms_type_images';
 
-
     /**
      * Get the metadata for the images stored with this datasource.
      *
@@ -139,5 +138,55 @@ class images extends base {
             self::FILE_AREA,
             $this->cms->get('typeid')
         );
+    }
+
+    /**
+     * Get configuration data for exporting.
+     *
+     * @return \stdClass
+     */
+    public function get_for_export(): \stdClass {
+        $files = $this->get_file_metadata();
+        $data = new \stdClass();
+        $data->files = [];
+
+        foreach ($files as $file) {
+            $filename = $file->get_filename();
+            if ($filename === '.') {
+                continue;
+            }
+            $obj = new \stdClass();
+            $obj->filename = $filename;
+            $obj->filesize = $file->get_filesize();
+            $obj->mimetype = $file->get_mimetype();
+            $obj->content = base64_encode($file->get_content());
+            $data->files[] = $obj;
+        }
+
+        return $data;
+    }
+
+    /**
+     * Import configuration from an object.
+     *
+     * @param \stdClass $data
+     */
+    public function set_from_import(\stdClass $data) {
+        $fs = get_file_storage();
+
+        if (!empty($data->files)) {
+            foreach ($data->files as $filedata) {
+                $filerecord = [
+                    'component' => 'mod_cms',
+                    'filearea' => self::FILE_AREA,
+                    'itemid' => $this->cms->get('typeid'),
+                    'filename' => $filedata->filename,
+                    'filepath' => '/',
+                    'contextid' => context_system::instance()->id,
+                    'mimetype' => $filedata->mimetype,
+                ];
+                $fs->create_file_from_string($filerecord, base64_decode($filedata->content));
+            }
+        }
     }
 }

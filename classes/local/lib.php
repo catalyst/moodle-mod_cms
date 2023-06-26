@@ -16,16 +16,11 @@
 
 namespace mod_cms\local;
 
-use cm_info;
-use context;
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
-use moodle_url;
-use moodleform_mod;
-use stdClass;
 
 
 /**
@@ -44,18 +39,18 @@ class lib {
      * Obtains a list of defined content types to be included in the activity chooser panel.
      *
      * @param content_item $defaultmodulecontentitem
-     * @param stdClass $user Not used.
-     * @param stdClass $course Not used.
+     * @param \stdClass $user Not used.
+     * @param \stdClass $course Not used.
      * @return array
      */
-    public static function get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
-            stdClass $course): array {
+    public static function get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
+            \stdClass $course): array {
         global $COURSE;
 
         $items = [];
 
         $baseurl = $defaultmodulecontentitem->get_link();
-        $linkurl = new moodle_url(
+        $linkurl = new \moodle_url(
             self::MODEDIT_URL,
             ['id' => $baseurl->param('id'), 'course' => $COURSE->id, 'add' => 'cms']
         );
@@ -82,11 +77,11 @@ class lib {
     /**
      * Adds an instance of a CMS activity.
      *
-     * @param stdClass $instancedata Data to populate the instance.
-     * @param moodleform_mod|null $mform Not used.
+     * @param \stdClass $instancedata Data to populate the instance.
+     * @param \moodleform_mod|null $mform Not used.
      * @return int The ID of the newly crated instance.
      */
-    public static function add_instance(stdClass $instancedata, $mform = null): int {
+    public static function add_instance(\stdClass $instancedata, $mform = null): int {
         // TODO: This is a stub.
         $cms = new cms();
         $cms->set('name', $instancedata->name);
@@ -105,11 +100,11 @@ class lib {
     /**
      * Updates an activity instance.
      *
-     * @param stdClass $instancedata
-     * @param moodleform_mod $mform
+     * @param \stdClass $instancedata
+     * @param \moodleform_mod $mform
      * @return bool
      */
-    public static function update_instance(stdClass $instancedata, $mform): bool {
+    public static function update_instance(\stdClass $instancedata, $mform): bool {
         $cm = get_coursemodule_from_id('cms', $instancedata->update, 0, false, MUST_EXIST);
         $cms = new cms($cm->instance);
         $cms->set('name', $instancedata->name);
@@ -129,9 +124,9 @@ class lib {
      * Sets info into cminfo at the dynamic stage.
      * See lib/modinfolib.php - cm_info for more.
      *
-     * @param cm_info $cminfo
+     * @param \cm_info $cminfo
      */
-    public static function cm_info_dynamic(cm_info $cminfo) {
+    public static function cm_info_dynamic(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
         $cminfo->set_name($cms->get('name'));
     }
@@ -140,9 +135,9 @@ class lib {
      * Sets info into cminfo at the view stage.
      * See lib/modinfolib.php - cm_info for more.
      *
-     * @param cm_info $cminfo
+     * @param \cm_info $cminfo
      */
-    public static function cm_info_view(cm_info $cminfo) {
+    public static function cm_info_view(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
         $renderer = new renderer($cms);
         $cminfo->set_content($renderer->get_html());
@@ -151,9 +146,9 @@ class lib {
     /**
      * Serves file
      *
-     * @param stdClass $course
-     * @param stdClass $cm
-     * @param context $context
+     * @param \stdClass $course
+     * @param \stdClass $cm
+     * @param \context $context
      * @param string $filearea
      * @param array $args
      * @param bool $forcedownload
@@ -161,7 +156,6 @@ class lib {
      * @return bool|null false if file not found, does not return anything if found - just send the file
      */
     public static function pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
-
         // Make sure the filearea is one of those used by the plugin.
         if ($filearea !== 'cms_type_images') {
             return false;
