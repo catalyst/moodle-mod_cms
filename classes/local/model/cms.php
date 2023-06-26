@@ -42,6 +42,9 @@ class cms extends persistent {
      */
     const TABLE = 'cms';
 
+    /** @var bool Is true if this is a sample CMS. */
+    public $issample = false;
+
     /**
      * Return the definition of the properties of this model.
      *

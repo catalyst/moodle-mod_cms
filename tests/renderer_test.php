@@ -19,6 +19,7 @@ namespace mod_cms;
 use advanced_testcase;
 use core_course\local\entity\content_item;
 use core_course\local\entity\lang_string_title;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\model\cms;
@@ -58,12 +59,15 @@ class renderer_test extends advanced_testcase {
         $renderer = new renderer($cms);
         $data = $renderer->get_data();
 
-        $this->assertIsArray($data);
-        $this->assertArrayHasKey('site', $data);
-        $this->assertIsArray($data['site']);
-        $this->assertArrayHasKey('fullname', $data['site']);
-        $this->assertArrayHasKey('shortname', $data['site']);
-        $this->assertArrayHasKey('wwwroot', $data['site']);
+        $this->assertIsObject($data);
+
+        // Test the existence of objects for built in datasources.
+        foreach (dsbase::BUILTIN_DATASOURCES as $ds) {
+            $classname = 'mod_cms\\local\\datasource\\' . $ds;
+            $attribute = $classname::get_shortname();
+            $this->assertObjectHasAttribute($attribute, $data);
+            $this->assertIsObject($data->$attribute);
+        }
     }
 
     /**
@@ -78,9 +82,8 @@ class renderer_test extends advanced_testcase {
         $cmstype->set('name', 'somename');
         $cmstype->save();
 
-        $cms = $cmstype->get_sample_cms();
-        $renderer = new renderer($cms);
-        $table = $renderer->get_data_as_table(true);
+        $renderer = new renderer($cmstype);
+        $table = $renderer->get_data_as_table();
 
         $this->assertInstanceOf(\html_table::class, $table);
 
@@ -113,10 +116,8 @@ class renderer_test extends advanced_testcase {
         $cmstype->set('mustache', $template);
         $cmstype->save();
 
-        $cms = $cmstype->get_sample_cms();
-
-        $renderer = new renderer($cms);
-        $html = $renderer->get_html(true);
+        $renderer = new renderer($cmstype);
+        $html = $renderer->get_html();
 
         $this->assertEquals($expected, $html);
     }

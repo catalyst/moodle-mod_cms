@@ -18,7 +18,9 @@ namespace mod_cms\local;
 
 use context_system;
 use mod_cms\customfield\cmsfield_handler;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
+use mod_cms\local\model\cms_types;
 use Mustache_Engine;
 
 /**
@@ -36,102 +38,44 @@ class renderer {
     /**
      * Constructs a renderer for the given cms.
      *
-     * @param cms $cms
+     * @param cms|cms_types $cms
      */
-    public function __construct(cms $cms) {
+    public function __construct($cms) {
+        if ($cms instanceof cms_types) {
+            $cms = $cms->get_sample_cms();
+        }
         $this->cms = $cms;
     }
 
     /**
      * Get the data array for the cms.
      *
-     * @param bool $sample Fill with sample data rather than actual data.
-     * @return array
+     * @return \stdClass
      */
-    public function get_data($sample = false): array {
+    public function get_data(): \stdClass {
         global $CFG, $SITE;
 
-        $data = [
-            'name' => $this->cms->get('name'),
-        ];
+        $data = new \stdClass();
+        $data->name = $this->cms->get('name');
 
-        $data['site'] = [
-            'fullname'  => $SITE->fullname,
-            'shortname' => $SITE->shortname,
-            'wwwroot'   => $CFG->wwwroot,
-        ];
-
-        $data['images'] = $this->get_images();
-        $cfhandler = cmsfield_handler::create($this->cms->get('typeid'));
-        $instancedata = $cfhandler->get_instance_data($this->cms->get('id'), true);
-        $data['customfield'] = [];
-        foreach ($instancedata as $field) {
-            $shortname = $field->get_field()->get('shortname');
-            $data['customfield'][$shortname] = $sample ? $this->get_sample($field) : $field->export_value();
+        foreach (dsbase::get_datasources($this->cms) as $ds) {
+            $name = $ds::get_shortname();
+            $data->$name = $ds->get_data();
         }
 
         return $data;
     }
 
     /**
-     * Get the images stored with the template to be added to the data.
-     *
-     * @return array
-     */
-    protected function get_images() {
-        $files = $this->cms->get_type()->get_images();
-
-        $imagedata = [];
-        foreach ($files as $file) {
-            $filename = $file->get_filename();
-            $shortfilename = pathinfo($filename, PATHINFO_FILENAME);
-            if ($filename == '.') {
-                continue;
-            }
-            $url = \moodle_url::make_pluginfile_url(
-                context_system::instance()->id,
-                'mod_cms',
-                'cms_type_images',
-                $this->cms->get('typeid'),
-                '/',
-                $filename
-            );
-            $imagedata[$shortfilename] = $url->out();
-        }
-        return $imagedata;
-    }
-
-    /**
-     * Get a sample value for a custom field.
-     *
-     * @param \core_customfield\data_controller $field
-     * @return string
-     */
-    public function get_sample($field): string {
-        if ($field->get_field()->get('type') === 'date') {
-            return 'Thursday, 15 June 2023, 12:00 AM';
-        } else {
-            switch ($field->datafield()) {
-                case 'intvalue':
-                    return '10';
-                case 'decvalue':
-                    return '10.5';
-                default:
-                    return 'text';
-            }
-        }
-    }
-
-    /**
      * Flattens an array with nested arrays into a single array.
      *
      * @param array $output The output array to be written to.
-     * @param array $source The source array to be read from.
+     * @param mixed $source The source array to be read from.
      * @param string $prefix String to put at the front of the key name.
      */
-    public static function flatten(array &$output, array $source, string $prefix = '') {
+    public static function flatten(array &$output, $source, string $prefix = '') {
         foreach ($source as $key => $value) {
-            if (is_array($value)) {
+            if (is_object($value) || is_array($value)) {
                 self::flatten($output, $value, $prefix . '.' . $key);
             } else {
                 $output[ltrim($prefix . '.' . $key, '.')] = $value;
@@ -142,12 +86,11 @@ class renderer {
     /**
      * Retrieves the data for the cms as a flat array, with the keys concatenated using dots.
      *
-     * @param bool $sample Fill with sample data rather than actual data.
      * @return \html_table
      */
-    public function get_data_as_table($sample = false): \html_table {
+    public function get_data_as_table(): \html_table {
         $flatarray = [];
-        self::flatten($flatarray, $this->get_data($sample));
+        self::flatten($flatarray, $this->get_data());
 
         $table = new \html_table();
         $table->attributes['class'] = 'noclass';
@@ -164,11 +107,10 @@ class renderer {
     /**
      * Renders the template with the data and returns the content.
      *
-     * @param bool $sample Fill with sample data rather than actual data.
      * @return string
      */
-    public function get_html($sample = false): string {
-        $data = $this->get_data($sample);
+    public function get_html(): string {
+        $data = $this->get_data();
 
         $mustache = self::get_mustache();
         $template = $this->cms->get_type()->get('mustache');

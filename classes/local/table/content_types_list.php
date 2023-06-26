@@ -26,10 +26,10 @@ namespace mod_cms\local\table;
 
 use flexible_table;
 use html_writer;
-use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
-use mod_cms\manage_content_types;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms_types;
+use mod_cms\manage_content_types;
 use moodle_url;
 
 defined('MOODLE_INTERNAL') || die();
@@ -120,14 +120,10 @@ class content_types_list extends flexible_table {
             get_string('edit')
         );
 
-        // Link for custom fields.
-        $cfhandler = cmsfield_handler::create($type->get('id'));
-        $actions[] = helper::format_icon_link(
-            $cfhandler->get_configuration_url(),
-            't/index_drawer',
-            'Custom fields',
-            null
-        );
+        // Get links for data sources.
+        foreach (dsbase::get_datasources($type) as $ds) {
+            $actions[] = $ds->config_action_link();
+        }
 
         $actions[] = helper::format_icon_link(
             new moodle_url(

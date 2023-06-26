@@ -55,4 +55,16 @@ $string['preview'] = 'Preview (click "{$a}" to update)';
 $string['customfield_manage_heading'] = 'Manage custom fields for CMS type "{$a}"';
 $string['manage_types_return'] = 'Return to manage types';
 $string['sample_value'] = 'Sample value';
-$string['images'] = 'Images';
+
+// Image datasource strings.
+$string['images:images'] = 'Images';
+
+// Custom field datasource strings.
+$string['fields:custom_fields'] = 'Custom fields';
+$string['fields:sample_text'] = 'text';
+$string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
+
+// Error strings.
+$string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
+$string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
+$string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
