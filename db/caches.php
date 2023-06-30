@@ -14,47 +14,30 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_cms\local\datasource;
-
 /**
- * Data source for basic site metadata.
+ * Caches used by mod_cms.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class site extends base {
-    /**
-     * Get the display name.
-     *
-     * @return string
-     */
-    public static function get_displayname(): string {
-        return get_string('site:displayname', 'mod_cms');
-    }
+defined('MOODLE_INTERNAL') || die();
 
-    /**
-     * Pulls data from the datasource.
-     *
-     * @return \stdClass
-     */
-    public function get_data(): \stdClass {
-        global $CFG, $SITE;
-
-        return (object) [
-            'fullname'  => $SITE->fullname,
-            'shortname' => $SITE->shortname,
-            'wwwroot'   => $CFG->wwwroot,
-        ];
-    }
-
-    /**
-     * Can this datasource be disabled?
-     *
-     * @return false
-     */
-    public static function is_optional(): bool {
-        return false;
-    }
-}
+$definitions = [
+    'datasource_keys' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => true,
+        'staticaccelerationsize' => 10,
+        'canuselocalstore' => false,
+    ],
+    'content_cache' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => false,
+        'canuselocalstore' => false,
+    ],
+];

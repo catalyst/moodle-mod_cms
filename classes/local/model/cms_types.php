@@ -70,7 +70,30 @@ class cms_types extends persistent {
                 'type' => PARAM_RAW,
                 'default' => ''
             ],
+            'datasources' => [
+                'type' => PARAM_TEXT,
+                'default' => ''
+            ],
+
         ];
+    }
+
+    /**
+     * Getter for datasources.
+     *
+     * @return array
+     */
+    protected function get_datasources(): array {
+        return explode(',', $this->raw_get('datasources'));
+    }
+
+    /**
+     * Setter for datasources.
+     *
+     * @param array $value
+     */
+    protected function set_datasources(array $value) {
+        $this->raw_set('datasources', implode(',', $value));
     }
 
     /**
@@ -95,6 +118,7 @@ class cms_types extends persistent {
      * @return void
      */
     protected function after_update($result): void {
+        $this->reset_caches();
         if ($result) {
             $event = cms_type_updated::create([
                 'objectid' => $this->raw_get('id'),
@@ -113,6 +137,7 @@ class cms_types extends persistent {
      * @return void
      */
     protected function after_delete($result): void {
+        $this->reset_caches();
         if ($result) {
             $event = cms_type_deleted::create([
                 'objectid' => $this->raw_get('id'),
@@ -173,6 +198,21 @@ class cms_types extends persistent {
             $ds = dsbase::get_datasource($name, $this);
             $ds->set_from_import($data);
         }
+    }
+
+    /**
+     * Reset the hash caches to ensure that instance content gets remade.
+     */
+    public function reset_caches() {
+        global $DB;
+
+        $hashcache = \cache::make('mod_cms', 'datasource_keys');
+
+        $records = $DB->get_records('cms', ['typeid' => $this->get('id')], '', 'id');
+        $ids = array_map(function($record) {
+            return 'super_hash_' . $record->id;
+        }, $records);
+        $hashcache->delete_many($ids);
     }
 
     /**

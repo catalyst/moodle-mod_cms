@@ -77,6 +77,32 @@ class cms extends persistent {
     }
 
     /**
+     * Hook to execute after an update.
+     *
+     * @param bool $result
+     */
+    protected function after_update($result): void {
+        $this->reset_cache();
+    }
+
+    /**
+     * Hook to execute after a delete.
+     *
+     * @param bool $result
+     */
+    protected function after_delete($result): void {
+        $this->reset_cache();
+    }
+
+    /**
+     * Resets the cache to ensure content gets remade.
+     */
+    protected function reset_cache() {
+        $hashcache = \cache::make('mod_cms', 'datasource_keys');
+        $hashcache->delete('super_hash_' . $this->get('id'));
+    }
+
+    /**
      * Gets the type object for this cms.
      *
      * @return cms_types

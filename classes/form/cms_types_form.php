@@ -59,6 +59,11 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
+        $select = $mform->addElement('select', 'datasources', get_string('datasources', 'mod_cms'),
+                dsbase::get_datasource_labels());
+        $select->setMultiple(true);
+        $mform->addElement('static', 'datasources_desc', '', get_string('datasources_desc', 'mod_cms'));
+
         $mform->addElement(
             'textarea',
             'mustache',
@@ -125,9 +130,27 @@ class cms_types_form extends persistent_form {
     protected function get_default_data() {
         $data = parent::get_default_data();
 
+        if (is_string($data->datasources)) {
+            $data->datasources = explode(',', $data->datasources);
+        }
+
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($this->get_persistent()) as $ds) {
             $ds->config_form_default_data($data);
+        }
+        return $data;
+    }
+
+    /**
+     * Convert some fields.
+     *
+     * @param  \stdClass $data The whole data set.
+     * @return \stdClass The amended data set.
+     */
+    protected static function convert_fields(\stdClass $data) {
+        $data = parent::convert_fields($data);
+        if (is_array($data->datasources)) {
+            $data->datasources = implode(',', $data->datasources);
         }
         return $data;
     }

@@ -35,6 +35,15 @@ class images extends base {
     const FILE_AREA = 'cms_type_images';
 
     /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return get_string('images:images', 'mod_cms');
+    }
+
+    /**
      * Get the metadata for the images stored with this datasource.
      *
      * @return array
@@ -131,13 +140,15 @@ class images extends base {
      * @param mixed $data
      */
     public function config_on_update($data) {
-        file_save_draft_area_files(
-            $data->images,
-            context_system::instance()->id,
-            'mod_cms',
-            self::FILE_AREA,
-            $this->cms->get('typeid')
-        );
+        if (isset($data->images)) {
+            file_save_draft_area_files(
+                $data->images,
+                context_system::instance()->id,
+                'mod_cms',
+                self::FILE_AREA,
+                $this->cms->get('typeid')
+            );
+        }
     }
 
     /**

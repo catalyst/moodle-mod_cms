@@ -18,7 +18,7 @@ namespace mod_cms\local;
 
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
-use mod_cms\customfield\cmsfield_handler;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 
@@ -82,17 +82,16 @@ class lib {
      * @return int The ID of the newly crated instance.
      */
     public static function add_instance(\stdClass $instancedata, $mform = null): int {
-        // TODO: This is a stub.
         $cms = new cms();
         $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->save();
 
-        // Save the custom field data.
         $instancedata->id = $cms->get('id');
-        $cfhandler = cmsfield_handler::create($instancedata->typeid);
-        $cfhandler->instance_form_save($instancedata, true);
+        foreach (dsbase::get_datasources($cms) as $ds) {
+            $ds::update_instance($instancedata, true);
+        }
 
         return $cms->get('id');
     }
@@ -112,10 +111,10 @@ class lib {
         $cms->set('intro', '');
         $cms->save();
 
-        // Save the custom field data.
         $instancedata->id = $cm->instance;
-        $cfhandler = cmsfield_handler::create($instancedata->typeid);
-        $cfhandler->instance_form_save($instancedata);
+        foreach (dsbase::get_datasources($cms) as $ds) {
+            $ds->update_instance($instancedata, false);
+        }
 
         return true;
     }
@@ -139,8 +138,27 @@ class lib {
      */
     public static function cm_info_view(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
-        $renderer = new renderer($cms);
-        $cminfo->set_content($renderer->get_html());
+
+        $cachekey = 'super_hash_' . $cminfo->instance;
+        $hashcache = \cache::make('mod_cms', 'datasource_keys');
+        $storedhash = $hashcache->get($cachekey);
+        $contentcache = \cache::make('mod_cms', 'content_cache');
+
+        $currenthash = '';
+        foreach (dsbase::get_datasources($cms) as $ds) {
+            $currenthash .= $ds->get_cache_hash();
+        }
+
+        if ($storedhash !== false && $currenthash === $storedhash) {
+            $content = $contentcache->get($cminfo->instance);
+        } else {
+            $renderer = new renderer($cms);
+            $content = $renderer->get_html();
+            $contentcache->set($cminfo->instance, $content);
+            $hashcache->set($cachekey, $currenthash);
+        }
+
+        $cminfo->set_content($content);
     }
 
     /**

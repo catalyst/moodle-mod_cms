@@ -35,8 +35,7 @@ function xmldb_cms_upgrade($oldversion) {
     $dbman = $DB->get_manager();
 
     if ($oldversion < 2023060601) {
-
-        // Define field pathinfo to be added to tool_excimer_profiles.
+        // Define field mustache.
         $table = new xmldb_table('cms_types');
         $field = new xmldb_field('mustache', XMLDB_TYPE_TEXT, null, null, false, null, null, 'descriptionformat');
 
@@ -46,6 +45,19 @@ function xmldb_cms_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2023060601, 'cms');
+    }
+
+    if ($oldversion < 2023063001) {
+        // Define field datasources.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('datasources', XMLDB_TYPE_TEXT, null, null, false, null, null, 'descriptionformat');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2023063001, 'cms');
     }
 
     return true;

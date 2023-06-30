@@ -39,6 +39,15 @@ class fields extends base {
     protected $cfhandler;
 
     /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return get_string('fields:custom_fields', 'mod_cms');
+    }
+
+    /**
      * Constructs a datasource for the given cms.
      *
      * @param cms $cms
@@ -190,5 +199,30 @@ class fields extends base {
                 }
             }
         }
+    }
+
+    /**
+     * Called when an instance is added/updated.
+     *
+     * @param \stdClass $instancedata
+     * @param bool $isnewinstance
+     */
+    public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
+        // Save the custom field data.
+        $this->cfhandler->instance_form_save($instancedata, $isnewinstance);
+
+        $hash = hash('md5', serialize($instancedata));
+        $cache = \cache::make('mod_cms', 'datasource_keys');
+        $cache->set('datasource_fields_hash_' . $this->cms->get('id'), $hash);
+    }
+
+    /**
+     * Returns a cache hash, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_cache_hash(): string {
+        $cache = \cache::make('mod_cms', 'datasource_keys');
+        return $cache->get('datasource_fields_hash_' . $this->cms->get('id')) ?: '';
     }
 }
