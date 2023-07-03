@@ -1,0 +1,21 @@
+{
+  "categories": [
+    {
+      "name": "Category 1",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "0",
+      "fields": [
+        {
+          "name": "Pic 1",
+          "shortname": "pic1",
+          "type": "picture",
+          "description": "Unsupported picture custom field. Plugin can be found at https://github.com/paulholden/moodle-customfield_picture.",
+          "descriptionformat": "2",
+          "sortorder": "0",
+          "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"maximumbytes\":\"2097152\"}"
+        }
+      ]
+    }
+  ]
+}

@@ -24,12 +24,13 @@
  */
 namespace mod_cms\local\model;
 
-use stdClass;
-use context_system;
 use core\persistent;
 use mod_cms\event\cms_type_created;
 use mod_cms\event\cms_type_updated;
 use mod_cms\event\cms_type_deleted;
+use mod_cms\exportable;
+use mod_cms\importable;
+use mod_cms\local\datasource\base as dsbase;
 
 /**
  * A persistent for the mdl_cms_types table
@@ -40,6 +41,7 @@ use mod_cms\event\cms_type_deleted;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_types extends persistent {
+    use exportable, importable;
 
     /**
      * Table name.
@@ -80,7 +82,7 @@ class cms_types extends persistent {
         $event = cms_type_created::create([
             'objectid' => $this->raw_get('id'),
             'userid' => $this->raw_get('usermodified'),
-            'contextid' => context_system::instance()->id,
+            'contextid' => \context_system::instance()->id,
         ]);
         $event->trigger();
     }
@@ -97,7 +99,7 @@ class cms_types extends persistent {
             $event = cms_type_updated::create([
                 'objectid' => $this->raw_get('id'),
                 'userid' => $this->raw_get('usermodified'),
-                'contextid' => context_system::instance()->id,
+                'contextid' => \context_system::instance()->id,
             ]);
             $event->trigger();
         }
@@ -115,7 +117,7 @@ class cms_types extends persistent {
             $event = cms_type_deleted::create([
                 'objectid' => $this->raw_get('id'),
                 'userid' => $this->raw_get('usermodified'),
-                'contextid' => context_system::instance()->id,
+                'contextid' => \context_system::instance()->id,
             ]);
             $event->trigger();
         }
@@ -131,6 +133,49 @@ class cms_types extends persistent {
     }
 
     /**
+     * Get configuration data for exporting.
+     *
+     * @return \stdClass
+     */
+    public function get_for_export(): \stdClass {
+        $export = new \stdClass();
+        foreach (self::define_properties() as $name => $def) {
+            $export->$name = $this->get($name);
+        }
+
+        $export->datasources = new \stdClass();
+        foreach (dsbase::get_datasources($this) as $ds) {
+            $name = $ds::get_shortname();
+            $data = $ds->get_for_export();
+            if (!is_null($data)) {
+                $export->datasources->$name = $data;
+            }
+        }
+
+        return $export;
+    }
+
+    /**
+     * Import configuration from an object.
+     *
+     * @param \stdClass $data
+     */
+    public function set_from_import(\stdClass $data) {
+        foreach (self::define_properties() as $name => $def) {
+            if (isset($data->$name)) {
+                $this->set($name, $data->$name);
+            }
+        }
+
+        $this->create();
+
+        foreach ($data->datasources as $name => $data) {
+            $ds = dsbase::get_datasource($name, $this);
+            $ds->set_from_import($data);
+        }
+    }
+
+    /**
      * Get a sample cms of this type, filled with arbitrary data.
      *
      * @return cms
@@ -139,7 +184,7 @@ class cms_types extends persistent {
         $cms = new cms();
         $cms->set('typeid', $this->get('id'));
 
-        $cms->set('name', 'Some name');
+        $cms->set('name', get_string('some_name', 'mod_cms'));
         $cms->issample = true;
 
         return $cms;

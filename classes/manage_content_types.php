@@ -24,12 +24,10 @@
  */
 namespace mod_cms;
 
-use mod_cms\local\datasource\base as dsbase;
-use stdClass;
-use moodle_url;
-use context_system;
 use core\notification;
 use mod_cms\form\cms_types_form;
+use mod_cms\form\cms_types_import_form;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\table\content_types_list;
 
@@ -44,7 +42,7 @@ use mod_cms\local\table\content_types_list;
 class manage_content_types {
 
     /**
-     * @var Locally cached $OUTPUT object
+     * @var \renderer_base Locally cached $OUTPUT object
      */
     protected $output;
 
@@ -71,6 +69,15 @@ class manage_content_types {
             case 'add':
             case 'edit':
                 $this->edit($action, optional_param('id', null, PARAM_INT));
+                break;
+            case 'import':
+                $this->import();
+                break;
+            case 'export':
+                $this->export(
+                    required_param('id', PARAM_INT),
+                    optional_param('format', 'yaml', PARAM_ALPHA)
+                );
                 break;
             case 'delete':
                 $this->delete(required_param('id', PARAM_INT));
@@ -120,11 +127,11 @@ class manage_content_types {
      * Return record instance.
      *
      * @param int      $id
-     * @param stdClass $data
+     * @param \stdClass $data
      *
      * @return cms_types
      */
-    protected function get_instance($id = 0, ?stdClass $data = null): cms_types {
+    protected function get_instance($id = 0, ?\stdClass $data = null): cms_types {
         return new cms_types($id, $data);
     }
 
@@ -209,7 +216,7 @@ class manage_content_types {
     protected function edit(string $action, ?int $id = null): void {
         global $PAGE;
 
-        $PAGE->set_url(new moodle_url(self::get_base_url(), ['action' => $action, 'id' => $id]));
+        $PAGE->set_url(new \moodle_url(self::get_base_url(), ['action' => $action, 'id' => $id]));
         $instance = null;
 
         if (!empty($id)) {
@@ -219,7 +226,7 @@ class manage_content_types {
         $form = $this->get_form($instance);
 
         if ($form->is_cancelled()) {
-            redirect(new moodle_url(self::get_base_url()));
+            redirect(new \moodle_url(self::get_base_url()));
         } else if ($data = $form->get_data()) {
             $stayonpage = isset($data->saveanddisplay);
             unset($data->saveandreturn);
@@ -241,7 +248,7 @@ class manage_content_types {
             } catch (\Exception $e) {
                 notification::error($e->getMessage());
             }
-            $redirecturl = new moodle_url(self::get_base_url());
+            $redirecturl = new \moodle_url(self::get_base_url());
             if ($stayonpage) {
                 $redirecturl->param('action', 'edit');
                 $redirecturl->param('id', $instance->get('id'));
@@ -253,6 +260,41 @@ class manage_content_types {
             } else {
                 $this->header($this->get_edit_heading());
             }
+        }
+
+        $form->display();
+        $this->footer();
+    }
+
+    /**
+     * Export action. Will either crate a file for download for display in the browser.
+     *
+     * @param int $id CMS type ID
+     * @param string $format Either 'yaml', 'txt' or 'preview'.
+     */
+    protected function export(int $id, string $format = 'yaml') {
+        $instance = $this->get_instance($id);
+        $instance->export($format);
+    }
+
+    /**
+     * Import action.
+     */
+    protected function import() {
+        global $PAGE;
+
+        $PAGE->set_url(new \moodle_url(self::get_base_url(), ['action' => 'import']));
+
+        $form = new cms_types_import_form($PAGE->url->out(false));
+        if ($form->is_cancelled()) {
+            redirect(new \moodle_url(self::get_base_url()));
+        } else if ($data = $form->get_data()) {
+            $filecontent = $form->get_file_content('importfile');
+            $contenttype = $this->get_instance(0);
+            $contenttype->import($filecontent);
+            redirect(new \moodle_url(self::get_base_url()));
+        } else {
+            $this->header(get_string('import_cms_type', 'mod_cms'));
         }
 
         $form->display();
@@ -276,7 +318,7 @@ class manage_content_types {
         } else {
             notification::warning(get_string('cantdelete', 'mod_cms'));
         }
-        redirect(new moodle_url(self::get_base_url()));
+        redirect(new \moodle_url(self::get_base_url()));
     }
 
     /**
@@ -290,6 +332,7 @@ class manage_content_types {
         $PAGE->set_url(self::get_base_url());
         $this->header($this->get_view_heading());
         $this->print_add_button();
+        $this->print_import_button();
         $this->display_all_records();
 
         $PAGE->requires->js_call_amd('mod_cms/managecontenttypes', 'setup');
@@ -301,8 +344,18 @@ class manage_content_types {
      */
     protected function print_add_button(): void {
         echo $this->output->single_button(
-            new moodle_url(self::get_base_url(), ['action' => 'add']),
+            new \moodle_url(self::get_base_url(), ['action' => 'add']),
             $this->get_create_button_text()
+        );
+    }
+
+    /**
+     * Print out add button.
+     */
+    protected function print_import_button(): void {
+        echo $this->output->single_button(
+            new \moodle_url(self::get_base_url(), ['action' => 'import']),
+            get_string('import_cms_type', 'mod_cms')
         );
     }
 

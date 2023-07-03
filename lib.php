@@ -26,6 +26,18 @@
 use core_course\local\entity\content_item;
 use mod_cms\local\lib;
 
+defined('MOODLE_INTERNAL') || die();
+require_once(__DIR__ . '/vendor/autoload.php');
+
+/**
+ *  Triggered as soon as practical on every moodle bootstrap after config has
+ *  been loaded. The $USER object is available at this point too.
+ *
+ *  NOTE: DO NOT REMOVE. This currently ensures all vendor libraries are loaded.
+ */
+function mod_cms_after_config() {
+}
+
 /**
  * Returns whether a feature is supported or not.
  *

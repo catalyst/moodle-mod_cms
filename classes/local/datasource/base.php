@@ -109,6 +109,28 @@ abstract class base {
         }
     }
 
+    /**
+     * Get a datasource.
+     *
+     * @param string $name The short name of the datasource
+     * @param cms|cms_types $cms
+     * @return false|base The datasource, or false if not found.
+     */
+    public static function get_datasource(string $name, $cms) {
+        self::register_datasources();
+
+        if (!isset(self::$datasourceclasses[$name])) {
+            return false;
+        }
+
+        if ($cms instanceof cms_types) {
+            $cms = $cms->get_sample_cms();
+        }
+
+        $dsclassname = self::$datasourceclasses[$name];
+        return new $dsclassname($cms);
+    }
+
     /** @var cms */
     protected $cms;
 
@@ -226,5 +248,22 @@ abstract class base {
      * @param mixed $data
      */
     public function config_on_update($data) {
+    }
+
+    /**
+     * Get configuration data for exporting.
+     *
+     * @return \stdClass|null
+     */
+    public function get_for_export(): ?\stdClass {
+        return null;
+    }
+
+    /**
+     * Import configuration from an object.
+     *
+     * @param \stdClass $data
+     */
+    public function set_from_import(\stdClass $data) {
     }
 }

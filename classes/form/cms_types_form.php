@@ -25,11 +25,8 @@
 namespace mod_cms\form;
 
 use core\form\persistent as persistent_form;
-use html_writer;
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\renderer;
-use moodle_url;
-use stdClass;
 
 /**
  * Form for manipulating the content types
@@ -73,12 +70,12 @@ class cms_types_form extends persistent_form {
         // Generate the help text for mustache template.
         $cmstype = $this->get_persistent();
         $renderer = new renderer($cmstype);
-        $syntaxlink = html_writer::link(
-            new moodle_url('https://moodledev.io/docs/guides/templates'),
+        $syntaxlink = \html_writer::link(
+            new \moodle_url('https://moodledev.io/docs/guides/templates'),
             get_string('mustache_template', 'cms')
         );
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
-        $helptext .= html_writer::table($renderer->get_data_as_table());
+        $helptext .= \html_writer::table($renderer->get_data_as_table());
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
         // Add form elements for data sources.
@@ -123,7 +120,7 @@ class cms_types_form extends persistent_form {
      *
      * Extend this class if you need to add more conversion.
      *
-     * @return stdClass
+     * @return \stdClass
      */
     protected function get_default_data() {
         $data = parent::get_default_data();

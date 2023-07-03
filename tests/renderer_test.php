@@ -16,15 +16,10 @@
 
 namespace mod_cms;
 
-use advanced_testcase;
-use core_course\local\entity\content_item;
-use core_course\local\entity\lang_string_title;
 use mod_cms\local\datasource\base as dsbase;
-use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\model\cms;
 use mod_cms\local\renderer;
-use moodle_url;
 
 /**
  * Unit test for renderer
@@ -34,7 +29,7 @@ use moodle_url;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer_test extends advanced_testcase {
+class renderer_test extends \advanced_testcase {
     /**
      * Set up before each test
      */

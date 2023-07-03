@@ -16,12 +16,9 @@
 
 namespace mod_cms\local;
 
-use context_system;
-use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
-use Mustache_Engine;
 
 /**
  * Renders the contents of a mustache template.
@@ -122,12 +119,12 @@ class renderer {
     /**
      * Get a Mustache engine suitable for use with this renderer.
      *
-     * @return Mustache_Engine
+     * @return \Mustache_Engine
      */
-    public static function get_mustache(): Mustache_Engine {
-        $mustache = new Mustache_Engine([
+    public static function get_mustache(): \Mustache_Engine {
+        $mustache = new \Mustache_Engine([
             'escape' => 's',
-            'pragmas' => [Mustache_Engine::PRAGMA_BLOCKS],
+            'pragmas' => [\Mustache_Engine::PRAGMA_BLOCKS],
         ]);
         return $mustache;
     }

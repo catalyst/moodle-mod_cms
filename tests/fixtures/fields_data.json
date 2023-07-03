@@ -1,0 +1,47 @@
+{
+  "categories": [
+    {
+      "name": "Category 1",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "0",
+      "fields": [
+        {
+          "name": "Field 1",
+          "shortname": "field1",
+          "type": "text",
+          "description": "Field No 1.",
+          "descriptionformat": "2",
+          "sortorder": "0",
+          "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
+        },
+        {
+          "name": "Field 2",
+          "shortname": "field2",
+          "type": "date",
+          "description": "Field No 2.",
+          "descriptionformat": "1",
+          "sortorder": "1",
+          "configdata": "{\"required\":\"1\",\"uniquevalues\":\"0\",\"includetime\":\"1\",\"mindate\":0,\"maxdate\":0}"
+        }
+      ]
+    },
+    {
+      "name": "Category 2",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "1",
+      "fields": [
+        {
+          "name": "Field 3",
+          "shortname": "field3",
+          "type": "textarea",
+          "description": "Field No 3",
+          "descriptionformat": "1",
+          "sortorder": "0",
+          "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"Some text\",\"defaultvalueformat\":\"1\"}"
+        }
+      ]
+    }
+  ]
+}

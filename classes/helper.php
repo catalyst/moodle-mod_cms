@@ -24,8 +24,6 @@
  */
 namespace mod_cms;
 
-use pix_icon;
-
 /**
  * Helper methods for mod_cms
  *
@@ -34,6 +32,12 @@ use pix_icon;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class helper {
+    /** The level where you switch to inline YAML. */
+    public const YAML_DUMP_INLINE_LEVEL = 5;
+
+    /** The amount of spaces to use for indentation of nested nodes. */
+    public const YAML_DUMP_INDENT_LEVEL = 2;
+
     /**
      * Get a filler icon for display in the actions column of a table.
      *
@@ -51,7 +55,7 @@ class helper {
 
         return $OUTPUT->action_icon(
             $url,
-            new pix_icon($icon, $alt, $iconcomponent, ['title' => $alt]),
+            new \pix_icon($icon, $alt, $iconcomponent, ['title' => $alt]),
             null,
             $options
         );
