@@ -25,19 +25,11 @@
 defined('MOODLE_INTERNAL') || die();
 
 $definitions = [
-    'datasource_keys' => [
-        'mode' => cache_store::MODE_APPLICATION,
-        'simplekeys' => true,
-        'simpledata' => true,
-        'staticacceleration' => true,
-        'staticaccelerationsize' => 10,
-        'canuselocalstore' => false,
-    ],
     'content_cache' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'simpledata' => true,
         'staticacceleration' => false,
-        'canuselocalstore' => false,
+        'canuselocalstore' => true,
     ],
 ];

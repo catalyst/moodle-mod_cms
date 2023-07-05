@@ -16,6 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\lib;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 
@@ -101,7 +102,7 @@ abstract class base {
         if ($cms instanceof cms_types) {
             $cms = $cms->get_sample_cms();
         }
-        // TODO: Use some kind of simple caching here.
+
         foreach (self::$datasourceclasses as $classname) {
             $ds = new $classname($cms);
             if (!$enabledonly || $ds->is_enabled()) {
@@ -303,11 +304,22 @@ abstract class base {
     }
 
     /**
-     * Returns a cache hash, representing the data stored for the datasource.
+     * Returns a hash of the content, representing the data stored for the datasource.
      *
      * @return string
      */
-    public function get_cache_hash(): string {
+    public function get_content_hash(): string {
         return '';
+    }
+
+    /**
+     * Update the config hash.
+     */
+    public function update_config_hash() {
+        $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
+        // The config hash is stored as a part fo the cms type.
+        $cmstype = $this->cms->get_type();
+        $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
+        $cmstype->save();
     }
 }

@@ -60,5 +60,29 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023063001, 'cms');
     }
 
+    if ($oldversion < 2023070500) {
+        // Define field customdata.
+        $table = new xmldb_table('cms');
+        $field = new xmldb_field('customdata', XMLDB_TYPE_TEXT, null, null, false, null, null, 'typeid');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+            $DB->execute("UPDATE {cms} SET customdata='{}'");
+        }
+
+        // Define field customdata.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('customdata', XMLDB_TYPE_TEXT, null, null, false, null, null, 'mustache');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+            $DB->execute("UPDATE {cms_types} SET customdata='{}'");
+        }
+
+        upgrade_mod_savepoint(true, 2023070500, 'cms');
+    }
+
     return true;
 }

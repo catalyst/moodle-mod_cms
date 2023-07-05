@@ -18,6 +18,7 @@ namespace mod_cms\customfield;
 
 use core_customfield\{field_controller, handler};
 use mod_cms\local\model\cms_types;
+use mod_cms\local\datasource\fields;
 
 /**
  * Custom field handler for cms types.
@@ -99,10 +100,12 @@ class cmsfield_handler extends handler {
 
     /**
      * Clears the cache.
+     * This is called whenever the configuration of the custom fields is changed, so this serves as a poor man's 'on_update'.
      */
     protected function clear_configuration_cache() {
         parent::clear_configuration_cache();
         $cmstype = new cms_types($this->get_itemid());
-        $cmstype->reset_caches();
+        $fields = new fields($cmstype->get_sample_cms());
+        $fields->update_config_hash();
     }
 }

@@ -16,6 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\lib;
 use stdClass;
 use context_system;
 
@@ -149,6 +150,7 @@ class images extends base {
                 $this->cms->get('typeid')
             );
         }
+        $this->update_config_hash();
     }
 
     /**

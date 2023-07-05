@@ -107,13 +107,20 @@ class renderer {
      * @return string
      */
     public function get_html(): string {
-        $data = $this->get_data();
+        $contentcache = \cache::make('mod_cms', 'content_cache');
 
-        $mustache = self::get_mustache();
-        $template = $this->cms->get_type()->get('mustache');
-        $html = $mustache->render($template, $data);
+        $contenthash = $this->cms->get_content_hash();
+        $content = $contentcache->get($contenthash);
 
-        return $html;
+        if ($content === false) {
+            $data = $this->get_data();
+            $mustache = self::get_mustache();
+            $template = $this->cms->get_type()->get('mustache');
+            $content = $mustache->render($template, $data);
+            $contentcache->set($contenthash, $content);
+        }
+
+        return $content;
     }
 
     /**

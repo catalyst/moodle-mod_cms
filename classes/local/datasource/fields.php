@@ -19,6 +19,7 @@ namespace mod_cms\local\datasource;
 use core_customfield\{category_controller, field};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
+use mod_cms\local\lib;
 use mod_cms\local\model\cms;
 
 /**
@@ -199,6 +200,7 @@ class fields extends base {
                 }
             }
         }
+        $this->update_config_hash();
     }
 
     /**
@@ -210,19 +212,9 @@ class fields extends base {
     public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
         // Save the custom field data.
         $this->cfhandler->instance_form_save($instancedata, $isnewinstance);
-
-        $hash = hash('md5', serialize($instancedata));
-        $cache = \cache::make('mod_cms', 'datasource_keys');
-        $cache->set('datasource_fields_hash_' . $this->cms->get('id'), $hash);
-    }
-
-    /**
-     * Returns a cache hash, representing the data stored for the datasource.
-     *
-     * @return string
-     */
-    public function get_cache_hash(): string {
-        $cache = \cache::make('mod_cms', 'datasource_keys');
-        return $cache->get('datasource_fields_hash_' . $this->cms->get('id')) ?: '';
+        $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
+        // The content hash is stored as a part fo the cms.
+        $this->cms->set_custom_data('fieldsinstancehash', $hash);
+        $this->cms->save();
     }
 }

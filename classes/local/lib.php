@@ -35,6 +35,9 @@ class lib {
     /** @var string The URL for editing a mod instance. */
     protected const MODEDIT_URL = '/course/modedit.php';
 
+    /** @var string Preferred hashing algorithm to be used. */
+    public const HASH_ALGO = 'sha1';
+
     /**
      * Obtains a list of defined content types to be included in the activity chooser panel.
      *
@@ -138,26 +141,8 @@ class lib {
      */
     public static function cm_info_view(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
-
-        $cachekey = 'super_hash_' . $cminfo->instance;
-        $hashcache = \cache::make('mod_cms', 'datasource_keys');
-        $storedhash = $hashcache->get($cachekey);
-        $contentcache = \cache::make('mod_cms', 'content_cache');
-
-        $currenthash = '';
-        foreach (dsbase::get_datasources($cms) as $ds) {
-            $currenthash .= $ds->get_cache_hash();
-        }
-
-        if ($storedhash !== false && $currenthash === $storedhash) {
-            $content = $contentcache->get($cminfo->instance);
-        } else {
-            $renderer = new renderer($cms);
-            $content = $renderer->get_html();
-            $contentcache->set($cminfo->instance, $content);
-            $hashcache->set($cachekey, $currenthash);
-        }
-
+        $renderer = new renderer($cms);
+        $content = $renderer->get_html();
         $cminfo->set_content($content);
     }
 

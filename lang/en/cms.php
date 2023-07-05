@@ -65,7 +65,7 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
 
-// Site datasource strings
+// Site datasource strings.
 $string['site:displayname'] = 'Site Info';
 
 // Image datasource strings.

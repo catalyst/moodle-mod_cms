@@ -25,6 +25,8 @@
 namespace mod_cms\local\model;
 
 use core\persistent;
+use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\lib;
 
 /**
  * A persistent for the cms table.
@@ -73,33 +75,51 @@ class cms extends persistent {
                 'type' => PARAM_INT,
                 'default' => 0,
             ],
+            'customdata' => [
+                'type' => PARAM_TEXT,
+                'default' => '{}',
+            ],
         ];
     }
 
     /**
-     * Hook to execute after an update.
+     * Returns a hash representing the contents of the CMS.
+     * Includes hashes for the CMS type and the datasources as well, as they
+     * contribute to what gets displayed.
      *
-     * @param bool $result
+     * @return string
      */
-    protected function after_update($result): void {
-        $this->reset_cache();
+    public function get_content_hash(): string {
+        $hash = '';
+        foreach (dsbase::get_datasources($this) as $ds) {
+            $hash .= $ds->get_content_hash();
+        }
+        $hash .= hash(lib::HASH_ALGO, serialize($this->to_record()));
+        $hash .= $this->get_type()->get_content_hash();
+        return $hash;
     }
 
     /**
-     * Hook to execute after a delete.
+     * Sets an arbitrary value.
      *
-     * @param bool $result
+     * @param string $name
+     * @param mixed $value
      */
-    protected function after_delete($result): void {
-        $this->reset_cache();
+    public function set_custom_data(string $name, $value) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        $cdata->$name = $value;
+        $this->raw_set('customdata', json_encode($cdata));
     }
 
     /**
-     * Resets the cache to ensure content gets remade.
+     * Retrieves an arbitrary value.
+     *
+     * @param string $name
+     * @return mixed
      */
-    protected function reset_cache() {
-        $hashcache = \cache::make('mod_cms', 'datasource_keys');
-        $hashcache->delete('super_hash_' . $this->get('id'));
+    public function get_custom_data(string $name) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        return $cdata->$name ?? null;
     }
 
     /**
