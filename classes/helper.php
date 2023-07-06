@@ -60,4 +60,21 @@ class helper {
             $options
         );
     }
+
+    /**
+     * Get a link icon for deleting. Includes a confirm dialog.
+     *
+     * @param \moodle_url $url
+     * @param string $confirmstring
+     *
+     * @return string
+     */
+    public static function format_delete_link(\moodle_url $url, string $confirmstring): string {
+        global $OUTPUT;
+        $confirmaction = new \confirm_action($confirmstring);
+        $deleteicon = new \pix_icon('t/delete', get_string('delete'));
+        $link = new \action_link($url, '', $confirmaction, null,  $deleteicon);
+        return $OUTPUT->render($link);
+
+    }
 }

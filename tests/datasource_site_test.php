@@ -17,8 +17,7 @@
 namespace mod_cms;
 
 use mod_cms\local\datasource\site as dssite;
-use mod_cms\local\model\cms;
-use mod_cms\local\model\cms_types;
+use mod_cms\local\model\{cms, cms_types};
 
 /**
  * Unit test for image datasource.

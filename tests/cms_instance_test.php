@@ -17,7 +17,11 @@
 namespace mod_cms;
 
 use mod_cms\local\datasource\fields as dsfields;
-use mod_cms\local\model\{cms, cms_types};
+use mod_cms\local\model\cms;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once( __DIR__ . '/fixtures/test_import1_trait.php');
 
 /**
  * Tests cms instances.
@@ -28,8 +32,7 @@ use mod_cms\local\model\{cms, cms_types};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_instance_test  extends \advanced_testcase {
-    /** Name of YAML file to define CMS type used in testing. */
-    public const IMPORTDATFILE = __DIR__ . '/fixtures/test_import_1.yml';
+    use test_import1_trait;
 
     /**
      * Set up before each test
@@ -41,60 +44,13 @@ class cms_instance_test  extends \advanced_testcase {
     }
 
     /**
-     * Import a file defining a cms type.
-     *
-     * @param string $filename
-     * @return cms_types
-     */
-    public function import(string $filename): cms_types {
-        $importdata = file_get_contents($filename);
-        $cmstype = new cms_types();
-        $cmstype->import($importdata);
-        return $cmstype;
-    }
-
-    /**
-     * Create a course for testing.
-     *
-     * @return object
-     */
-    public function create_course() {
-        $data = (object) [
-            'fullname' => 'Fullname',
-            'shortname' => 'Shortname',
-            'category' => 1,
-        ];
-        return create_course($data);
-    }
-
-    /**
-     * Creates a module for a course.
-     *
-     * @param int $typeid
-     * @param int $courseid
-     * @return object|\stdClass
-     */
-    public function create_module(int $typeid, int $courseid) {
-        $moduleinfo = (object) [
-            'modulename' => 'cms',
-            'course' => $courseid,
-            'section' => 0,
-            'visible' => true,
-            'typeid' => $typeid,
-            'name' => 'Some module',
-            'customfield_afield' => 'Field A',
-        ];
-        return create_module($moduleinfo);
-    }
-
-    /**
      * Tests adding a new instance, including datasource data.
      *
      * @covers \mod_cms\local\lib::add_instance
      * @throws \coding_exception
      */
     public function test_add_instance() {
-        $cmstype = $this->import(self::IMPORTDATFILE);
+        $cmstype = $this->import();
 
         // Create a course.
         $course = $this->create_course();
@@ -122,7 +78,7 @@ class cms_instance_test  extends \advanced_testcase {
      * @throws \coding_exception
      */
     public function test_update_instance() {
-        $cmstype = $this->import(self::IMPORTDATFILE);
+        $cmstype = $this->import();
 
         // Create a course.
         $course = $this->create_course();

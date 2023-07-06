@@ -82,3 +82,4 @@ $string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
 $string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
 $string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
 $string['error:no_file_uploaded'] = 'No file uploaded';
+$string['error:cant_delete_content_type'] = 'Cannot delete content type.';

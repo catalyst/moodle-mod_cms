@@ -16,11 +16,9 @@
 
 namespace mod_cms\local;
 
-use core_course\local\entity\content_item;
-use core_course\local\entity\string_title;
+use core_course\local\entity\{content_item, string_title};
 use mod_cms\local\datasource\base as dsbase;
-use mod_cms\local\model\cms;
-use mod_cms\local\model\cms_types;
+use mod_cms\local\model\{cms, cms_types};
 
 
 /**
@@ -119,6 +117,21 @@ class lib {
             $ds->update_instance($instancedata, false);
         }
 
+        return true;
+    }
+
+    /**
+     * Removes an instance of an activity.
+     *
+     * @param int $id
+     * @return bool
+     */
+    public static function delete_instance(int $id): bool {
+        $cms = new cms($id);
+        foreach (dsbase::get_datasources($cms, false) as $ds) {
+            $ds->instance_on_delete();
+        }
+        $cms->delete();
         return true;
     }
 

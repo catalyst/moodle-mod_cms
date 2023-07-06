@@ -134,23 +134,19 @@ class content_types_list extends \flexible_table {
             $actions[] = $ds->config_action_link();
         }
 
-        $actions[] = helper::format_icon_link(
-            new \moodle_url(
-                manage_content_types::get_base_url(),
-                [
-                    'id' => $type->get('id'),
-                    'action' => 'delete',
-                    'sesskey' => sesskey(),
-                ]
-            ),
-            't/delete',
-            get_string('delete'),
-            null,
-            [
-                'data-action' => 'delete',
-                'data-id' => $type->get('id'),
-            ]
-        );
+        if ($type->can_delete()) {
+            $actions[] = helper::format_delete_link(
+                new \moodle_url(
+                    manage_content_types::get_base_url(),
+                    [
+                        'id' => $type->get('id'),
+                        'action' => 'delete',
+                        'sesskey' => sesskey(),
+                    ]
+                ),
+                'Confirm delete?'
+            );
+        }
 
         return implode('&nbsp;', $actions);
     }

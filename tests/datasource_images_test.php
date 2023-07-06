@@ -19,6 +19,10 @@ namespace mod_cms;
 use mod_cms\local\datasource\images as dsimages;
 use mod_cms\local\model\cms_types;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/fixtures/test_import1_trait.php');
+
 /**
  * Unit test for image datasource.
  *
@@ -28,6 +32,8 @@ use mod_cms\local\model\cms_types;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class datasource_images_test extends \advanced_testcase {
+    use test_import1_trait;
+
     /** Test data for import/export. */
     const IMPORT_DATAFILE = __DIR__ . '/fixtures/images_data.json';
 
@@ -51,8 +57,8 @@ class datasource_images_test extends \advanced_testcase {
     /**
      * Tests import and export.
      *
-     * @covers \mod_cms\local\datasource\fields::set_from_import
-     * @covers \mod_cms\local\datasource\fields::get_for_export
+     * @covers \mod_cms\local\datasource\images::set_from_import
+     * @covers \mod_cms\local\datasource\images::get_for_export
      */
     public function test_import() {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
@@ -65,5 +71,28 @@ class datasource_images_test extends \advanced_testcase {
         $ds->set_from_import($importdata);
         $exportdata = $ds->get_for_export();
         $this->assertEquals($importdata, $exportdata);
+    }
+
+    /**
+     * Tests that image info is removed when a cms type is deleted.
+     *
+     * @covers \mod_cms\local\datasource\images::config_on_delete
+     */
+    public function test_config_delete() {
+        global $DB;
+
+        $cmstype = $this->import();
+        // Test that stuff gets deleted even if not included in datasource list.
+        $cmstype->set('datasources', []);
+        $cmstype->save();
+
+        $count = $DB->count_records('files', ['itemid' => $cmstype->get('id'), 'filearea' => dsimages::FILE_AREA]);
+        $this->assertNotEquals(0, $count);
+
+        $manager = new manage_content_types();
+        $manager->delete($cmstype->get('id'));
+
+        $count = $DB->count_records('files', ['itemid' => $cmstype->get('id'), 'filearea' => dsimages::FILE_AREA]);
+        $this->assertEquals(0, $count);
     }
 }
