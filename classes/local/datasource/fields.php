@@ -217,4 +217,14 @@ class fields extends base {
         $this->cms->set_custom_data('fieldsinstancehash', $hash);
         $this->cms->save();
     }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
+        return '';
+    }
 }

@@ -64,6 +64,7 @@ $string['datasources'] = 'Datasources';
 $string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
+$string['cachedef_cms_content'] = 'CMS content';
 
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';

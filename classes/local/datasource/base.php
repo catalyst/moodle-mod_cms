@@ -308,16 +308,14 @@ abstract class base {
      *
      * @return string
      */
-    public function get_content_hash(): string {
-        return '';
-    }
+    abstract public function get_content_hash(): string;
 
     /**
      * Update the config hash.
      */
     public function update_config_hash() {
         $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
-        // The config hash is stored as a part fo the cms type.
+        // The config hash is stored with the CMS type.
         $cmstype = $this->cms->get_type();
         $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
         $cmstype->save();

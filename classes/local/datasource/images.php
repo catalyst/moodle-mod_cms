@@ -202,4 +202,14 @@ class images extends base {
             }
         }
     }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        // There is no instance specific data, so no content hash is needed.
+        return '';
+    }
 }

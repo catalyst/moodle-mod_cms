@@ -107,7 +107,7 @@ class renderer {
      * @return string
      */
     public function get_html(): string {
-        $contentcache = \cache::make('mod_cms', 'content_cache');
+        $contentcache = \cache::make('mod_cms', 'cms_content');
 
         $contenthash = $this->cms->get_content_hash();
         $content = $contentcache->get($contenthash);

@@ -59,10 +59,7 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
-        $select = $mform->addElement('select', 'datasources', get_string('datasources', 'mod_cms'),
-                dsbase::get_datasource_labels());
-        $select->setMultiple(true);
-        $mform->addElement('static', 'datasources_desc', '', get_string('datasources_desc', 'mod_cms'));
+        $this->add_datasource_select_element();
 
         $mform->addElement(
             'textarea',
@@ -93,6 +90,22 @@ class cms_types_form extends persistent_form {
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Put together the datasource selection mechanism using checkboxes.
+     */
+    public function add_datasource_select_element() {
+        $mform = $this->_form;
+        $labels = dsbase::get_datasource_labels();
+        $mform->addElement('static', 'datasources_desc', get_string('datasources', 'mod_cms'),
+                get_string('datasources_desc', 'mod_cms'));
+        $boxes = [];
+        foreach ($labels as $shortname => $label) {
+            $name = 'ds_' . $shortname;
+            $boxes[] = $mform->createElement('checkbox', $name, $label, null);
+        }
+        $mform->addGroup($boxes);
     }
 
     /**
@@ -131,10 +144,14 @@ class cms_types_form extends persistent_form {
         $data = parent::get_default_data();
 
         if (is_string($data->datasources)) {
-            $data->datasources = explode(',', $data->datasources);
+            $datasources = explode(',', $data->datasources);
+            foreach ($datasources as $shortname) {
+                $name = 'ds_' . $shortname;
+                $data->$name = $shortname;
+            }
         }
 
-        // Add form elements for data sources.
+        // Get default data for data sources.
         foreach (dsbase::get_datasources($this->get_persistent()) as $ds) {
             $ds->config_form_default_data($data);
         }
@@ -149,9 +166,16 @@ class cms_types_form extends persistent_form {
      */
     protected static function convert_fields(\stdClass $data) {
         $data = parent::convert_fields($data);
-        if (is_array($data->datasources)) {
-            $data->datasources = implode(',', $data->datasources);
+        $datasources = dsbase::get_datasource_labels();
+        $selected = [];
+        foreach ($datasources as $shortname => $unused) {
+            $name = 'ds_' . $shortname;
+            if (isset($data->$name)) {
+                $selected[] = $shortname;
+                unset($data->$name);
+            }
         }
+        $data->datasources = implode(',', $selected);
         return $data;
     }
 }

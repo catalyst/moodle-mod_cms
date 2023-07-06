@@ -25,7 +25,7 @@
 defined('MOODLE_INTERNAL') || die();
 
 $definitions = [
-    'content_cache' => [
+    'cms_content' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
         'simpledata' => true,
