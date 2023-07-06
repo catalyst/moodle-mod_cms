@@ -59,6 +59,8 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
+        $this->add_datasource_select_element();
+
         $mform->addElement(
             'textarea',
             'mustache',
@@ -88,6 +90,22 @@ class cms_types_form extends persistent_form {
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Put together the datasource selection mechanism using checkboxes.
+     */
+    public function add_datasource_select_element() {
+        $mform = $this->_form;
+        $labels = dsbase::get_datasource_labels();
+        $mform->addElement('static', 'datasources_desc', get_string('datasources', 'mod_cms'),
+                get_string('datasources_desc', 'mod_cms'));
+        $boxes = [];
+        foreach ($labels as $shortname => $label) {
+            $name = 'ds_' . $shortname;
+            $boxes[] = $mform->createElement('checkbox', $name, $label, null);
+        }
+        $mform->addGroup($boxes);
     }
 
     /**
@@ -125,10 +143,39 @@ class cms_types_form extends persistent_form {
     protected function get_default_data() {
         $data = parent::get_default_data();
 
-        // Add form elements for data sources.
+        if (is_string($data->datasources)) {
+            $datasources = explode(',', $data->datasources);
+            foreach ($datasources as $shortname) {
+                $name = 'ds_' . $shortname;
+                $data->$name = $shortname;
+            }
+        }
+
+        // Get default data for data sources.
         foreach (dsbase::get_datasources($this->get_persistent()) as $ds) {
             $ds->config_form_default_data($data);
         }
+        return $data;
+    }
+
+    /**
+     * Convert some fields.
+     *
+     * @param  \stdClass $data The whole data set.
+     * @return \stdClass The amended data set.
+     */
+    protected static function convert_fields(\stdClass $data) {
+        $data = parent::convert_fields($data);
+        $datasources = dsbase::get_datasource_labels();
+        $selected = [];
+        foreach ($datasources as $shortname => $unused) {
+            $name = 'ds_' . $shortname;
+            if (isset($data->$name)) {
+                $selected[] = $shortname;
+                unset($data->$name);
+            }
+        }
+        $data->datasources = implode(',', $selected);
         return $data;
     }
 }

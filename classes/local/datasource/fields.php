@@ -19,6 +19,7 @@ namespace mod_cms\local\datasource;
 use core_customfield\{category_controller, field};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
+use mod_cms\local\lib;
 use mod_cms\local\model\cms;
 
 /**
@@ -37,6 +38,15 @@ use mod_cms\local\model\cms;
 class fields extends base {
     /** @var cmsfield_handler Custom field handler. */
     protected $cfhandler;
+
+    /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return get_string('fields:custom_fields', 'mod_cms');
+    }
 
     /**
      * Constructs a datasource for the given cms.
@@ -190,5 +200,31 @@ class fields extends base {
                 }
             }
         }
+        $this->update_config_hash();
+    }
+
+    /**
+     * Called when an instance is added/updated.
+     *
+     * @param \stdClass $instancedata
+     * @param bool $isnewinstance
+     */
+    public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
+        // Save the custom field data.
+        $this->cfhandler->instance_form_save($instancedata, $isnewinstance);
+        $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
+        // The content hash is stored as a part fo the cms.
+        $this->cms->set_custom_data('fieldsinstancehash', $hash);
+        $this->cms->save();
+    }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
+        return '';
     }
 }

@@ -26,6 +26,15 @@ namespace mod_cms\local\datasource;
  */
 class site extends base {
     /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return get_string('site:displayname', 'mod_cms');
+    }
+
+    /**
      * Pulls data from the datasource.
      *
      * @return \stdClass
@@ -45,7 +54,18 @@ class site extends base {
      *
      * @return false
      */
-    public function is_optional(): bool {
+    public static function is_optional(): bool {
         return false;
     }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        // There is no instance specific data, so no content hash is needed.
+        return '';
+    }
+
 }

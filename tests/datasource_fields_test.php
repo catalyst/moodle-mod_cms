@@ -16,6 +16,8 @@
 
 namespace mod_cms;
 
+use core_customfield\{category_controller, field_controller};
+use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\fields as dsfields;
 use mod_cms\local\model\cms_types;
 
@@ -130,5 +132,57 @@ class datasource_fields_test extends \advanced_testcase {
                 }
             }
         }
+    }
+
+    /**
+     * Tests to see that changing the custom field configuration will alter the hash of the cms.
+     *
+     * @covers \mod_cms\local\model\cms::get_content_hash
+     * @covers \mod_cms\local\model\cms_types::get_content_hash
+     * @covers \mod_cms\local\datasource\fields::update_config_hash
+     * @covers \mod_cms\customfield\cmsfield_handler::clear_configuration_cache
+     */
+    public function test_hash() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->save();
+        $oldhash = $cmstype->get_sample_cms()->get_content_hash();
+
+        $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
+        $ds = new dsfields($cmstype->get_sample_cms());
+        $ds->set_from_import($importdata);
+        $cmstype->read();
+        $newhash = $cmstype->get_sample_cms()->get_content_hash();
+        $this->assertNotEquals($oldhash, $newhash);
+        $oldhash = $newhash;
+
+        $cfhandler = cmsfield_handler::create($cmstype->get('id'));
+        $catid = $cfhandler->create_category('x');
+        $cc = category_controller::create($catid);
+
+        $cmstype->read();
+        $newhash = $cmstype->get_sample_cms()->get_content_hash();
+        $this->assertNotEquals($oldhash, $newhash);
+        $oldhash = $newhash;
+
+        $cfhandler->rename_category($cc, 'y');
+
+        $cmstype->read();
+        $newhash = $cmstype->get_sample_cms()->get_content_hash();
+        $this->assertNotEquals($oldhash, $newhash);
+        $oldhash = $newhash;
+
+        $fieldobj = (object) [
+            'name' => 'Extra Field',
+            'shortname' => 'extra_field',
+            'type' => 'text',
+            'description' => 'Extra Field',
+        ];
+        $field = field_controller::create(0, $fieldobj, $cc);
+        $cfhandler->save_field_configuration($field, $fieldobj);
+
+        $cmstype->read();
+        $newhash = $cmstype->get_sample_cms()->get_content_hash();
+        $this->assertNotEquals($oldhash, $newhash);
     }
 }

@@ -16,7 +16,9 @@
 
 namespace mod_cms\customfield;
 
-use core_customfield\field_controller;
+use core_customfield\{field_controller, handler};
+use mod_cms\local\model\cms_types;
+use mod_cms\local\datasource\fields;
 
 /**
  * Custom field handler for cms types.
@@ -26,7 +28,7 @@ use core_customfield\field_controller;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cmsfield_handler extends \core_customfield\handler {
+class cmsfield_handler extends handler {
     /**
      * Context that should be used for new categories created by this handler
      *
@@ -94,5 +96,16 @@ class cmsfield_handler extends \core_customfield\handler {
      */
     public function can_view(field_controller $field, int $instanceid): bool {
         return true;
+    }
+
+    /**
+     * Clears the cache.
+     * This is called whenever the configuration of the custom fields is changed, so this serves as a poor man's 'on_update'.
+     */
+    protected function clear_configuration_cache() {
+        parent::clear_configuration_cache();
+        $cmstype = new cms_types($this->get_itemid());
+        $fields = new fields($cmstype->get_sample_cms());
+        $fields->update_config_hash();
     }
 }

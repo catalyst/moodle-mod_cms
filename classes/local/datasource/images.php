@@ -16,6 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\lib;
 use stdClass;
 use context_system;
 
@@ -33,6 +34,15 @@ class images extends base {
 
     /** File area name used for storing images. */
     const FILE_AREA = 'cms_type_images';
+
+    /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return get_string('images:images', 'mod_cms');
+    }
 
     /**
      * Get the metadata for the images stored with this datasource.
@@ -131,13 +141,16 @@ class images extends base {
      * @param mixed $data
      */
     public function config_on_update($data) {
-        file_save_draft_area_files(
-            $data->images,
-            context_system::instance()->id,
-            'mod_cms',
-            self::FILE_AREA,
-            $this->cms->get('typeid')
-        );
+        if (isset($data->images)) {
+            file_save_draft_area_files(
+                $data->images,
+                context_system::instance()->id,
+                'mod_cms',
+                self::FILE_AREA,
+                $this->cms->get('typeid')
+            );
+        }
+        $this->update_config_hash();
     }
 
     /**
@@ -188,5 +201,15 @@ class images extends base {
                 $fs->create_file_from_string($filerecord, base64_decode($filedata->content));
             }
         }
+    }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        // There is no instance specific data, so no content hash is needed.
+        return '';
     }
 }

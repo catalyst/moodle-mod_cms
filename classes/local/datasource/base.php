@@ -16,6 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\lib;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 
@@ -53,7 +54,7 @@ abstract class base {
             self::add_datasource_class(__NAMESPACE__ . '\\' . $classname);
         }
 
-        // Regsiter any datasources defined in other plugins.
+        // Register any datasources defined in other plugins.
         $plugintypes = get_plugins_with_function('modcms_datasources', 'lib.php');
         foreach ($plugintypes as $plugins) {
             foreach ($plugins as $pluginfunction) {
@@ -92,18 +93,19 @@ abstract class base {
      * Get enabled datasources for the particular cms/cms_types.
      *
      * @param cms|cms_types $cms
+     * @param bool $enabledonly
      * @return \Generator
      */
-    public static function get_datasources($cms) {
+    public static function get_datasources($cms, bool $enabledonly = true) {
         self::register_datasources();
 
         if ($cms instanceof cms_types) {
             $cms = $cms->get_sample_cms();
         }
-        // TODO: Use some kind of simple caching here.
+
         foreach (self::$datasourceclasses as $classname) {
             $ds = new $classname($cms);
-            if ($ds->is_enabled()) {
+            if (!$enabledonly || $ds->is_enabled()) {
                 yield $ds;
             }
         }
@@ -131,11 +133,29 @@ abstract class base {
         return new $dsclassname($cms);
     }
 
+    /**
+     * Get datasource labels
+     *
+     * @param bool $optionalonly
+     * @return array
+     */
+    public static function get_datasource_labels(bool $optionalonly = true): array {
+        self::register_datasources();
+
+        $labels = [];
+        foreach (self::$datasourceclasses as $classname) {
+            if (!$optionalonly || $classname::is_optional()) {
+                $labels[$classname::get_shortname()] = $classname::get_displayname();
+            }
+        }
+        return $labels;
+    }
+
     /** @var cms */
-    protected $cms;
+    protected $cms = null;
 
     /**
-     * Constructs a datasource for the given cms.
+     * Constructs a datasource.
      *
      * @param cms $cms
      */
@@ -148,7 +168,7 @@ abstract class base {
      *
      * @return string
      */
-    public static function get_shortname() {
+    public static function get_shortname(): string {
         // Defaults to the unqualified class name.
         $name = get_called_class();
         $pos = strrpos($name, '\\');
@@ -156,12 +176,19 @@ abstract class base {
     }
 
     /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    abstract public static function get_displayname(): string;
+
+    /**
      * Is this datasource enabled for this CMS type?
      *
      * @return bool
      */
     public function is_enabled(): bool {
-        return true;
+        return !static::is_optional() || in_array(static::get_shortname(), $this->cms->get_type()->get('datasources'));
     }
 
     /**
@@ -169,7 +196,7 @@ abstract class base {
      *
      * @return bool
      */
-    public function is_optional(): bool {
+    public static function is_optional(): bool {
         return true;
     }
 
@@ -204,6 +231,15 @@ abstract class base {
      */
     public function instance_form_validation(array $data, array $files): array {
         return [];
+    }
+
+    /**
+     * Called when an instance is added/updated.
+     *
+     * @param \stdClass $instancedata
+     * @param bool $isnewinstance
+     */
+    public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
     }
 
     /**
@@ -265,5 +301,23 @@ abstract class base {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
+    }
+
+    /**
+     * Returns a hash of the content, representing the data stored for the datasource.
+     *
+     * @return string
+     */
+    abstract public function get_content_hash(): string;
+
+    /**
+     * Update the config hash.
+     */
+    public function update_config_hash() {
+        $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
+        // The config hash is stored with the CMS type.
+        $cmstype = $this->cms->get_type();
+        $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
+        $cmstype->save();
     }
 }

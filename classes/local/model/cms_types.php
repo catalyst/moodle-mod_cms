@@ -31,6 +31,7 @@ use mod_cms\event\cms_type_deleted;
 use mod_cms\exportable;
 use mod_cms\importable;
 use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\lib;
 
 /**
  * A persistent for the mdl_cms_types table
@@ -70,7 +71,56 @@ class cms_types extends persistent {
                 'type' => PARAM_RAW,
                 'default' => ''
             ],
+            'datasources' => [
+                'type' => PARAM_TEXT,
+                'default' => ''
+            ],
+            'customdata' => [
+                'type' => PARAM_TEXT,
+                'default' => '{}',
+            ],
         ];
+    }
+
+    /**
+     * Getter for datasources.
+     *
+     * @return array
+     */
+    protected function get_datasources(): array {
+        return explode(',', $this->raw_get('datasources'));
+    }
+
+    /**
+     * Setter for datasources.
+     *
+     * @param array $value
+     */
+    protected function set_datasources(array $value) {
+        $this->raw_set('datasources', implode(',', $value));
+    }
+
+    /**
+     * Sets an arbitrary value.
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function set_custom_data(string $name, $value) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        $cdata->$name = $value;
+        $this->raw_set('customdata', json_encode($cdata));
+    }
+
+    /**
+     * Retrieves an arbitrary value.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function get_custom_data(string $name) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        return $cdata->$name ?? null;
     }
 
     /**
@@ -173,6 +223,15 @@ class cms_types extends persistent {
             $ds = dsbase::get_datasource($name, $this);
             $ds->set_from_import($data);
         }
+    }
+
+    /**
+     * Returns a hash representing the contents of the CMS type.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        return hash(lib::HASH_ALGO, serialize($this->to_record()));
     }
 
     /**

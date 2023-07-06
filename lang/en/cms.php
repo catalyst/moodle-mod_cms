@@ -60,8 +60,14 @@ $string['sample_value'] = 'Sample value';
 $string['some_name'] = 'Some name';
 $string['import_file'] = 'Import file';
 $string['import_cms_type'] = 'Import content type';
+$string['datasources'] = 'Datasources';
+$string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
+ or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
+ this list.';
+$string['cachedef_cms_content'] = 'CMS content';
 
-
+// Site datasource strings.
+$string['site:displayname'] = 'Site Info';
 
 // Image datasource strings.
 $string['images:images'] = 'Images';

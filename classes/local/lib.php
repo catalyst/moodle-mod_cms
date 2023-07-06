@@ -18,7 +18,7 @@ namespace mod_cms\local;
 
 use core_course\local\entity\content_item;
 use core_course\local\entity\string_title;
-use mod_cms\customfield\cmsfield_handler;
+use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 
@@ -34,6 +34,9 @@ use mod_cms\local\model\cms_types;
 class lib {
     /** @var string The URL for editing a mod instance. */
     protected const MODEDIT_URL = '/course/modedit.php';
+
+    /** @var string Preferred hashing algorithm to be used. */
+    public const HASH_ALGO = 'sha1';
 
     /**
      * Obtains a list of defined content types to be included in the activity chooser panel.
@@ -82,17 +85,16 @@ class lib {
      * @return int The ID of the newly crated instance.
      */
     public static function add_instance(\stdClass $instancedata, $mform = null): int {
-        // TODO: This is a stub.
         $cms = new cms();
         $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->save();
 
-        // Save the custom field data.
         $instancedata->id = $cms->get('id');
-        $cfhandler = cmsfield_handler::create($instancedata->typeid);
-        $cfhandler->instance_form_save($instancedata, true);
+        foreach (dsbase::get_datasources($cms) as $ds) {
+            $ds::update_instance($instancedata, true);
+        }
 
         return $cms->get('id');
     }
@@ -112,10 +114,10 @@ class lib {
         $cms->set('intro', '');
         $cms->save();
 
-        // Save the custom field data.
         $instancedata->id = $cm->instance;
-        $cfhandler = cmsfield_handler::create($instancedata->typeid);
-        $cfhandler->instance_form_save($instancedata);
+        foreach (dsbase::get_datasources($cms) as $ds) {
+            $ds->update_instance($instancedata, false);
+        }
 
         return true;
     }
@@ -140,7 +142,8 @@ class lib {
     public static function cm_info_view(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
         $renderer = new renderer($cms);
-        $cminfo->set_content($renderer->get_html());
+        $content = $renderer->get_html();
+        $cminfo->set_content($content);
     }
 
     /**

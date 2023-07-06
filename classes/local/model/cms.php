@@ -25,6 +25,8 @@
 namespace mod_cms\local\model;
 
 use core\persistent;
+use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\lib;
 
 /**
  * A persistent for the cms table.
@@ -73,7 +75,51 @@ class cms extends persistent {
                 'type' => PARAM_INT,
                 'default' => 0,
             ],
+            'customdata' => [
+                'type' => PARAM_TEXT,
+                'default' => '{}',
+            ],
         ];
+    }
+
+    /**
+     * Returns a hash representing the contents of the CMS.
+     * Includes hashes for the CMS type and the datasources as well, as they
+     * contribute to what gets displayed.
+     *
+     * @return string
+     */
+    public function get_content_hash(): string {
+        $hash = '';
+        foreach (dsbase::get_datasources($this) as $ds) {
+            $hash .= $ds->get_content_hash();
+        }
+        $hash .= hash(lib::HASH_ALGO, serialize($this->to_record()));
+        $hash .= $this->get_type()->get_content_hash();
+        return $hash;
+    }
+
+    /**
+     * Sets an arbitrary value.
+     *
+     * @param string $name
+     * @param mixed $value
+     */
+    public function set_custom_data(string $name, $value) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        $cdata->$name = $value;
+        $this->raw_set('customdata', json_encode($cdata));
+    }
+
+    /**
+     * Retrieves an arbitrary value.
+     *
+     * @param string $name
+     * @return mixed
+     */
+    public function get_custom_data(string $name) {
+        $cdata = json_decode($this->raw_get('customdata'), false);
+        return $cdata->$name ?? null;
     }
 
     /**
