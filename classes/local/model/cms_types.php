@@ -192,13 +192,14 @@ class cms_types extends persistent {
         foreach (self::define_properties() as $name => $def) {
             $export->$name = $this->get($name);
         }
+        unset($export->customdata);
 
-        $export->datasources = new \stdClass();
+        $export->datasourcedefs = new \stdClass();
         foreach (dsbase::get_datasources($this) as $ds) {
             $name = $ds::get_shortname();
             $data = $ds->get_for_export();
             if (!is_null($data)) {
-                $export->datasources->$name = $data;
+                $export->datasourcedefs->$name = $data;
             }
         }
 
@@ -219,7 +220,7 @@ class cms_types extends persistent {
 
         $this->create();
 
-        foreach ($data->datasources as $name => $data) {
+        foreach ($data->datasourcedefs as $name => $data) {
             $ds = dsbase::get_datasource($name, $this);
             $ds->set_from_import($data);
         }

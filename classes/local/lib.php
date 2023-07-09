@@ -93,7 +93,7 @@ class lib {
 
         $instancedata->id = $cms->get('id');
         foreach (dsbase::get_datasources($cms) as $ds) {
-            $ds::update_instance($instancedata, true);
+            $ds->update_instance($instancedata, true);
         }
 
         return $cms->get('id');
@@ -107,7 +107,7 @@ class lib {
      * @return bool
      */
     public static function update_instance(\stdClass $instancedata, $mform): bool {
-        $cm = get_coursemodule_from_id('cms', $instancedata->update, 0, false, MUST_EXIST);
+        $cm = get_coursemodule_from_id('cms', $instancedata->coursemodule, 0, false, MUST_EXIST);
         $cms = new cms($cm->instance);
         $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
