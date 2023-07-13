@@ -125,7 +125,7 @@ class images extends base {
             context_system::instance()->id,
             'mod_cms',
             self::FILE_AREA,
-            $data->id,
+            $this->cms->get('typeid'),
             [
                 'subdirs' => 0,
                 'maxbytes' => $CFG->maxbytes,
