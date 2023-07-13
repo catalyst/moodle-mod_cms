@@ -1,0 +1,16 @@
+{
+  "columndefs" : [
+    {
+      "shortname": "name",
+      "label": "Name"
+    },
+    {
+      "shortname": "age",
+      "label": "Age"
+    },
+    {
+      "shortname": "fav_hobby",
+      "label": "Favourite Hobby"
+    }
+  ]
+}

@@ -35,6 +35,7 @@ abstract class base {
         'site',
         'fields',
         'images',
+        'userlist',
     ];
 
     /** @var array List of datasource class names in use. */
@@ -210,9 +211,10 @@ abstract class base {
     /**
      * Add fields to the CMS instance form.
      *
+     * @param \moodleform_mod $form
      * @param \MoodleQuickForm $mform
      */
-    public function instance_form_definition(\MoodleQuickForm $mform) {
+    public function instance_form_definition(\moodleform_mod $form, \MoodleQuickForm $mform) {
     }
 
     /**

@@ -57,6 +57,20 @@ class provider implements
             ],
             'privacy:metadata:cms_types'
         );
+        $collection->add_database_table(
+            'cms_userlists',
+            [
+                'usermodified' => 'privacy:metadata:cms:usermodified',
+            ],
+            'privacy:metadata:cms_userlist'
+        );
+        $collection->add_database_table(
+            'cms_userlist_columns',
+            [
+                'usermodified' => 'privacy:metadata:cms:usermodified',
+            ],
+            'privacy:metadata:cms_userlist_columns'
+        );
 
         return $collection;
     }

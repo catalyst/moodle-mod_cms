@@ -42,10 +42,6 @@ $string['modulename'] = 'CMS';
 $string['modulenameplural'] = 'CMS';
 $string['newcontenttype'] = 'Add new content type';
 $string['pluginname'] = 'CMS';
-$string['privacy:metadata:cms'] = 'Custom content type instances';
-$string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
-$string['privacy:metadata:cms_types'] = 'Custom content types';
-$string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
 $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
 $string['cms:addinstance'] = 'Add a new custom content instance';
@@ -66,6 +62,14 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  this list.';
 $string['cachedef_cms_content'] = 'CMS content';
 
+// Privacy strings.
+$string['privacy:metadata:cms'] = 'Custom content type instances';
+$string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
+$string['privacy:metadata:cms_types'] = 'Custom content types';
+$string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
+$string['privacy:metadata:cms_userlist'] = 'User defined list';
+$string['privacy:metadata:cms_userlist_columns'] = 'User defined list column defs';
+
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';
 
@@ -83,3 +87,8 @@ $string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod
 $string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
 $string['error:no_file_uploaded'] = 'No file uploaded';
 $string['error:cant_delete_content_type'] = 'Cannot delete content type.';
+
+// User list datasource strings.
+$string['userlist:displayname'] = 'User list';
+$string['userlist:listdata'] = 'List data';
+$string['userlist:pageheading'] = 'List definition for \'{$a}\'';

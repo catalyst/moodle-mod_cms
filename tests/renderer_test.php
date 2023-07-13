@@ -45,7 +45,7 @@ class renderer_test extends \advanced_testcase {
     public function test_get_data() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
-        $cmstype->set('datasources', dsbase::BUILTIN_DATASOURCES);
+        $cmstype->set('datasources', array_keys(dsbase::get_datasource_labels(false)));
         $cmstype->save();
 
         $cms = new cms();

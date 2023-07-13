@@ -46,14 +46,16 @@ class datasource_base_test extends \advanced_testcase {
     public function test_get_datasources() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
-        $cmstype->set('datasources', dsbase::BUILTIN_DATASOURCES);
+        $cmstype->set('datasources', array_keys(dsbase::get_datasource_labels(false)));
         $cmstype->save();
 
         // Get a list of names of datasource classes.
         $datasources = dsbase::get_datasources($cmstype);
+        $names = [];
         foreach ($datasources as $ds) {
             $names[] = get_class($ds);
         }
+
         // Assert that the builtin classes are in this list.
         foreach (dsbase::BUILTIN_DATASOURCES as $ds) {
             $this->assertTrue(in_array('mod_cms\\local\\datasource\\' . $ds, $names));
