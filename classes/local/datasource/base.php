@@ -320,4 +320,16 @@ abstract class base {
         $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
         $cmstype->save();
     }
+
+    /**
+     * Called when deleting a CMS type.
+     */
+    public function config_on_delete() {
+    }
+
+    /**
+     * Called when deleting a CMS instance.
+     */
+    public function instance_on_delete() {
+    }
 }

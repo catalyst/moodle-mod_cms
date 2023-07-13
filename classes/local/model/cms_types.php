@@ -179,7 +179,8 @@ class cms_types extends persistent {
      * @return bool
      */
     public function can_delete(): bool {
-        return true;
+        // We cannot delete if there is at least one instance of this configuration.
+        return cms::count_records(['typeid' => $this->get('id')]) === 0;
     }
 
     /**

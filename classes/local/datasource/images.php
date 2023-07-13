@@ -212,4 +212,12 @@ class images extends base {
         // There is no instance specific data, so no content hash is needed.
         return '';
     }
+
+    /**
+     * Called when deleting a CMS type.
+     */
+    public function config_on_delete() {
+        $fs = get_file_storage();
+        $fs->delete_area_files(context_system::instance()->id, 'mod_cms', self::FILE_AREA, $this->cms->get('typeid'));
+    }
 }

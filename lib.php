@@ -127,8 +127,7 @@ function cms_update_instance(stdClass $instancedata, $mform): bool {
  * @return bool
  */
 function cms_delete_instance(int $id): bool {
-    // TODO stub.
-    return false;
+    return lib::delete_instance($id);
 }
 
 /**

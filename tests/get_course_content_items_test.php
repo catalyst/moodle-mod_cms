@@ -16,8 +16,7 @@
 
 namespace mod_cms;
 
-use core_course\local\entity\content_item;
-use core_course\local\entity\lang_string_title;
+use core_course\local\entity\{content_item, lang_string_title};
 use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 

@@ -80,7 +80,9 @@ class manage_content_types {
                 );
                 break;
             case 'delete':
+                require_sesskey();
                 $this->delete(required_param('id', PARAM_INT));
+                redirect(new \moodle_url(self::get_base_url()));
                 break;
             case 'view':
             default:
@@ -302,23 +304,24 @@ class manage_content_types {
     }
 
     /**
-     * Execute delete action.
+     * Deletes a cms_type.
      *
      * @param int $id
      *
      * @return void
      */
-    protected function delete(int $id): void {
-        require_sesskey();
+    public function delete(int $id): void {
         $instance = $this->get_instance($id);
 
         if ($instance->can_delete()) {
+            foreach (dsbase::get_datasources($instance, false) as $ds) {
+                $ds->config_on_delete();
+            }
             $instance->delete();
             notification::success(get_string('deleted'));
         } else {
-            notification::warning(get_string('cantdelete', 'mod_cms'));
+            notification::warning(get_string('error:cant_delete_content_type', 'mod_cms'));
         }
-        redirect(new \moodle_url(self::get_base_url()));
     }
 
     /**

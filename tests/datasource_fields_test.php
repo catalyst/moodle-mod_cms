@@ -21,6 +21,10 @@ use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\fields as dsfields;
 use mod_cms\local\model\cms_types;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/fixtures/test_import1_trait.php');
+
 /**
  * Unit test for custom field datasource.
  *
@@ -30,6 +34,8 @@ use mod_cms\local\model\cms_types;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class datasource_fields_test extends \advanced_testcase {
+    use test_import1_trait;
+
     /** Test data for import/export. */
     const IMPORT_DATAFILE = __DIR__ . '/fixtures/fields_data.json';
     /** Test data for unsupported field. */
@@ -41,6 +47,7 @@ class datasource_fields_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        $this->setAdminUser();
     }
 
     /**
@@ -184,5 +191,62 @@ class datasource_fields_test extends \advanced_testcase {
         $cmstype->read();
         $newhash = $cmstype->get_sample_cms()->get_content_hash();
         $this->assertNotEquals($oldhash, $newhash);
+    }
+
+    /**
+     * Tests that field defs are removed when a cms type is deleted.
+     *
+     * @covers \mod_cms\local\datasource\fields::config_on_delete
+     */
+    public function test_config_delete() {
+        global $DB;
+
+        $cmstype = $this->import();
+        // Test that stuff gets deleted even if not included in datasource list.
+        $cmstype->set('datasources', []);
+        $cmstype->save();
+
+        $ids = $DB->get_records('customfield_category', ['component' => 'mod_cms', 'area' => 'cmsfield']);
+        $this->assertEquals(1, count($ids));
+        $catid = array_shift($ids)->id;
+
+        $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
+        $this->assertNotEquals(0, count($fields));
+
+        $manager = new manage_content_types();
+        $manager->delete($cmstype->get('id'));
+
+        $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
+        $this->assertEquals(0, count($fields));
+
+        $ids = $DB->get_records('customfield_category', ['component' => 'mod_cms', 'area' => 'cmsfield']);
+        $this->assertEquals(0, count($ids));
+    }
+
+    /**
+     * Tests that field data is removed when a cms type is deleted.
+     *
+     * @covers \mod_cms\local\datasource\fields::instance_on_delete
+     */
+    public function test_instance_delete() {
+        global $DB;
+
+        $cmstype = $this->import();
+
+        // Create a course and add a module to it.
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        $fields = $DB->get_records('customfield_data', ['instanceid' => $moduleinfo->instance]);
+        $this->assertNotEquals(0, count($fields));
+
+        // Test that stuff gets deleted even if not included in datasource list.
+        $cmstype->set('datasources', []);
+        $cmstype->save();
+
+        course_delete_module($moduleinfo->coursemodule);
+
+        $fields = $DB->get_records('customfield_data', ['instanceid' => $moduleinfo->instance]);
+        $this->assertEquals(0, count($fields));
     }
 }

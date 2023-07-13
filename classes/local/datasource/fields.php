@@ -227,4 +227,18 @@ class fields extends base {
         // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
         return '';
     }
+
+    /**
+     * Called when deleting a CMS type.
+     */
+    public function config_on_delete() {
+        $this->cfhandler->delete_all();
+    }
+
+    /**
+     * Called when deleting a CMS instance.
+     */
+    public function instance_on_delete() {
+        $this->cfhandler->delete_instance($this->cms->get('id'));
+    }
 }
