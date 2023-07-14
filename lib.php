@@ -145,6 +145,8 @@ function cms_cm_info_dynamic(cm_info $cminfo) {
  * @param \cm_info $cminfo
  */
 function cms_cm_info_view(cm_info $cminfo) {
+    // This removes all the 'activity' chrome which makes it easier to style.
+    $cminfo->set_custom_cmlist_item(true);
     lib::cm_info_view($cminfo);
 }
 
