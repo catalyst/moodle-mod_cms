@@ -72,8 +72,6 @@ $string['privacy:metadata:cms'] = 'Custom content type instances';
 $string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
 $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
-$string['privacy:metadata:cms_userlist'] = 'User defined list';
-$string['privacy:metadata:cms_userlist_columns'] = 'User defined list column defs';
 
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';

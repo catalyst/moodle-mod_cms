@@ -157,6 +157,8 @@ class lib {
         $renderer = new renderer($cms);
         $content = $renderer->get_html();
         $cminfo->set_content($content);
+        // This removes all the 'activity' chrome which makes it easier to style.
+        $cminfo->set_custom_cmlist_item(true);
     }
 
     /**

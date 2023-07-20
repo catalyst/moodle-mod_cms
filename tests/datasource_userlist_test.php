@@ -16,8 +16,10 @@
 
 namespace mod_cms;
 
+use mod_cms\customfield\cmsuserlist_handler;
 use mod_cms\local\datasource\userlist as dsuserlist;
-use mod_cms\local\model\{cms_types, cms_userlist, cms_userlist_columns};
+use mod_cms\local\model\{cms, cms_types};
+use mod_cms\manage_content_types;
 
 /**
  * Unit tests for userlist datasource.
@@ -113,7 +115,9 @@ class datasource_userlist_test extends \advanced_testcase {
     public function test_config_delete() {
         global $DB;
 
-        $cmstype = $this->import();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) ['name' => 'Name']);
+
         // Test that stuff gets deleted even if not included in datasource list.
         $cmstype->set('datasources', []);
         $cmstype->save();
@@ -122,10 +126,6 @@ class datasource_userlist_test extends \advanced_testcase {
         $this->assertEquals(1, count($ids));
         $catid = array_shift($ids)->id;
 
-        $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
-        $this->assertNotEquals(0, count($fields));
-
-        $manager = new manage_content_types();
         $manager->delete($cmstype->get('id'));
 
         $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
@@ -149,8 +149,12 @@ class datasource_userlist_test extends \advanced_testcase {
         $course = $this->create_course();
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
 
-        $list = $DB->get_records(cms_userlist::TABLE, ['cmsid' => $moduleinfo->instance]);
-        $this->assertNotEquals(0, count($list));
+        $catid = $DB->get_field('customfield_category', 'id', ['component' => 'mod_cms', 'area' => 'cmsuserlist']);
+        $fields = $DB->get_records_menu('customfield_field', ['categoryid' => $catid], '', 'id, shortname');
+        $fields = array_keys($fields);
+        [$fieldssql, $params] = $DB->get_in_or_equal($fields);
+        $num = $DB->count_records_select('customfield_data', 'fieldid ' . $fieldssql, $params);
+        $this->assertNotEquals(0, $num);
 
         // Test that stuff gets deleted even if not included in datasource list.
         $cmstype->set('datasources', []);
@@ -158,7 +162,158 @@ class datasource_userlist_test extends \advanced_testcase {
 
         course_delete_module($moduleinfo->coursemodule);
 
-        $list = $DB->get_records(cms_userlist::TABLE, ['cmsid' => $moduleinfo->instance]);
-        $this->assertEquals(0, count($list));
+        $num = $DB->count_records_select('customfield_data', 'fieldid ' . $fieldssql, $params);
+        $this->assertEquals(0, $num);
+    }
+
+    /**
+     * Tests userlist::instance_form_validation
+     *
+     * @covers \mod_cms\local\datasource\userlist::instance_form_validation
+     */
+    public function test_instance_form_validataion() {
+        $cmstype = $this->import();
+        $cmstype->set('datasources', ['userlist']);
+        $cmstype->save();
+
+        $cms = new cms();
+        $cms->set('name', 'Name');
+        $cms->set('typeid', $cmstype->get('id'));
+        $cms->set('intro', 'x');
+        $cms->save();
+
+        $ul = new dsuserlist($cms);
+
+        $formdata = [
+            'userlist_name' => ['John', 'Andy'],
+            'userlist_age' => [12, 13],
+            'userlist_fav_hobby' => ['Inventing words', 'Eating rocks'],
+            'userlist_option_repeats' => 2,
+        ];
+
+        $errors = $ul->instance_form_validation($formdata, []);
+        $this->assertCount(0, $errors);
+    }
+
+    /**
+     * Tests userlist::update_instance().
+     *
+     * @covers \mod_cms\local\datasource\userlist::update_instance
+     */
+    public function test_update_instance() {
+        $cmstype = $this->import();
+        $cmstype->set('datasources', ['userlist']);
+        $cmstype->save();
+
+        $cms = new cms();
+        $cms->set('name', 'Name');
+        $cms->set('typeid', $cmstype->get('id'));
+        $cms->set('intro', 'x');
+        $cms->save();
+
+        $ul = new dsuserlist($cms);
+
+        $formdata = [
+            'userlist_name' => ['John', 'Andy'],
+            'userlist_age' => [12, 13],
+            'userlist_fav_hobby' => ['Inventing words', 'Eating rocks'],
+            'userlist_option_repeats' => 2,
+        ];
+
+        // Test creating.
+        $ul->update_instance((object) $formdata, true);
+        $this->check_instance_data($cms, $formdata);
+
+        // Test updating.
+        $formdata['userlist_name'][1] = 'Lewis';
+        $formdata['userlist_age'][0] = 11;
+
+        $ul->update_instance((object) $formdata, false);
+        $this->check_instance_data($cms, $formdata);
+
+        // Test adding.
+        $formdata['userlist_name'][2] = 'Jane';
+        $formdata['userlist_age'][2] = 16;
+        $formdata['userlist_fav_hobby'][2] = 'Capacitor collecting';
+        $formdata['userlist_option_repeats'] = 3;
+
+        $ul->update_instance((object) $formdata, false);
+        $this->check_instance_data($cms, $formdata);
+
+        // Test removing.
+        $formdata['delete-hidden'] = [1 => 1];
+        $ul->update_instance((object) $formdata, false);
+        // Must perform a bit of voodoo before checking.
+        unset($formdata['userlist_name'][1]);
+        $formdata['userlist_name'] = array_values($formdata['userlist_name']);
+        unset($formdata['userlist_age'][1]);
+        $formdata['userlist_age'] = array_values($formdata['userlist_age']);
+        unset($formdata['userlist_fav_hobby'][1]);
+        $formdata['userlist_fav_hobby'] = array_values($formdata['userlist_fav_hobby']);
+        $formdata['userlist_option_repeats'] = 2;
+        $this->check_instance_data($cms, $formdata);
+    }
+
+    /**
+     * Performs tests to check data integrity.
+     *
+     * @param cms $cms
+     * @param array $formdata
+     */
+    public function check_instance_data(cms $cms, array $formdata) {
+        global $DB;
+
+        $instanceids = $cms->get_custom_data('userlistinstanceids');
+        $this->assertCount($formdata['userlist_option_repeats'], (array) $instanceids);
+
+        $cfhandler = cmsuserlist_handler::create($cms->get('typeid'));
+        foreach ($instanceids as $rownum => $id) {
+            $row = $cfhandler->get_instance_data($id, true);
+            foreach ($row as $d) {
+                $ename = $d->get_form_element_name();
+                $ename = str_replace(dsuserlist::CUSTOMFIELD_PREFIX, dsuserlist::FORM_PREFIX, $ename);
+                $this->assertEquals($formdata[$ename][$rownum], $d->get_value());
+            }
+        }
+
+        // A quick double check.
+        $catid = $DB->get_field('customfield_category', 'id', ['component' => 'mod_cms', 'area' => 'cmsuserlist']);
+        $fields = $DB->get_records_menu('customfield_field', ['categoryid' => $catid], '', 'id, shortname');
+        $fields = array_keys($fields);
+        [$fieldssql, $params] = $DB->get_in_or_equal($fields);
+        $num = $DB->count_records_select('customfield_data', 'fieldid ' . $fieldssql, $params);
+        $this->assertEquals($formdata['userlist_option_repeats'] * 3, $num);
+    }
+
+    /**
+     * Tests userlist::get_data().
+     *
+     * @covers \mod_cms\local\datasource\userlist::get_data
+     */
+    public function test_get_data() {
+        $expected = [
+            (object) [
+                'name' => 'John',
+                'age' => '23',
+                'fav_hobby' => 'Poodle juggling',
+            ],
+            (object) [
+                'name' => 'Jane',
+                'age' => '21',
+                'fav_hobby' => 'Water sculpting',
+            ],
+        ];
+
+        $cmstype = $this->import();
+
+        // Create a course and add a module to it.
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        $cms = new cms($moduleinfo->instance);
+        $userlist = new dsuserlist($cms);
+        $data = $userlist->get_data();
+        $this->assertEquals(2, $data->numrows);
+        $this->assertEquals($expected, $data->data);
     }
 }

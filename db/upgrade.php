@@ -84,29 +84,19 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023070500, 'cms');
     }
 
-    if ($oldversion < 2023071900) {
-        // Add table 'cms_userlists'.
+    if ($oldversion < 2023072400) {
+        // Remove tables if they exist.
         $table = new xmldb_table('cms_userlists');
-
-        // Adding fields.
-        $table->add_field('id', XMLDB_TYPE_INTEGER, '10', null, XMLDB_NOTNULL, XMLDB_SEQUENCE, null);
-        $table->add_field('typeid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('cmsid', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('numrows', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('data', XMLDB_TYPE_TEXT, null, null, false);
-        $table->add_field('usermodified', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timecreated', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-        $table->add_field('timemodified', XMLDB_TYPE_INTEGER, '11', null, XMLDB_NOTNULL, null, '0');
-
-        // Adding keys to table.
-        $table->add_key('primary', XMLDB_KEY_PRIMARY, array('id'));
-
-        // Conditionally launch create.
-        if (!$dbman->table_exists($table)) {
-            $dbman->create_table($table);
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
         }
 
-        upgrade_mod_savepoint(true, 2023071900, 'cms');
+        $table = new xmldb_table('cms_userlist_columns');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2023072400, 'cms');
     }
 
     return true;
