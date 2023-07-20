@@ -27,12 +27,6 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['addnewtype'] = 'Add new content type';
 $string['editcontenttype'] = 'Edit content type';
-$string['event:cms_type_created'] = 'Custom content type created';
-$string['event_cms_type_created_desc'] = 'The user with ID: {$a->userid} has created a custom content type with ID: {$a->typeid}';
-$string['event:cms_type_deleted'] = 'Custom content type deleted';
-$string['event_cms_type_deleted_desc'] = 'The user with ID: {$a->userid} has deleted a custom content type with ID: {$a->typeid}';
-$string['event:cms_type_updated'] = 'Custom content type updated';
-$string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has updated a custom content type with ID: {$a->typeid}';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
 $string['managetypes'] = 'Manage content types';
@@ -44,7 +38,6 @@ $string['newcontenttype'] = 'Add new content type';
 $string['pluginname'] = 'CMS';
 $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
-$string['cms:addinstance'] = 'Add a new custom content instance';
 $string['pluginadministration'] = 'Plugin administration';
 $string['mustache'] = 'Mustache template';
 $string['mustache_help'] = 'The above content will need to be a valid {$a}. Sample variables that are available for use in this template are given below.';
@@ -61,6 +54,18 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
 $string['cachedef_cms_content'] = 'CMS content';
+
+// Event strings.
+$string['event:cms_type_created'] = 'Custom content type created';
+$string['event_cms_type_created_desc'] = 'The user with ID: {$a->userid} has created a custom content type with ID: {$a->typeid}';
+$string['event:cms_type_deleted'] = 'Custom content type deleted';
+$string['event_cms_type_deleted_desc'] = 'The user with ID: {$a->userid} has deleted a custom content type with ID: {$a->typeid}';
+$string['event:cms_type_updated'] = 'Custom content type updated';
+$string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has updated a custom content type with ID: {$a->typeid}';
+
+// Capability strings.
+$string['cms:addinstance'] = 'Add a new custom content instance';
+$string['cms:view'] = 'View a new custom content instance';
 
 // Privacy strings.
 $string['privacy:metadata:cms'] = 'Custom content type instances';

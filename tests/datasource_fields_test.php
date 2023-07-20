@@ -77,7 +77,7 @@ class datasource_fields_test extends \advanced_testcase {
         $ds = new dsfields($cms);
         $ds->set_from_import($importdata);
 
-        $this->check_categories($importdata, $cmstype->get('id'));
+        $this->check_database($importdata, $cmstype->get('id'));
 
         $exportdata = $ds->get_for_export();
         $this->assertEquals($importdata, $exportdata);
@@ -110,16 +110,16 @@ class datasource_fields_test extends \advanced_testcase {
         $ds = new dsfields($cms);
         $ds->set_from_import($importdata);
 
-        $this->check_categories($importdata, $cmstype->get('id'));
+        $this->check_database($importdata, $cmstype->get('id'));
     }
 
     /**
-     * Check categories.
+     * Check the database of the import data.
      *
      * @param object $importdata
      * @param int $itemid
      */
-    public function check_categories(object $importdata, int $itemid) {
+    public function check_database(object $importdata, int $itemid) {
         global $DB;
 
         foreach ($importdata->categories as $categorydata) {

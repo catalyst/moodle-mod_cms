@@ -16,9 +16,12 @@
 
 namespace mod_cms\local\datasource;
 
+use core_customfield\field;
+use core_customfield\output\management;
+use mod_cms\customfield\cmsuserlist_handler;
 use mod_cms\helper;
 use mod_cms\local\lib;
-use mod_cms\local\model\{cms_userlist, cms_userlist_columns};
+use mod_cms\local\model\{cms, cms_userlist, cms_userlist_columns};
 
 /**
  * User designed lists
@@ -43,8 +46,13 @@ class userlist extends base {
     const DEFAULT_NUM_ROWS = 2;
     /** Prefix to use for list elements. */
     const FORM_PREFIX = 'userlist_';
+    /** Custom field prefix. */
+    const CUSTOMFIELD_PREFIX = 'customfield_';
     /** Name used for the repeat hidden name (repeat counts). */
     const FORM_REPEATHIDDENNAME = self::FORM_PREFIX . 'option_repeats';
+
+    /** @var cmsuserlist_handler Custom field handler. */
+    protected $cfhandler;
 
     /**
      * The short name of the datasource type. Must be unique.
@@ -65,26 +73,38 @@ class userlist extends base {
     }
 
     /**
+     * Constructs a datasource for the given cms.
+     *
+     * @param cms $cms
+     */
+    public function __construct(cms $cms) {
+        parent::__construct($cms);
+        $this->cfhandler = cmsuserlist_handler::create($this->cms->get('typeid'));
+    }
+
+    /**
      * Pulls data from the datasource.
      *
      * @return \stdClass
      */
     public function get_data(): \stdClass {
         $data = new \stdClass();
-        $columns = cms_userlist_columns::get_from_typeid($this->cms->get('typeid'));
-        if ($columns !== null) {
-            $data->numcolumns = $columns->get('numcolumns');
-            $data->columns = $columns->get('columndefs');
-
-            if ($this->cms->issample) {
-                $data->data = $this->get_sample($columns);
-            } else {
-                $list = cms_userlist::get_from_cmsid($this->cms->get('id'));
+        $data->columns = [];
+        $columndefs = $this->cfhandler->get_fields();
+        $data->numcolumns = count($columndefs);
+        foreach ($columndefs as $columndef) {
+            $data->columns[] = (object) [
+                'shortname' => $columndef->get('shortname'),
+                'name' => $columndef->get_formatted_name(),
+            ];
+        }
+        if ($this->cms->issample) {
+            $data->data = $this->get_sample($columndefs);
+        } else {
+            $list = cms_userlist::get_from_cmsid($this->cms->get('id'));
+            if (isset($list)) {
                 $data->data = $list->get('data');
             }
-        } else {
-            $data->numcolumns = 0;
-            $data->columns = [];
         }
 
         return $data;
@@ -93,18 +113,21 @@ class userlist extends base {
     /**
      * Get a sample list for display on the config page.
      *
-     * @param cms_userlist_columns $columns
+     * @param array $columndefs
      * @return array
      */
-    protected function get_sample(cms_userlist_columns $columns): array {
+    protected function get_sample(array $columndefs): array {
         $rows = 2;
 
         $data = [];
         for ($i = 0; $i < $rows; ++$i) {
             $row = new \stdClass();
-            foreach ($columns->get('columndefs') as $coldef) {
-                $name = $coldef->shortname;
-                $row->$name = 'A';
+            foreach ($columndefs as $columndef) {
+                $name = $columndef->get('shortname');
+                $row->$name = $columndef->get_configdata_property('defaultvalue') ?? 0;
+                if ($row->$name === '') {
+                    $row->$name = 'text';
+                }
             }
             $data[] = $row;
         }
@@ -117,23 +140,15 @@ class userlist extends base {
      * @param \MoodleQuickForm $mform
      */
     public function config_form_definition(\MoodleQuickForm $mform) {
-        global $CFG;
+        global $PAGE;
 
-        // TODO: Add a link to the config url page?
-    }
+        $output = $PAGE->get_renderer('core_customfield');
+        $outputpage = new management($this->cfhandler);
 
-    /**
-     * Return a action link to add to the CMS type table.
-     *
-     * @return string|null
-     */
-    public function config_action_link(): ?string {
-        return helper::format_icon_link(
-            new \moodle_url(self::CONFIG_URL, ['typeid' => $this->cms->get('typeid')]),
-            self::ACTION_ICON,
-            get_string('userlist:displayname', 'mod_cms'),
-            null
-        );
+        // This may not fill the screen. Add '.form-control-static {width: 100%}' to custom CSS.
+        $html = $output->render($outputpage);
+
+        $mform->addElement('static', 'userlist', 'List columns', $html);
     }
 
     /**
@@ -143,26 +158,37 @@ class userlist extends base {
      * @param \MoodleQuickForm $mform
      */
     public function instance_form_definition(\moodleform_mod $form, \MoodleQuickForm $mform) {
-        $listdef = cms_userlist_columns::get_from_typeid($this->cms->get('typeid'));
+        $fakeform = new \MoodleQuickForm('a', 'b', 'c');
+        $this->cfhandler->instance_form_definition($fakeform, $this->cms->get('id'));
         $list = cms_userlist::get_from_cmsid($this->cms->get('id'));
-        $columndef = $listdef->get('columndefs');
 
         $repeatable = [];
         $repeatoptions = [];
         $repeatno = $list ? $list->get('numrows') : self::DEFAULT_NUM_ROWS;
 
-        // Put together the list row elements based on column definitions.
-        foreach ($columndef as $column) {
-            $repeatable[] = $mform->createElement('text', self::FORM_PREFIX . $column->shortname, $column->label);
+        $fields = $this->cfhandler->get_fields();
+        foreach ($fields as $field) {
+            $actualname = self::FORM_PREFIX . $field->get('shortname');
+            $fakename = self::CUSTOMFIELD_PREFIX . $field->get('shortname');
+            $element = $fakeform->getElement($fakename);
+            $element->setName($actualname);
+            $repeatable[] = $element;
+
+            // Sometimes, the default has to be an integer.
+            $default = $field->get_configdata_property('defaultvalue');
+            if ($default == (int) $default) {
+                $default = (int) $default;
+            }
+            $repeatoptions[$actualname] = [
+                'default' => $default,
+                'type' => $fakeform->getCleanType($fakename, 0),
+            ];
+            // Set the rule. Only one rule is allowed.
+            if ($field->get_configdata_property('required')) {
+                $repeatoptions[$actualname]['rule'] = 'required';
+            }
         }
         $repeatable[] = $mform->createElement('submit', 'delete', 'Remove', [], false);
-
-        foreach ($columndef as $column) {
-            $repeatoptions[self::FORM_PREFIX . $column->shortname] = [
-                'default' => '',
-                'type' => PARAM_TEXT,
-            ];
-        }
 
         // Add a heading.
         $mform->addElement('header', 'heading', get_string('userlist:listdata', 'mod_cms'));
@@ -199,6 +225,28 @@ class userlist extends base {
     }
 
     /**
+     * Validate fields added by datasource.
+     *
+     * @param array $data
+     * @param array $files
+     * @return array
+     */
+    public function instance_form_validation(array $data, array $files): array {
+        $objdata = (object) $data;
+        $this->convert($objdata, self::CUSTOMFIELD_PREFIX);
+
+        $errors = [];
+        foreach ($objdata->data as $count => $group) {
+            $fielderrors = $this->cfhandler->instance_form_validation((array)$group, $files);
+            foreach ($fielderrors as $idx => $error) {
+                $idx = str_replace(self::CUSTOMFIELD_PREFIX, self::FORM_PREFIX, $idx);
+                $errors["{$idx}[{$count}"] = $error;
+            }
+        }
+        return $errors;
+    }
+
+    /**
      * Called when an instance is added/updated.
      *
      * @param \stdClass $instancedata
@@ -226,15 +274,25 @@ class userlist extends base {
 
     /**
      * Convert the form data to something settable to the persistent.
+     * Data comes in as
+     *   {
+     *     userlist_name : ['John', 'Andy'],
+     *     userlist_age  : [12, 14]
+     *   }
+     * Converts to
+     *  [
+     *    { name : 'John', age : 12 },
+     *    { name : 'Andy', age : 14 }
+     *  ]
      *
      * @param \stdClass $data Form data as returned by moodleform::get_data().
+     * @param string $prefix A prefix to put at the front of names when adding to data.
      */
-    protected function convert(\stdClass $data) {
+    protected function convert(\stdClass $data, $prefix = '') {
         $deletehidden = 'delete-hidden';
         $deletehidden = isset($data->$deletehidden) ? $data->$deletehidden : [];
 
-        $listdef = cms_userlist_columns::get_from_typeid($this->cms->get('typeid'));
-        $columndefs = $listdef->get('columndefs');
+        $columndefs = $this->cfhandler->get_fields();
 
         $repeathiddenname = self::FORM_REPEATHIDDENNAME;
         $defs = [];
@@ -247,13 +305,14 @@ class userlist extends base {
         }
 
         foreach ($columndefs as $columndef) {
-            $name = $columndef->shortname;
+            $name = $columndef->get('shortname');
             $formname = self::FORM_PREFIX . $name;
             foreach ($data->$formname as $i => $val) {
                 if (isset($deletehidden[$i])) {
                     continue;
                 }
-                $defs[$i]->$name = $val;
+                $savename = $prefix . $name;
+                $defs[$i]->$savename = $val;
             }
         }
 
@@ -271,10 +330,20 @@ class userlist extends base {
      */
     public function get_for_export(): ?\stdClass {
         $data = new \stdClass();
-
-        $listdef = cms_userlist_columns::get_from_typeid($this->cms->get('typeid'));
-
-        $data->columndefs = $listdef->get('columndefs');
+        $data->columns = [];
+        $columndefs = $this->cfhandler->get_fields();
+        foreach ($columndefs as $field) {
+            $record = $field->to_record();
+            $data->columns[] = (object) [
+                'name' => $record->name,
+                'shortname' => $record->shortname,
+                'type' => $record->type,
+                'description' => $record->description,
+                'descriptionformat' => $record->descriptionformat,
+                'sortorder' => $record->sortorder,
+                'configdata' => $record->configdata,
+            ];
+        }
         return $data;
     }
 
@@ -284,11 +353,17 @@ class userlist extends base {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
-        $listdef = new cms_userlist_columns();
-        $listdef->set('typeid', $this->cms->get('typeid'));
-        $listdef->set('numcolumns', count($data->columndefs));
-        $listdef->set('columndefs', $data->columndefs);
-        $listdef->save();
+        // Create a dummy category to hold the fields.
+        $catid = $this->cfhandler->create_category('');
+        if (!empty($data->columns)) {
+            foreach ($data->columns as $columndata) {
+                $record = clone $columndata;
+                $record->categoryid = $catid;
+                // Use field rather than field_controller so we can import unsupported fields.
+                $field = new field(0, $record);
+                $field->save();
+            }
+        }
     }
 
     /**
@@ -305,10 +380,7 @@ class userlist extends base {
      * Called when deleting a CMS type.
      */
     public function config_on_delete() {
-        $listdef = cms_userlist_columns::get_from_typeid($this->cms->get('typeid'));
-        if (isset($listdef)) {
-            $listdef->delete();
-        }
+        $this->cfhandler->delete_all();
     }
 
     /**

@@ -70,13 +70,39 @@ class datasource_userlist_test extends \advanced_testcase {
         $ds->set_from_import($importdata);
 
         // Check the database directly.
-        $record = $DB->get_record('cms_userlist_columns', [ 'typeid' => $cmstype->get('id')]);
-        $this->assertNotFalse($record);
-        $this->assertEquals($importdata->columndefs, json_decode($record->columndefs));
+        $this->check_database($importdata, $cmstype->get('id'));
 
         // Check that exporting produces the same content as was imported.
         $exportdata = $ds->get_for_export();
         $this->assertEquals($importdata, $exportdata);
+    }
+
+    /**
+     * Check the database of the import data.
+     *
+     * @param object $importdata
+     * @param int $itemid
+     */
+    public function check_database(object $importdata, int $itemid) {
+        global $DB;
+
+        $categoryrecord = $DB->get_records(
+            'customfield_category',
+            ['itemid' => $itemid]
+        );
+        $this->assertEquals(1, count($categoryrecord));
+        $categoryrecord = array_shift($categoryrecord);
+
+        foreach ($importdata->columns as $column) {
+            $fieldrecord = $DB->get_record(
+                'customfield_field',
+                ['shortname' => $column->shortname, 'categoryid' => $categoryrecord->id]
+            );
+            $this->assertNotFalse($fieldrecord);
+            foreach ($column as $index => $value) {
+                $this->assertEquals($value, $fieldrecord->$index);
+            }
+        }
     }
 
     /**
@@ -92,13 +118,20 @@ class datasource_userlist_test extends \advanced_testcase {
         $cmstype->set('datasources', []);
         $cmstype->save();
 
-        $ids = $DB->get_records(cms_userlist_columns::TABLE, ['typeid' => $cmstype->get('id')]);
+        $ids = $DB->get_records('customfield_category', ['component' => 'mod_cms', 'area' => 'cmsuserlist']);
         $this->assertEquals(1, count($ids));
+        $catid = array_shift($ids)->id;
+
+        $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
+        $this->assertNotEquals(0, count($fields));
 
         $manager = new manage_content_types();
         $manager->delete($cmstype->get('id'));
 
-        $ids = $DB->get_records(cms_userlist_columns::TABLE, ['typeid' => $cmstype->get('id')]);
+        $fields = $DB->get_records('customfield_field', ['categoryid' => $catid]);
+        $this->assertEquals(0, count($fields));
+
+        $ids = $DB->get_records('customfield_category', ['component' => 'mod_cms', 'area' => 'cmsuserlist']);
         $this->assertEquals(0, count($ids));
     }
 

@@ -1,16 +1,31 @@
 {
-  "columndefs" : [
+  "columns" : [
     {
+      "name": "Name",
       "shortname": "name",
-      "label": "Name"
+      "type": "text",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "0",
+      "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
     },
     {
+      "name": "Age",
       "shortname": "age",
-      "label": "Age"
+      "type": "text",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "1",
+      "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
     },
     {
+      "name": "Favourite Hobby",
       "shortname": "fav_hobby",
-      "label": "Favourite Hobby"
+      "type": "text",
+      "description": null,
+      "descriptionformat": "0",
+      "sortorder": "2",
+      "configdata": "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
     }
   ]
 }
