@@ -84,5 +84,20 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023070500, 'cms');
     }
 
+    if ($oldversion < 2023072400) {
+        // Remove tables if they exist.
+        $table = new xmldb_table('cms_userlists');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        $table = new xmldb_table('cms_userlist_columns');
+        if ($dbman->table_exists($table)) {
+            $dbman->drop_table($table);
+        }
+
+        upgrade_mod_savepoint(true, 2023072400, 'cms');
+    }
+
     return true;
 }

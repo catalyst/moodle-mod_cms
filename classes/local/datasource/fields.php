@@ -102,7 +102,7 @@ class fields extends base {
     public function config_action_link(): ?string {
         // Link for custom fields.
         return helper::format_icon_link(
-            $this->cfhandler->get_configuration_url(),
+            new \moodle_url($this->cfhandler->get_configuration_url()),
             't/index_drawer',
             get_string('fields:custom_fields', 'mod_cms'),
             null
@@ -112,9 +112,10 @@ class fields extends base {
     /**
      * Add fields to the CMS instance form.
      *
+     * @param \moodleform_mod $form
      * @param \MoodleQuickForm $mform
      */
-    public function instance_form_definition(\MoodleQuickForm $mform) {
+    public function instance_form_definition(\moodleform_mod $form, \MoodleQuickForm $mform) {
         $this->cfhandler->instance_form_definition($mform, $this->cms->get('id'));
     }
 

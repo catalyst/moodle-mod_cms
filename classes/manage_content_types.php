@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Class for managing the custom content types.
- *
- * @package     mod_cms
- * @author      Marcus Boon<marcus@catalyst-au.net>
- * @copyright   Catalyst IT
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace mod_cms;
 
 use core\notification;
@@ -34,6 +26,8 @@ use mod_cms\local\table\content_types_list;
 /**
  * Class for managing the custom content types.
  *
+ * TODO: This class needs some cleaning up. Most functions can be made static.
+ *
  * @package     mod_cms
  * @author      Marcus Boon<marcus@catalyst-au.net>
  * @copyright   Catalyst IT
@@ -41,10 +35,11 @@ use mod_cms\local\table\content_types_list;
  */
 class manage_content_types {
 
-    /**
-     * @var \renderer_base Locally cached $OUTPUT object
-     */
+    /** @var \renderer_base Locally cached $OUTPUT object. */
     protected $output;
+
+    /** @var cms_types|null A locally stored instance. */
+    protected $_instance = null;
 
     /**
      * Constructor.
@@ -106,7 +101,7 @@ class manage_content_types {
      * @param string $action
      */
     protected function add_breadcrumb(string $action) {
-        global $PAGE, $FULLME;
+        global $PAGE;
 
         switch($action) {
             case 'add':
@@ -129,12 +124,14 @@ class manage_content_types {
      * Return record instance.
      *
      * @param int      $id
-     * @param \stdClass $data
      *
      * @return cms_types
      */
-    protected function get_instance($id = 0, ?\stdClass $data = null): cms_types {
-        return new cms_types($id, $data);
+    protected function get_instance($id = 0): cms_types {
+        if (!isset($this->_instance)) {
+            $this->_instance = new cms_types($id);
+        }
+        return $this->_instance;
     }
 
     /**
@@ -236,15 +233,9 @@ class manage_content_types {
             try {
                 // Create new.
                 if (empty($data->id)) {
-                    $contenttype = $this->get_instance(0, $data);
-                    $instance = $contenttype->create();
+                    $this->create($data);
                 } else { // Update existing.
-                    $instance->from_record($data);
-                    $instance->update();
-                }
-                // Do post update actions for data sources.
-                foreach (dsbase::get_datasources($instance) as $ds) {
-                    $ds->config_on_update($data);
+                    $this->update($id, $data);
                 }
                 notification::success(get_string('changessaved'));
             } catch (\Exception $e) {
@@ -301,6 +292,41 @@ class manage_content_types {
 
         $form->display();
         $this->footer();
+    }
+
+    /**
+     * Create a new CMS type.
+     *
+     * @param \stdClass $data
+     * @return cms_types
+     */
+    public function create(\stdClass $data) {
+        $instance = $this->get_instance();
+        $instance->from_record($data);
+        $instance->create();
+
+        // Do post create actions for data sources.
+        foreach (dsbase::get_datasources($instance, false) as $ds) {
+            $ds->config_on_update($data);
+        }
+        return $instance;
+    }
+
+    /**
+     * Update a CMS type.
+     *
+     * @param int $id
+     * @param \stdClass $data
+     */
+    public function update(int $id, \stdClass $data) {
+        $instance = $this->get_instance($id);
+        $instance->from_record($data);
+        $instance->update();
+
+        // Do post update actions for data sources.
+        foreach (dsbase::get_datasources($instance, false) as $ds) {
+            $ds->config_on_update($data);
+        }
     }
 
     /**

@@ -75,7 +75,7 @@ class mod_cms_mod_form extends moodleform_mod {
 
         // Add form elements for datas ources.
         foreach (dsbase::get_datasources($this->cms) as $ds) {
-            $ds->instance_form_definition($mform);
+            $ds->instance_form_definition($this, $mform);
         }
 
         $this->standard_coursemodule_elements();

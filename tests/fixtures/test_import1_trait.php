@@ -17,6 +17,7 @@
 namespace mod_cms;
 
 use mod_cms\local\model\cms_types;
+use mod_cms\local\datasource\userlist;
 
 /**
  * A trait providing support methods for using the test import file.
@@ -75,6 +76,10 @@ trait test_import1_trait {
             'typeid' => $typeid,
             'name' => 'Some module',
             'customfield_afield' => 'Field A',
+            'userlist_name' => ['John', 'Jane'],
+            'userlist_age' => ['23', '21'],
+            'userlist_fav_hobby' => ['Poodle juggling', 'Water sculpting'],
+            userlist::FORM_REPEATHIDDENNAME => 2,
         ];
         return create_module($moduleinfo);
     }

@@ -5,6 +5,7 @@ mustache: ''
 datasources:
   - fields
   - images
+  - list
 datasourcedefs:
   fields:
     categories:
@@ -26,3 +27,29 @@ datasourcedefs:
         filesize: '196'
         mimetype: image/png
         content: iVBORw0KGgoAAAANSUhEUgAAAAgAAAAICAYAAADED76LAAAAAXNSR0IArs4c6QAAAH5JREFUKFOFz6ENwmAQhuGnCYIBcAzAAiWwAoqEiqZLYElFJYJRMCxQA0EicYyAQpEKBLmk4k9Dwrm7732T7zJ/JkvyAk9cUyeAMQ5444y4rfDBPpY1lqh7s8EDc9wC2GCB3aDOFqMApr39wh0XzFDhmJYskWOCDi1OKfDz4S/mihIlTY5RLwAAAABJRU5ErkJggg==
+  list:
+    columns:
+      -
+        name: Name
+        shortname: name
+        type: text
+        description: null
+        descriptionformat: '0'
+        sortorder: '0'
+        configdata: "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
+      -
+        name: Age
+        shortname: age
+        type: text
+        description: null
+        descriptionformat: '0'
+        sortorder: '1'
+        configdata: "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"
+      -
+        name: 'Favourite Hobby'
+        shortname: 'fav_hobby'
+        type: text
+        description: null
+        descriptionformat: '0'
+        sortorder: '2'
+        configdata: "{\"required\":\"0\",\"uniquevalues\":\"0\",\"defaultvalue\":\"default\",\"displaysize\":50,\"maxlength\":1333,\"ispassword\":\"0\",\"link\":\"\"}"

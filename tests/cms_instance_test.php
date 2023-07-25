@@ -59,9 +59,12 @@ class cms_instance_test  extends \advanced_testcase {
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
 
         // Check that the instance and datasource info exists.
-        $instanceid = $moduleinfo->instance;
+        $cmsid = $moduleinfo->instance;
 
-        $cms = new cms($instanceid);
+        $count = cms::count_records(['id' => $cmsid]);
+        $this->assertEquals(1, $count);
+
+        $cms = new cms($cmsid);
         $this->assertEquals('Some module', $cms->get('name'));
         $this->assertEquals($cmstype->get('id'), $cms->get('typeid'));
 
@@ -87,14 +90,14 @@ class cms_instance_test  extends \advanced_testcase {
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
 
         // Check that the instance and datasource info exists.
-        $instanceid = $moduleinfo->instance;
+        $cmsid = $moduleinfo->instance;
 
         // Modify some fields and update.
         $moduleinfo->name = 'New name';
         $moduleinfo->customfield_bfield = 'Field B';
         update_module($moduleinfo);
 
-        $cms = new cms($instanceid);
+        $cms = new cms($cmsid);
         $this->assertEquals('New name', $cms->get('name'));
         $this->assertEquals($cmstype->get('id'), $cms->get('typeid'));
 
@@ -102,5 +105,29 @@ class cms_instance_test  extends \advanced_testcase {
         $fieldsdata = $ds->get_data();
         $this->assertEquals('Field A', $fieldsdata->afield);
         $this->assertEquals('Field B', $fieldsdata->bfield);
+    }
+
+    /**
+     * Tests that the CMS instance is deleted when the module is deleted.
+     *
+     * @covers \mod_cms\local\lib::delete_instance
+     */
+    public function test_delete_instance() {
+        $cmstype = $this->import();
+
+        // Create a course.
+        $course = $this->create_course();
+
+        // Add a module to the course.
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+        $cmsid = $moduleinfo->instance;
+
+        $count = cms::count_records(['id' => $cmsid]);
+        $this->assertEquals(1, $count);
+
+        course_delete_module($moduleinfo->coursemodule);
+
+        $count = cms::count_records(['id' => $cmsid]);
+        $this->assertEquals(0, $count);
     }
 }
