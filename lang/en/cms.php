@@ -26,6 +26,8 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addnewtype'] = 'Add new content type';
+$string['chooser:show'] = 'Show in activity chooser';
+$string['chooser:hide'] = 'Hide in activity chooser';
 $string['editcontenttype'] = 'Edit content type';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
@@ -54,6 +56,7 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
 $string['cachedef_cms_content'] = 'CMS content';
+$string['visibility_updated'] = 'Visibility updated';
 
 // Event strings.
 $string['event:cms_type_created'] = 'Custom content type created';
@@ -66,6 +69,7 @@ $string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has upd
 // Capability strings.
 $string['cms:addinstance'] = 'Add a new custom content instance';
 $string['cms:view'] = 'View a new custom content instance';
+$string['cms:seeall'] = 'Can see hidden CMS types in the activity chooser';
 
 // Privacy strings.
 $string['privacy:metadata:cms'] = 'Custom content type instances';

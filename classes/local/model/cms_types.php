@@ -79,6 +79,10 @@ class cms_types extends persistent {
                 'type' => PARAM_TEXT,
                 'default' => '{}',
             ],
+            'isvisible' => [
+                'type' => PARAM_BOOL,
+                'default' => true,
+            ],
         ];
     }
 

@@ -16,7 +16,7 @@
 
 namespace mod_cms;
 
-use core\notification;
+use core\output\notification;
 use mod_cms\form\cms_types_form;
 use mod_cms\form\cms_types_import_form;
 use mod_cms\local\datasource\base as dsbase;
@@ -76,9 +76,38 @@ class manage_content_types {
                 break;
             case 'delete':
                 require_sesskey();
-                $this->delete(required_param('id', PARAM_INT));
-                redirect(new \moodle_url(self::get_base_url()));
+                if ($this->delete(required_param('id', PARAM_INT))) {
+                    redirect(
+                        new \moodle_url(self::get_base_url()),
+                        get_string('deleted'),
+                        null,
+                        notification::NOTIFY_SUCCESS
+                    );
+                } else {
+                    redirect(
+                        new \moodle_url(self::get_base_url()),
+                        get_string('error:cant_delete_content_type', 'mod_cms'),
+                        null,
+                        notification::NOTIFY_WARNING
+                    );
+                }
                 break;
+            case 'show':
+                $this->set_visibility(required_param('id', PARAM_INT), true);
+                redirect(
+                    new \moodle_url(self::get_base_url()),
+                    get_string('visibility_updated', 'mod_cms'),
+                    null,
+                    notification::NOTIFY_SUCCESS
+                );
+            case 'hide':
+                $this->set_visibility(required_param('id', PARAM_INT), false);
+                redirect(
+                    new \moodle_url(self::get_base_url()),
+                    get_string('visibility_updated', 'mod_cms'),
+                    null,
+                    notification::NOTIFY_SUCCESS
+                );
             case 'view':
             default:
                 $this->view();
@@ -230,6 +259,11 @@ class manage_content_types {
             $stayonpage = isset($data->saveanddisplay);
             unset($data->saveandreturn);
             unset($data->saveanddisplay);
+            $redirecturl = new \moodle_url(self::get_base_url());
+            if ($stayonpage) {
+                $redirecturl->param('action', 'edit');
+                $redirecturl->param('id', $instance->get('id'));
+            }
             try {
                 // Create new.
                 if (empty($data->id)) {
@@ -237,16 +271,10 @@ class manage_content_types {
                 } else { // Update existing.
                     $this->update($id, $data);
                 }
-                notification::success(get_string('changessaved'));
+                redirect($redirecturl, get_string('changessaved'), '', notification::NOTIFY_SUCCESS);
             } catch (\Exception $e) {
-                notification::error($e->getMessage());
+                redirect($redirecturl, $e->getMessage(), '', notification::NOTIFY_ERROR);
             }
-            $redirecturl = new \moodle_url(self::get_base_url());
-            if ($stayonpage) {
-                $redirecturl->param('action', 'edit');
-                $redirecturl->param('id', $instance->get('id'));
-            }
-            redirect($redirecturl);
         } else {
             if (empty($instance)) {
                 $this->header($this->get_new_heading());
@@ -334,20 +362,33 @@ class manage_content_types {
      *
      * @param int $id
      *
-     * @return void
+     * @return bool
      */
-    public function delete(int $id): void {
+    public function delete(int $id): bool {
         $instance = $this->get_instance($id);
 
-        if ($instance->can_delete()) {
-            foreach (dsbase::get_datasources($instance, false) as $ds) {
-                $ds->config_on_delete();
-            }
-            $instance->delete();
-            notification::success(get_string('deleted'));
-        } else {
-            notification::warning(get_string('error:cant_delete_content_type', 'mod_cms'));
+        if (!$instance->can_delete()) {
+            return false;
         }
+
+        foreach (dsbase::get_datasources($instance, false) as $ds) {
+            $ds->config_on_delete();
+        }
+        $instance->delete();
+        return true;
+    }
+
+    /**
+     * Set the visibility of the CMS type.
+     *
+     * @param int $id
+     * @param bool $show
+     * @throws \coding_exception
+     */
+    public function set_visibility(int $id, bool $show = true) {
+        $instance = $this->get_instance($id);
+        $instance->set('isvisible', $show);
+        $instance->save();
     }
 
     /**

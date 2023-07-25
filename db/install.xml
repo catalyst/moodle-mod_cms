@@ -31,6 +31,7 @@
         <FIELD NAME="datasources" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Datasources used by this cms type, comma separated."/>
         <FIELD NAME="mustache" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Mustache template for the content."/>
         <FIELD NAME="customdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom data, in JSON format."/>
+        <FIELD NAME="isvisible" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Is this visible in the activity list."/>
         <FIELD NAME="usermodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timecreated" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
         <FIELD NAME="timemodified" TYPE="int" LENGTH="10" NOTNULL="true" DEFAULT="0" SEQUENCE="false"/>
