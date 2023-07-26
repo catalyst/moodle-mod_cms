@@ -41,22 +41,28 @@ class lib {
      *
      * @param content_item $defaultmodulecontentitem
      * @param \stdClass $user Not used.
-     * @param \stdClass $course Not used.
+     * @param \stdClass $course
      * @return array
      */
     public static function get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
             \stdClass $course): array {
-        global $COURSE;
+
+        $context = \context_course::instance($course->id);
 
         $items = [];
 
         $baseurl = $defaultmodulecontentitem->get_link();
         $linkurl = new \moodle_url(
             self::MODEDIT_URL,
-            ['id' => $baseurl->param('id'), 'course' => $COURSE->id, 'add' => 'cms']
+            ['id' => $baseurl->param('id'), 'course' => $course->id, 'add' => 'cms']
         );
 
-        $types = cms_types::get_records();
+        // Get the types, but only those that are visible.
+        $filter = [];
+        if (!has_capability('mod/cms:seeall', $context)) {
+            $filter['isvisible'] = 1;
+        }
+        $types = cms_types::get_records($filter);
         foreach ($types as $type) {
             $linkurl->param('typeid', $type->get('id'));
             $items[] = new content_item(

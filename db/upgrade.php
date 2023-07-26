@@ -99,5 +99,33 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023072400, 'cms');
     }
 
+    if ($oldversion < 2023072500) {
+        // Define field datasources.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('isvisible', XMLDB_TYPE_INTEGER, 1, null, true, null, 0, 'customdata');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2023072500, 'cms');
+    }
+
+    if ($oldversion < 2023072600) {
+        $records = $DB->get_records_select('cms_types', 'datasources is null', [], '', 'id, datasources');
+        foreach ($records as $record) {
+            $record->datasources = '';
+            $DB->update_record('cms_types', $record, true);
+        }
+
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('isvisible', XMLDB_TYPE_INTEGER, 1, null, true, null, 1, 'customdata');
+
+        $dbman->change_field_default($table, $field);
+
+        upgrade_mod_savepoint(true, 2023072600, 'cms');
+    }
+
     return true;
 }

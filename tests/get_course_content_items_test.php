@@ -35,6 +35,7 @@ class get_course_content_items_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        $this->setAdminUser();
     }
 
     /**
@@ -69,6 +70,8 @@ class get_course_content_items_test extends \advanced_testcase {
      * @covers \mod_cms\local\lib::get_course_content_items
      */
     public function test_get_course_content_items() {
+        global $COURSE;
+
         $types = [
             [ 'name' => 'CMS1', 'description' => 'help1'],
             [ 'name' => 'CMS2', 'description' => 'help2'],
@@ -83,7 +86,7 @@ class get_course_content_items_test extends \advanced_testcase {
         $user = (object) [];
         $course = (object) [];
 
-        $items = lib::get_course_content_items($this->create_default_item(), $user, $course);
+        $items = lib::get_course_content_items($this->create_default_item(), $user, $COURSE);
 
         // Make sure the two arrays have the same ordering so they can be compared by index.
         usort(

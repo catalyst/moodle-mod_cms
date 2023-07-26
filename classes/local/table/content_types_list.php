@@ -117,6 +117,25 @@ class content_types_list extends \flexible_table {
             get_string('edit')
         );
 
+        // Show/hide in activity chooser action.
+        if ($type->get('isvisible')) {
+            $action = 'hide';
+        } else {
+            $action = 'show';
+        }
+
+        $actions[] = helper::format_icon_link(
+            new \moodle_url(
+                manage_content_types::get_base_url(),
+                [
+                    'id' => $type->get('id'),
+                    'action' => $action,
+                ]
+            ),
+            't/' . $action,
+            get_string('chooser:' . $action, 'mod_cms')
+        );
+
         $actions[] = helper::format_icon_link(
             new \moodle_url(
                 manage_content_types::get_base_url(),
