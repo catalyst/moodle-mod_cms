@@ -127,5 +127,17 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023072600, 'cms');
     }
 
+    if ($oldversion < 2023080100) {
+        // Update CMS records to include the course ID.
+        $records = $DB->get_records('cms');
+        foreach ($records as $record) {
+            $cm = get_coursemodule_from_instance('cms', $record->id, 0, false, MUST_EXIST);
+            $record->course = $cm->course;
+            $DB->update_record('cms', $record);
+        }
+
+        upgrade_mod_savepoint(true, 2023080100, 'cms');
+    }
+
     return true;
 }

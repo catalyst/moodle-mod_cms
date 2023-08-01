@@ -325,12 +325,13 @@ class manage_content_types {
     /**
      * Create a new CMS type.
      *
-     * @param \stdClass $data
+     * @param \stdClass $data Form compatible data
      * @return cms_types
      */
     public function create(\stdClass $data) {
         $instance = $this->get_instance();
-        $instance->from_record($data);
+        $cleandata = cms_types::clean_record($data);
+        $instance->from_record($cleandata);
         $instance->create();
 
         // Do post create actions for data sources.
@@ -344,17 +345,33 @@ class manage_content_types {
      * Update a CMS type.
      *
      * @param int $id
-     * @param \stdClass $data
+     * @param \stdClass $data Form compatible data
      */
     public function update(int $id, \stdClass $data) {
         $instance = $this->get_instance($id);
-        $instance->from_record($data);
+        $cleandata = cms_types::clean_record($data);
+        $instance->from_record($cleandata);
         $instance->update();
 
         // Do post update actions for data sources.
-        foreach (dsbase::get_datasources($instance, false) as $ds) {
+        foreach (dsbase::get_datasources($instance) as $ds) {
             $ds->config_on_update($data);
         }
+    }
+
+    /**
+     * Gets the config data for the CMS type.
+     *
+     * @param int $id
+     * @return \stdClass Form compatible data
+     */
+    public function get_config(int $id): \stdClass {
+        $instance = $this->get_instance($id);
+        $data = $instance->to_record();
+        foreach (dsbase::get_datasources($instance) as $ds) {
+            $ds->config_form_default_data($data);
+        }
+        return $data;
     }
 
     /**

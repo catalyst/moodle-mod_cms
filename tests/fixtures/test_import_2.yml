@@ -1,0 +1,13 @@
+name: TestImport2
+description: ''
+descriptionformat: 1
+mustache: ''
+datasources:
+  - roles
+datasourcedefs:
+  roles:
+    list:
+      - teacher
+      - student
+    showduplicates: all
+

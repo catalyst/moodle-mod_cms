@@ -93,6 +93,7 @@ class lib {
         $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
+        $cms->set('course', $instancedata->course);
         $cms->save();
 
         $instancedata->id = $cms->get('id');
@@ -116,6 +117,7 @@ class lib {
         $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
+        $cms->set('course', $instancedata->course);
         $cms->save();
 
         $instancedata->id = $cm->instance;
