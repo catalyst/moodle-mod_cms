@@ -139,5 +139,14 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023080100, 'cms');
     }
 
+    if ($oldversion < 2023080400) {
+        $table = new xmldb_table('cms');
+        $field = new xmldb_field('introformat', XMLDB_TYPE_INTEGER, 4, null, false, false, 0, 'intro');
+
+        $dbman->change_field_default($table, $field);
+
+        upgrade_mod_savepoint(true, 2023080400, 'cms');
+    }
+
     return true;
 }
