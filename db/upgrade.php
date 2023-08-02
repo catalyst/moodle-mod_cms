@@ -24,6 +24,7 @@
  */
 
 use mod_cms\local\model\cms_types;
+use mod_cms\local\model\cms;
 
 /**
  * Function to upgrade mod_cms database
@@ -186,6 +187,27 @@ function xmldb_cms_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2023081600, 'cms');
+    }
+
+    if ($oldversion < 2023082800) {
+        // Transfer 'userlistmaxinstanceid' customdata from cms to cms_types.
+        $records = cms::get_records();
+        foreach ($records as $record) {
+            $max = $record->get_custom_data('userlistmaxinstanceid');
+            if ($max === null) {
+                continue;
+            }
+            $cmstype = $record->get_type();
+            $oldmax = $cmstype->get_custom_data('userlistmaxinstanceid') ?? 0;
+            if ($max > $oldmax) {
+                $cmstype->set_custom_data('userlistmaxinstanceid', $max);
+                $cmstype->save();
+            }
+            $record->set_custom_data('userlistmaxinstanceid', null);
+            $record->save();
+        }
+
+        upgrade_mod_savepoint(true, 2023082800, 'cms');
     }
 
     return true;

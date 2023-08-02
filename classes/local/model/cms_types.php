@@ -120,7 +120,15 @@ class cms_types extends persistent {
      */
     public function set_custom_data(string $name, $value) {
         $cdata = json_decode($this->raw_get('customdata'), false);
-        $cdata->$name = $value;
+        if (is_null($cdata)) {
+            $cdata = new \stdClass();
+        }
+        // If the value is null, then let's remove the value entirely.
+        if (is_null($value)) {
+            unset($cdata->$name);
+        } else {
+            $cdata->$name = $value;
+        }
         $this->raw_set('customdata', json_encode($cdata));
     }
 
