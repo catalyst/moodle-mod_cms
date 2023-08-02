@@ -60,6 +60,10 @@ class renderer {
             $data->$name = $ds->get_data();
         }
 
+        // Create a debug variable that contains the whole structure.
+        $debug = json_encode($data, JSON_PRETTY_PRINT);
+        $data->debug = "<pre>$debug</pre>";
+
         return $data;
     }
 
