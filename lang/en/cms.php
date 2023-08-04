@@ -77,6 +77,13 @@ $string['privacy:metadata:cms:usermodified'] = 'User who modified the instances'
 $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
 
+// Error strings.
+$string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
+$string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
+$string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
+$string['error:no_file_uploaded'] = 'No file uploaded';
+$string['error:cant_delete_content_type'] = 'Cannot delete content type.';
+
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';
 
@@ -88,14 +95,17 @@ $string['fields:custom_fields'] = 'Custom fields';
 $string['fields:sample_text'] = 'text';
 $string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
 
-// Error strings.
-$string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
-$string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
-$string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
-$string['error:no_file_uploaded'] = 'No file uploaded';
-$string['error:cant_delete_content_type'] = 'Cannot delete content type.';
-
 // User list datasource strings.
 $string['userlist:displayname'] = 'User list';
 $string['userlist:listdata'] = 'List data';
 $string['userlist:pageheading'] = 'List definition for \'{$a}\'';
+
+// Roles list datasource strings.
+$string['roles:displayname'] = 'Roles list';
+$string['roles:config:header'] = 'Role list settings';
+$string['roles:config:list'] = 'Roles included';
+$string['roles:config:duplicates'] = 'Duplicates';
+$string['roles:config:duplicates:all'] = 'Show in all';
+$string['roles:config:duplicates:firstonly'] = 'Show in first';
+$string['roles:config:duplicates:nest'] = 'Show in first with roles';
+$string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';

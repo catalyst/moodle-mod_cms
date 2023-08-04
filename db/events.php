@@ -1,5 +1,5 @@
 <?php
-// This file is part of Moodle - http://moodle.org/
+// This file is part of Moodle - https://moodle.org/
 //
 // Moodle is free software: you can redistribute it and/or modify
 // it under the terms of the GNU General Public License as published by
@@ -15,21 +15,24 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the cms plugin.
+ * Event listeners
  *
- * @package     mod_cms
- * @author      Marcus Boon<marcus@catalyst-au.net>
- * @copyright   Catalyst IT
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @package   mod_cms
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2023, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2023080100;
-$plugin->requires = 2020061500; // Moodle 3.9.0 and above.
-$plugin->supported = [39, 401]; // Moodle 3.9 to 4.1 inclusive.
-$plugin->component = 'mod_cms';
-$plugin->maturity = MATURITY_ALPHA;
-$plugin->release = 2023051800;
-
-$plugin->dependencies = [];
+$observers = [
+    [
+        'eventname' => 'core\event\role_assigned',
+        'callback' => '\mod_cms\local\datasource\roles::on_role_changed',
+        'internal' => false,
+    ],
+    [
+        'eventname' => 'core\event\role_unassigned',
+        'callback' => '\mod_cms\local\datasource\roles::on_role_changed',
+        'internal' => false,
+    ],
+];
