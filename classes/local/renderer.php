@@ -50,8 +50,6 @@ class renderer {
      * @return \stdClass
      */
     public function get_data(): \stdClass {
-        global $CFG, $SITE;
-
         $data = new \stdClass();
         $data->name = $this->cms->get('name');
 
@@ -128,6 +126,28 @@ class renderer {
     }
 
     /**
+     * Renders the template label with the data and returns the result.
+     *
+     * @return string
+     */
+    public function get_name(): string {
+        $labelcache = \cache::make('mod_cms', 'cms_name');
+
+        $labelhash = $this->cms->get_content_hash();
+        $label = $labelcache->get($labelhash);
+
+        if ($label === false) {
+            $data = $this->get_data();
+            $mustache = self::get_mustache();
+            $template = $this->cms->get_type()->get('title_mustache');
+            $label = $mustache->render($template, $data);
+            $labelcache->set($labelhash, $label);
+        }
+
+        return $label;
+    }
+
+    /**
      * Get a Mustache engine suitable for use with this renderer.
      *
      * @return \Mustache_Engine
@@ -138,5 +158,21 @@ class renderer {
             'pragmas' => [\Mustache_Engine::PRAGMA_BLOCKS],
         ]);
         return $mustache;
+    }
+
+    /**
+     * Test the mustaceh template to see ifi it is valid.
+     *
+     * @param string $template
+     * @return bool|string Returns true if no error occurred or an error message.
+     */
+    public static function validate_template(string $template) {
+        $engine = self::get_mustache();
+        try {
+            $engine->render($template);
+            return true;
+        } catch (\Throwable $e) {
+            return $e->getMessage();
+        }
     }
 }

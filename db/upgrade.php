@@ -148,5 +148,24 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023080400, 'cms');
     }
 
+    if ($oldversion < 2023080900) {
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('title_mustache', XMLDB_TYPE_TEXT, null, null, false, null, null, 'datasources');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        upgrade_mod_savepoint(true, 2023080900, 'cms');
+    }
+
+    if ($oldversion < 2023081401) {
+        // Make sure title_mustache is set to something by default.
+        $DB->execute("UPDATE {cms_types} SET title_mustache = name WHERE title_mustache='' OR title_mustache IS NULL");
+
+        upgrade_mod_savepoint(true, 2023081401, 'cms');
+    }
+
     return true;
 }

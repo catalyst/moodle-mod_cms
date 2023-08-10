@@ -41,9 +41,6 @@ $string['pluginname'] = 'CMS';
 $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
 $string['pluginadministration'] = 'Plugin administration';
-$string['mustache'] = 'Mustache template';
-$string['mustache_help'] = 'The above content will need to be a valid {$a}. Sample variables that are available for use in this template are given below.';
-$string['mustache_template'] = 'mustache template';
 $string['preview'] = 'Preview (click "{$a}" to update)';
 $string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
 $string['manage_types_return'] = 'Return to manage types';
@@ -57,6 +54,13 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  this list.';
 $string['cachedef_cms_content'] = 'CMS content';
 $string['visibility_updated'] = 'Visibility updated';
+
+// Template form section.
+$string['instance:header'] = 'Activity fields';
+$string['instance:name'] = 'Name';
+$string['mustache'] = 'Content';
+$string['mustache_help'] = 'The two fields above will form the content displayed in the activity. They both will need to be valid {$a}. Sample variables that are available for use in these templates are given below.';
+$string['mustache_template'] = 'mustache templates';
 
 // Event strings.
 $string['event:cms_type_created'] = 'Custom content type created';

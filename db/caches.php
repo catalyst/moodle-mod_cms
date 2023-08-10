@@ -32,4 +32,11 @@ $definitions = [
         'staticacceleration' => false,
         'canuselocalstore' => true,
     ],
+    'cms_name' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => false,
+        'canuselocalstore' => true,
+    ],
 ];

@@ -65,7 +65,7 @@ class cms_instance_test  extends \advanced_testcase {
         $this->assertEquals(1, $count);
 
         $cms = new cms($cmsid);
-        $this->assertEquals('Some module', $cms->get('name'));
+        $this->assertEquals('Field A', $cms->get('name'));
         $this->assertEquals($cmstype->get('id'), $cms->get('typeid'));
 
         $ds = new dsfields($cms);
@@ -93,12 +93,13 @@ class cms_instance_test  extends \advanced_testcase {
         $cmsid = $moduleinfo->instance;
 
         // Modify some fields and update.
-        $moduleinfo->name = 'New name';
+        $cmstype->set('title_mustache', '{{fields.bfield}}');
+        $cmstype->save();
         $moduleinfo->customfield_bfield = 'Field B';
         update_module($moduleinfo);
 
         $cms = new cms($cmsid);
-        $this->assertEquals('New name', $cms->get('name'));
+        $this->assertEquals('Field B', $cms->get('name'));
         $this->assertEquals($cmstype->get('id'), $cms->get('typeid'));
 
         $ds = new dsfields($cms);

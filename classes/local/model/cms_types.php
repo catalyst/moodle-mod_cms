@@ -67,6 +67,10 @@ class cms_types extends persistent {
                 'type' => PARAM_INT,
                 'default' => 1
             ],
+            'title_mustache' => [
+                'type' => PARAM_TEXT,
+                'default' => ''
+            ],
             'mustache' => [
                 'type' => PARAM_RAW,
                 'default' => '{{{debug}}}'
