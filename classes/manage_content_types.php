@@ -259,22 +259,23 @@ class manage_content_types {
             $stayonpage = isset($data->saveanddisplay);
             unset($data->saveandreturn);
             unset($data->saveanddisplay);
+            try {
+                // Create new.
+                if (empty($data->id)) {
+                    $instance = $this->create($data);
+                } else { // Update existing.
+                    $this->update($id, $data);
+                }
+                \core\notification::success(get_string('changessaved'));
+            } catch (\Exception $e) {
+                \core\notification::error($e->getMessage());
+            }
             $redirecturl = new \moodle_url(self::get_base_url());
             if ($stayonpage) {
                 $redirecturl->param('action', 'edit');
                 $redirecturl->param('id', $instance->get('id'));
             }
-            try {
-                // Create new.
-                if (empty($data->id)) {
-                    $this->create($data);
-                } else { // Update existing.
-                    $this->update($id, $data);
-                }
-                redirect($redirecturl, get_string('changessaved'), '', notification::NOTIFY_SUCCESS);
-            } catch (\Exception $e) {
-                redirect($redirecturl, $e->getMessage(), '', notification::NOTIFY_ERROR);
-            }
+            redirect($redirecturl);
         } else {
             if (empty($instance)) {
                 $this->header($this->get_new_heading());
