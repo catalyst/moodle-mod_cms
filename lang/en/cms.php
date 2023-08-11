@@ -59,7 +59,7 @@ $string['visibility_updated'] = 'Visibility updated';
 $string['instance:header'] = 'Activity fields';
 $string['instance:name'] = 'Name';
 $string['mustache'] = 'Content';
-$string['mustache_help'] = 'The two fields above will form the content displayed in the activity. They both will need to be valid {$a}. Sample variables that are available for use in these templates are given below.';
+$string['mustache_help'] = 'The two fields above will form the content displayed in the activity. They both will need to be valid {$a}. Variables that are available for use in these templates are given below.';
 $string['mustache_template'] = 'mustache templates';
 
 // Event strings.

@@ -82,7 +82,7 @@ class cms_types_form extends persistent_form {
             get_string('mustache_template', 'cms')
         );
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
-        $helptext .= \html_writer::table($renderer->get_data_as_table());
+        $helptext .= \html_writer::tag('pre', implode(PHP_EOL, $renderer->get_variable_list()));
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
         // Add form elements for data sources.

@@ -66,41 +66,49 @@ class renderer {
     }
 
     /**
-     * Flattens an array with nested arrays into a single array.
+     * Loop through loops recursively to generate lists of variables.
      *
-     * @param array $output The output array to be written to.
-     * @param mixed $source The source array to be read from.
-     * @param string $prefix String to put at the front of the key name.
+     * @param object|array $source
+     * @param string $prefix
+     * @return array
      */
-    public static function flatten(array &$output, $source, string $prefix = '') {
+    private function looper($source, string $prefix = ''): array {
+        $lines = [];
         foreach ($source as $key => $value) {
-            if (is_object($value) || is_array($value)) {
-                self::flatten($output, $value, $prefix . '.' . $key);
+            if (is_bool($value)) {
+                $lines[] = $prefix . '{{#' . $key . '}} // As a boolean';
+                $lines[] = $prefix . '{{/' . $key . '}}';
+            }
+            if (is_object($value)) {
+                $lines[] = $prefix . '{{#' . $key . '}} // As an object';
+                $lines = array_merge($lines, $this->looper($value, $prefix . '  '));
+                $lines[] = $prefix . '{{/' . $key . '}}';
+            } else if (is_array($value)) {
+                if (is_object($value[0])) {
+                    $lines[] = $prefix . '{{#' . $key . '}} // As an array of objects';
+                    $lines = array_merge($lines, $this->looper($value[0], $prefix . '  '));
+                    $lines[] = $prefix . '{{/' . $key . '}}';
+                } else {
+                    $lines[] = $prefix . '{{#' . $key . '}} // As an array of values';
+                    $lines[] = $prefix . '{{.}}';
+                    $lines[] = $prefix . '{{/' . $key . '}}';
+                }
             } else {
-                $output[ltrim($prefix . '.' . $key, '.')] = $value;
+                $lines[] = $prefix . '{{' . $key . '}}';
             }
         }
+        return $lines;
     }
 
     /**
-     * Retrieves the data for the cms as a flat array, with the keys concatenated using dots.
+     * Get a list of variables accessible to a CMS type.
      *
-     * @return \html_table
+     * @return array A list of lines, including loops and indents.
      */
-    public function get_data_as_table(): \html_table {
-        $flatarray = [];
-        self::flatten($flatarray, $this->get_data());
-
-        $table = new \html_table();
-        $table->attributes['class'] = 'noclass';
-        $table->head = [get_string('name'), get_string('sample_value', 'mod_cms')];
-        foreach ($flatarray as $name => $value) {
-            $left = new \html_table_cell('{{' . $name . '}}');
-            $right = new \html_table_cell($value);
-            $row = new \html_table_row([$left, $right]);
-            $table->data[] = $row;
-        }
-        return $table;
+    public function get_variable_list(): array {
+        $data = $this->get_data();
+        $lines = $this->looper($data);
+        return $lines;
     }
 
     /**
