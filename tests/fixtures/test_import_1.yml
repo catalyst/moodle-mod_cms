@@ -1,6 +1,7 @@
 name: TestImport1
 description: ''
 descriptionformat: 1
+title_mustache: '{{fields.afield}}'
 mustache: ''
 datasources:
   - fields

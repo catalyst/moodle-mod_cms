@@ -64,16 +64,10 @@ class mod_cms_mod_form extends moodleform_mod {
     protected function definition() {
         $mform = $this->_form;
 
-        // Adding the standard "name" field.
-        $mform->addElement('text', 'name', get_string('name'), array('size' => '64'));
-        $mform->setType('name', PARAM_TEXT);
-        $mform->addRule('name', null, 'required', null, 'client');
-        $mform->addRule('name', get_string('maximumchars', '', 255), 'maxlength', 255, 'client');
-
         $mform->addElement('hidden', 'typeid', $this->typeid);
         $mform->setType('typeid', PARAM_INT);
 
-        // Add form elements for datas ources.
+        // Add form elements for data sources.
         foreach (dsbase::get_datasources($this->cms) as $ds) {
             $ds->instance_form_definition($this, $mform);
         }

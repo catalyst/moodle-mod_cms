@@ -82,7 +82,6 @@ class renderer_test extends \advanced_testcase {
         $this->assertInstanceOf(\html_table::class, $table);
 
         $this->assertEquals('{{name}}', $table->data[0]->cells[0]->text);
-        $this->assertEquals('Some name', $table->data[0]->cells[1]->text);
 
         $this->assertEquals('{{site.fullname}}', $table->data[1]->cells[0]->text);
         $this->assertEquals($SITE->fullname, $table->data[1]->cells[1]->text);

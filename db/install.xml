@@ -1,5 +1,5 @@
 <?xml version="1.0" encoding="UTF-8" ?>
-<XMLDB PATH="mod/cms/db" VERSION="20230524" COMMENT="XMLDB file for mod_cms."
+<XMLDB PATH="mod/cms/db" VERSION="20230809" COMMENT="XMLDB file for mod_cms."
     xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
     xsi:noNamespaceSchemaLocation="../../../lib/xmldb/xmldb.xsd"
 >
@@ -29,6 +29,7 @@
         <FIELD NAME="description" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Description of the custom content type."/>
         <FIELD NAME="descriptionformat" TYPE="int" LENGTH="4" NOTNULL="false" DEFAULT="0" SEQUENCE="false" COMMENT="The format of the description field of the custom content type."/>
         <FIELD NAME="datasources" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Datasources used by this cms type, comma separated."/>
+        <FIELD NAME="title_mustache" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="The name of this custom content type instance."/>
         <FIELD NAME="mustache" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Mustache template for the content."/>
         <FIELD NAME="customdata" TYPE="text" NOTNULL="false" SEQUENCE="false" COMMENT="Custom data, in JSON format."/>
         <FIELD NAME="isvisible" TYPE="int" LENGTH="1" NOTNULL="true" DEFAULT="1" SEQUENCE="false" COMMENT="Is this visible in the activity list."/>

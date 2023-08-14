@@ -61,6 +61,11 @@ class cms_types_form extends persistent_form {
 
         $this->add_datasource_select_element();
 
+        $mform->addElement('header', 'instance_heading', get_string('instance:header', 'mod_cms'));
+
+        $mform->addElement('text', 'title_mustache', get_string('instance:name', 'mod_cms'));
+        $mform->addRule('title_mustache', get_string('required'), 'required', null, 'client');
+
         $mform->addElement(
             'textarea',
             'mustache',
@@ -90,6 +95,25 @@ class cms_types_form extends persistent_form {
         $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
+    }
+
+    /**
+     * Extra validataion on the data.
+     *
+     * @param \stdClass $data
+     * @param array $files
+     * @param array $errors
+     * @return array
+     */
+    public function extra_validation($data, $files, array &$errors) {
+        $errors = parent::extra_validation($data, $files, $errors);
+
+        $valid = renderer::validate_template($data->title_mustache);
+        if ($valid !== true) {
+            $errors['title_mustache'] = $valid;
+        }
+
+        return $errors;
     }
 
     /**

@@ -20,6 +20,7 @@ use core\output\notification;
 use mod_cms\form\cms_types_form;
 use mod_cms\form\cms_types_import_form;
 use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\table\content_types_list;
 
@@ -353,6 +354,7 @@ class manage_content_types {
         $cleandata = cms_types::clean_record($data);
         $instance->from_record($cleandata);
         $instance->update();
+        lib::reset_cms_names($id);
 
         // Do post update actions for data sources.
         foreach (dsbase::get_datasources($instance) as $ds) {

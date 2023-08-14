@@ -90,16 +90,20 @@ class lib {
      */
     public static function add_instance(\stdClass $instancedata, $mform = null): int {
         $cms = new cms();
-        $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->set('course', $instancedata->course);
+        $cms->set('name', '');
         $cms->save();
 
         $instancedata->id = $cms->get('id');
         foreach (dsbase::get_datasources($cms) as $ds) {
             $ds->update_instance($instancedata, true);
         }
+
+        $renderer = new renderer($cms);
+        $cms->set('name', $renderer->get_name());
+        $cms->save();
 
         return $cms->get('id');
     }
@@ -114,18 +118,35 @@ class lib {
     public static function update_instance(\stdClass $instancedata, $mform): bool {
         $cm = get_coursemodule_from_id('cms', $instancedata->coursemodule, 0, false, MUST_EXIST);
         $cms = new cms($cm->instance);
-        $cms->set('name', $instancedata->name);
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->set('course', $instancedata->course);
-        $cms->save();
 
         $instancedata->id = $cm->instance;
         foreach (dsbase::get_datasources($cms) as $ds) {
             $ds->update_instance($instancedata, false);
         }
 
+        $renderer = new renderer($cms);
+        $cms->set('name', $renderer->get_name());
+        $cms->save();
+
         return true;
+    }
+
+    /**
+     * Rest the name field of cms instances.
+     *
+     * @param int $typeid
+     * @throws \coding_exception
+     */
+    public static function reset_cms_names(int $typeid) {
+        $records = cms::get_records(['typeid' => $typeid]);
+        foreach ($records as $cms) {
+            $renderer = new renderer($cms);
+            $cms->set('name', $renderer->get_name());
+            $cms->save();
+        }
     }
 
     /**

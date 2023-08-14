@@ -45,6 +45,8 @@ class roles extends base {
      * @return \stdClass
      */
     public function get_data(): \stdClass {
+        global $CFG;
+
         $data = new \stdClass();
 
         $showuser = 'all'; // List user under each first role.
@@ -86,6 +88,8 @@ class roles extends base {
                 (object) ['shortname' => 'editingteacher', 'name' => '', 'coursealias' => ''],
             ];
         } else {
+            require_once($CFG->dirroot .'/user/lib.php');
+
             $context = \context_course::instance($this->cms->get('course'));
 
             $rolesincontext = get_all_roles($context);
