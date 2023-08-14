@@ -170,7 +170,7 @@ class manage_content_types {
      * @return void
      */
     protected function display_all_records(): void {
-        $records = cms_types::get_records([], 'id');
+        $records = cms_types::get_records([], 'name');
 
         $table = new content_types_list();
         $table->display($records);
