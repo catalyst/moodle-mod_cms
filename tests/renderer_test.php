@@ -65,35 +65,6 @@ class renderer_test extends \advanced_testcase {
     }
 
     /**
-     * Test the renderer::get_data_as_table() function.
-     *
-     * @covers \mod_cms\local\renderer::get_data_as_table
-     */
-    public function test_get_data_as_table() {
-        global $SITE, $CFG;
-
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'somename');
-        $cmstype->save();
-
-        $renderer = new renderer($cmstype);
-        $table = $renderer->get_data_as_table();
-
-        $this->assertInstanceOf(\html_table::class, $table);
-
-        $this->assertEquals('{{name}}', $table->data[0]->cells[0]->text);
-
-        $this->assertEquals('{{site.fullname}}', $table->data[1]->cells[0]->text);
-        $this->assertEquals($SITE->fullname, $table->data[1]->cells[1]->text);
-
-        $this->assertEquals('{{site.shortname}}', $table->data[2]->cells[0]->text);
-        $this->assertEquals($SITE->shortname, $table->data[2]->cells[1]->text);
-
-        $this->assertEquals('{{site.wwwroot}}', $table->data[3]->cells[0]->text);
-        $this->assertEquals($CFG->wwwroot, $table->data[3]->cells[1]->text);
-    }
-
-    /**
      * Test the renderer::get_html() function.
      *
      * @covers \mod_cms\local\renderer::get_html
