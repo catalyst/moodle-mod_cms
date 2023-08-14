@@ -50,8 +50,10 @@ class cms_types_test extends \advanced_testcase {
         $form = new cms_types_form(null, ['persistent' => null]);
 
         $data = (object) [
-            $field => $mustache
+            'mustache' => '',
+            'title_mustache' => '',
         ];
+        $data->$field = $mustache;
 
         $errors = [];
         $errors = $form->extra_validation($data, [], $errors);
@@ -73,6 +75,10 @@ class cms_types_test extends \advanced_testcase {
             ['title_mustache', '{{test}}', true],
             ['title_mustache', '{{/test}}', false],
             ['title_mustache', '{{#test}}', false],
+            ['mustache', 'test', true],
+            ['mustache', '{{test}}', true],
+            ['mustache', '{{/test}}', false],
+            ['mustache', '{{#test}}', false],
         ];
     }
 }
