@@ -53,6 +53,7 @@ $string['datasources_desc'] = 'This is a performance measure. Select datasources
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
 $string['cachedef_cms_content'] = 'CMS content';
+$string['cachedef_cms_name'] = 'CMS name';
 $string['visibility_updated'] = 'Visibility updated';
 
 // Template form section.
