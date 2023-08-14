@@ -113,6 +113,11 @@ class cms_types_form extends persistent_form {
             $errors['title_mustache'] = $valid;
         }
 
+        $valid = renderer::validate_template($data->mustache);
+        if ($valid !== true) {
+            $errors['mustache'] = $valid;
+        }
+
         return $errors;
     }
 
