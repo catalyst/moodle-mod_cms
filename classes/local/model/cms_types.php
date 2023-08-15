@@ -32,6 +32,7 @@ use mod_cms\exportable;
 use mod_cms\importable;
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\lib;
+use mod_cms\local\renderer;
 
 /**
  * A persistent for the mdl_cms_types table
@@ -57,6 +58,9 @@ class cms_types extends persistent {
     protected static function define_properties(): array {
         return [
             'name' => [
+                'type' => PARAM_TEXT,
+            ],
+            'idnumber' => [
                 'type' => PARAM_TEXT,
             ],
             'description' => [
@@ -129,6 +133,52 @@ class cms_types extends persistent {
     public function get_custom_data(string $name) {
         $cdata = json_decode($this->raw_get('customdata'), false);
         return $cdata->$name ?? null;
+    }
+
+    /**
+     * Validates idnumber parameter.
+     *
+     * @param string $value
+     * @return bool|\lang_string
+     */
+    protected function validate_idnumber(string $value) {
+        // Test requirement (null values are already tested).
+        if ($value === '') {
+            return new \lang_string('requiredelement', 'form');
+        }
+        // Test for duplicates.
+        if (self::record_exists_select("idnumber = ? AND id != ?", [$value, $this->get('id')])) {
+            return new \lang_string('idnumber_exists', 'mod_cms', $value);
+        }
+        return true;
+    }
+
+    /**
+     * Validates title_mustache
+     *
+     * @param string $value
+     * @return bool|\lang_string
+     */
+    protected function validate_title_mustache(string $value) {
+        $result = renderer::validate_template($value);
+        if ($result !== true) {
+            return new \lang_string('error:invalid', 'mod_cms', $result);
+        }
+        return true;
+    }
+
+    /**
+     * Validates mustache
+     *
+     * @param string $value
+     * @return bool|\lang_string
+     */
+    protected function validate_mustache(string $value) {
+        $result = renderer::validate_template($value);
+        if ($result !== true) {
+            return new \lang_string('error:invalid', 'mod_cms', $result);
+        }
+        return true;
     }
 
     /**

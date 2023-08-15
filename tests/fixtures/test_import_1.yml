@@ -1,4 +1,5 @@
 name: TestImport1
+idnumber: test-import1
 description: ''
 descriptionformat: 1
 title_mustache: '{{fields.afield}}'

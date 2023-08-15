@@ -65,6 +65,7 @@ class datasource_userlist_test extends \advanced_testcase {
         $importdata = json_decode(file_get_contents(self::IMPORT_JSONFILE));
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $cms = $cmstype->get_sample_cms();
 
@@ -116,7 +117,7 @@ class datasource_userlist_test extends \advanced_testcase {
         global $DB;
 
         $manager = new manage_content_types();
-        $cmstype = $manager->create((object) ['name' => 'Name']);
+        $cmstype = $manager->create((object) ['name' => 'Name', 'idnumber' => 'test-name']);
 
         // Test that stuff gets deleted even if not included in datasource list.
         $cmstype->set('datasources', []);

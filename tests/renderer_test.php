@@ -45,6 +45,7 @@ class renderer_test extends \advanced_testcase {
     public function test_get_data() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-somename');
         $cmstype->set('datasources', array_keys(dsbase::get_datasource_labels(false)));
         $cmstype->save();
 
@@ -77,6 +78,7 @@ class renderer_test extends \advanced_testcase {
 
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-somename');
         $cmstype->set('mustache', $template);
         $cmstype->save();
 

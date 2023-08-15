@@ -56,6 +56,11 @@ class cms_types_form extends persistent_form {
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
+        $mform->addElement('text', 'idnumber', get_string('idnumber'));
+        $mform->addRule('idnumber', get_string('required'), 'required', null, 'client');
+        $mform->setType('idnumber', PARAM_TEXT);
+        $mform->addHelpButton('idnumber', 'idnumber', 'mod_cms');
+
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
@@ -98,30 +103,6 @@ class cms_types_form extends persistent_form {
         $mform->addElement('static', 'preview', get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
-    }
-
-    /**
-     * Extra validataion on the data.
-     *
-     * @param \stdClass $data
-     * @param array $files
-     * @param array $errors
-     * @return array
-     */
-    public function extra_validation($data, $files, array &$errors) {
-        $errors = parent::extra_validation($data, $files, $errors);
-
-        $valid = renderer::validate_template($data->title_mustache);
-        if ($valid !== true) {
-            $errors['title_mustache'] = $valid;
-        }
-
-        $valid = renderer::validate_template($data->mustache);
-        if ($valid !== true) {
-            $errors['mustache'] = $valid;
-        }
-
-        return $errors;
     }
 
     /**

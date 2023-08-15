@@ -73,9 +73,9 @@ class get_course_content_items_test extends \advanced_testcase {
         global $COURSE;
 
         $types = [
-            [ 'name' => 'CMS1', 'description' => 'help1'],
-            [ 'name' => 'CMS2', 'description' => 'help2'],
-            [ 'name' => 'betamax', 'description' => 'some description'],
+            [ 'name' => 'CMS1', 'idnumber' => 'test-cms1', 'description' => 'help1'],
+            [ 'name' => 'CMS2', 'idnumber' => 'test-cms2', 'description' => 'help2'],
+            [ 'name' => 'betamax', 'idnumber' => 'test-betamax', 'description' => 'some description'],
         ];
 
         foreach ($types as $type) {
