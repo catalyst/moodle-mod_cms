@@ -40,6 +40,7 @@ $string['newcontenttype'] = 'Add new content type';
 $string['pluginname'] = 'CMS';
 $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
+$string['table:numinstances'] = 'Number of instances';
 $string['pluginadministration'] = 'Plugin administration';
 $string['preview'] = 'Preview (click "{$a}" to update)';
 $string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
