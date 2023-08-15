@@ -90,9 +90,12 @@ class cms_types_form extends persistent_form {
             $ds->config_form_definition($mform);
         }
 
+        // Add a heading.
+        $mform->addElement('header', 'preview_heading', get_string('preview'));
+
         // Rendered previews.
         $html = $renderer->get_html();
-        $mform->addElement('static', 'preview', get_string('preview', 'cms', get_string('savechangesanddisplay')), $html);
+        $mform->addElement('static', 'preview', get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')), $html);
 
         $this->add_action_buttons();
     }

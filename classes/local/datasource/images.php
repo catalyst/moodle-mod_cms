@@ -95,6 +95,9 @@ class images extends base {
     public function config_form_definition(\MoodleQuickForm $mform) {
         global $CFG;
 
+        // Add a heading.
+        $mform->addElement('header', 'images_heading', get_string('images:config:header', 'cms'));
+
         // Images file manager.
         $mform->addElement('filemanager', 'images', get_string('images:images', 'cms'),
             null,
