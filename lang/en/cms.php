@@ -42,7 +42,7 @@ $string['settings'] = 'Custom content type settings';
 $string['table:name'] = 'Custom content type';
 $string['table:numinstances'] = 'Number of instances';
 $string['pluginadministration'] = 'Plugin administration';
-$string['preview'] = 'Preview (click "{$a}" to update)';
+$string['preview_with_hint'] = 'Preview (click "{$a}" to update)';
 $string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
 $string['manage_types_return'] = 'Return to manage types';
 $string['sample_value'] = 'Sample value';
@@ -94,6 +94,7 @@ $string['error:cant_delete_content_type'] = 'Cannot delete content type.';
 $string['site:displayname'] = 'Site Info';
 
 // Image datasource strings.
+$string['images:config:header'] = 'Images settings';
 $string['images:images'] = 'Images';
 
 // Custom field datasource strings.
@@ -102,6 +103,7 @@ $string['fields:sample_text'] = 'text';
 $string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
 
 // User list datasource strings.
+$string['userlist:config:header'] = 'User list settings';
 $string['userlist:displayname'] = 'User list';
 $string['userlist:listdata'] = 'List data';
 $string['userlist:pageheading'] = 'List definition for \'{$a}\'';

@@ -176,7 +176,7 @@ class roles extends base {
      */
     public function config_form_definition(\MoodleQuickForm $mform) {
         // Add a heading.
-        $mform->addElement('header', 'heading', get_string('roles:config:header', 'cms'));
+        $mform->addElement('header', 'roles_heading', get_string('roles:config:header', 'cms'));
 
         // A list of roles to list.
         $mform->addElement('textarea', self::FORM_PREFIX . 'list', get_string('roles:config:list', 'cms'));

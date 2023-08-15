@@ -149,6 +149,9 @@ class userlist extends base {
     public function config_form_definition(\MoodleQuickForm $mform) {
         global $PAGE;
 
+        // Add a heading.
+        $mform->addElement('header', 'userlist_heading', get_string('userlist:config:header', 'cms'));
+
         $output = $PAGE->get_renderer('core_customfield');
         $outputpage = new management($this->cfhandler);
 
