@@ -15,13 +15,15 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Datbase upgrade script
+ * Database upgrade script
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+
+use mod_cms\local\model\cms_types;
 
 /**
  * Function to upgrade mod_cms database
@@ -30,7 +32,7 @@
  * @return bool result
  */
 function xmldb_cms_upgrade($oldversion) {
-    global $DB;
+    global $DB, $SITE;
 
     $dbman = $DB->get_manager();
 
@@ -165,6 +167,25 @@ function xmldb_cms_upgrade($oldversion) {
         $DB->execute("UPDATE {cms_types} SET title_mustache = name WHERE title_mustache='' OR title_mustache IS NULL");
 
         upgrade_mod_savepoint(true, 2023081401, 'cms');
+    }
+
+    if ($oldversion < 2023081600) {
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('idnumber', XMLDB_TYPE_CHAR, 255, null, false, null, '', 'name');
+
+        // Conditionally launch add field.
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+
+        // Give each CMS type a suitably unique ID.
+        $records = cms_types::get_records();
+        foreach ($records as $cmstype) {
+            $cmstype->set('idnumber', uniqid($SITE->shortname, true));
+            $cmstype->save();
+        }
+
+        upgrade_mod_savepoint(true, 2023081600, 'cms');
     }
 
     return true;

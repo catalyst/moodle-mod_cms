@@ -46,6 +46,7 @@ class datasource_base_test extends \advanced_testcase {
     public function test_get_datasources() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->set('datasources', array_keys(dsbase::get_datasource_labels(false)));
         $cmstype->save();
 

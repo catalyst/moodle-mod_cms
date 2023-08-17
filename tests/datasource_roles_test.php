@@ -67,6 +67,7 @@ class datasource_roles_test extends \advanced_testcase {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $cms = $cmstype->get_sample_cms();
 

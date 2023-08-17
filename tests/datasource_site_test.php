@@ -53,6 +53,7 @@ class datasource_site_test extends \advanced_testcase {
     public function test_get_data() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
 
         $cms = new cms();

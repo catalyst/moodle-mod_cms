@@ -17,6 +17,7 @@
 namespace mod_cms;
 
 use mod_cms\form\cms_types_form;
+use mod_cms\local\model\cms_types;
 
 /**
  * Unit tests for cms_types.
@@ -37,26 +38,20 @@ class cms_types_test extends \advanced_testcase {
     }
 
     /**
-     * Tests validation mustaceh templates.
+     * Tests validation of mustache templates.
      *
-     * @covers \mod_cms\form\cms_types_form::extra_validation
+     * @covers \mod_cms\local\model\cms_types::validate_title_mustache
+     * @covers \mod_cms\local\model\cms_types::validate_mustache
      * @dataProvider mustache_validity_datasource
      * @param string $field
      * @param string $mustache
      * @param bool $valid
      */
     public function test_mustache_validity(string $field, string $mustache, bool $valid) {
+        $cmstype = new cms_types();
+        $cmstype->set($field, $mustache);
 
-        $form = new cms_types_form(null, ['persistent' => null]);
-
-        $data = (object) [
-            'mustache' => '',
-            'title_mustache' => '',
-        ];
-        $data->$field = $mustache;
-
-        $errors = [];
-        $errors = $form->extra_validation($data, [], $errors);
+        $errors = $cmstype->validate();
         if ($valid) {
             $this->assertArrayNotHasKey($field, $errors);
         } else {
@@ -79,6 +74,47 @@ class cms_types_test extends \advanced_testcase {
             ['mustache', '{{test}}', true],
             ['mustache', '{{/test}}', false],
             ['mustache', '{{#test}}', false],
+        ];
+    }
+
+    /**
+     * Tests validation of idnumber.
+     *
+     * @covers \mod_cms\local\model\cms_types::validate_idnumber
+     * @dataProvider idnumber_validity_datasource
+     * @param string $idnumber
+     * @param bool $valid
+     */
+    public function test_idnumber(?string $idnumber, bool $valid) {
+
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-exists');
+        $cmstype->save();
+
+        $cmstype = new cms_types();
+        $cmstype->set('idnumber', $idnumber);
+
+        $errors = $cmstype->validate();
+        if ($valid) {
+            $this->assertArrayNotHasKey('idnumber', $errors);
+        } else {
+            $this->assertArrayHasKey('idnumber', $errors);
+        }
+    }
+
+    /**
+     * Data source for test_idnumber
+     *
+     * @return array[]
+     */
+    public function idnumber_validity_datasource(): array {
+        return [
+            [null, false],
+            ['', false],
+            ['0', true],
+            ['test-unique', true],
+            ['test-exists', false],
         ];
     }
 }

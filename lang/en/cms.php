@@ -31,6 +31,9 @@ $string['chooser:hide'] = 'Hide in activity chooser';
 $string['editcontenttype'] = 'Edit content type';
 $string['export'] = 'Export';
 $string['import'] = 'Import';
+$string['idnumber'] = 'ID number';
+$string['idnumber_help'] = 'An identifier to uniquely label this CMS type. This will be used in backup and restoring. It must be unique within the system, and ideally, unique universally.';
+$string['idnumber_exists'] = 'Id number \'{$a}\' already exists in the system.';
 $string['managetypes'] = 'Manage content types';
 $string['maxgrade'] = 'Default max grade';
 $string['maxgrade_desc'] = 'The default max grade when creating a new custom content type instance.';
@@ -89,6 +92,7 @@ $string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod
 $string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
 $string['error:no_file_uploaded'] = 'No file uploaded';
 $string['error:cant_delete_content_type'] = 'Cannot delete content type.';
+$string['error:invalid'] = 'Invalid: {$a}';
 
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';

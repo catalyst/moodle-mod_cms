@@ -71,6 +71,7 @@ class datasource_fields_test extends \advanced_testcase {
         $importdata = json_decode(file_get_contents($importfile));
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $cms = $cmstype->get_sample_cms();
 
@@ -104,6 +105,7 @@ class datasource_fields_test extends \advanced_testcase {
 
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $cms = $cmstype->get_sample_cms();
 
@@ -152,6 +154,7 @@ class datasource_fields_test extends \advanced_testcase {
     public function test_hash() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $oldhash = $cmstype->get_sample_cms()->get_content_hash();
 
