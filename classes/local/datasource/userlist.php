@@ -468,6 +468,7 @@ class userlist extends base {
 
     /**
      * Obtain a unqiue instance ID to use to store the row in the custom field table.
+     * Each ID needs to be unique across the cms type.
      *
      * @param int $rownum
      * @return int
@@ -475,13 +476,23 @@ class userlist extends base {
     protected function get_instance_id(int $rownum): int {
         $ids = $this->get_instance_ids();
         if (!isset($ids[$rownum])) {
-            $nextid = $this->cms->get_custom_data('userlistmaxinstanceid') + 1;
-            $this->cms->set_custom_data('userlistmaxinstanceid', $nextid);
-            $ids[$rownum] = $nextid;
+            $ids[$rownum] = $this->get_new_row_id();
             $this->cms->set_custom_data('userlistinstanceids', $ids);
             $this->cms->save();
         }
         return $ids[$rownum];
+    }
+
+    /**
+     * Get a new ID unique within the CMS type.
+     * @return int
+     */
+    public function get_new_row_id(): int {
+        $cmstype = $this->cms->get_type();
+        $nextid = $cmstype->get_custom_data('userlistmaxinstanceid') + 1;
+        $cmstype->set_custom_data('userlistmaxinstanceid', $nextid);
+        $cmstype->save();
+        return $nextid;
     }
 
     /**
@@ -495,5 +506,77 @@ class userlist extends base {
             $ids = [];
         }
         return (array) $ids;
+    }
+
+    /**
+     * Create a structure of the config for backup.
+     *
+     * @param \backup_nested_element $element
+     */
+    public function config_backup_define_structure(\backup_nested_element $element) {
+    }
+
+    /**
+     * Create a structure of the instance for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function instance_backup_define_structure(\backup_nested_element $parent) {
+        $userlist = new \backup_nested_element('userlist');
+        $parent->add_child($userlist);
+
+        $rows = new \backup_nested_element('userlistrows');
+        $row = new \backup_nested_element('userlistrow', ['id'], ['dataids']);
+        $userlist->add_child($rows);
+        $rows->add_child($row);
+
+        $fields = new \backup_nested_element('userlistfields');
+        $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+        $userlist->add_child($fields);
+        $fields->add_child($field);
+
+        $fieldsforbackup = [];
+        $instanceids = [];
+        foreach ($this->get_instance_ids() as $id) {
+            $fielddata = $this->cfhandler->get_instance_data_for_backup($id);
+            $instanceids[] = [
+                'id' => $id,
+                'dataids' => implode(
+                    ',',
+                    array_map(
+                        function ($arr) {
+                            return $arr['id'];
+                        },
+                        $fielddata
+                    )
+                )
+            ];
+            $fieldsforbackup = array_merge($fieldsforbackup, $this->cfhandler->get_instance_data_for_backup($id));
+        }
+        $row->set_source_array($instanceids);
+        $field->set_source_array($fieldsforbackup);
+    }
+
+    /**
+     * Add restore path elements to the restore activity.
+     *
+     * @param array $paths
+     * @param \restore_cms_activity_structure_step $stepslib
+     * @return array
+     */
+    public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
+        $processor = new restore\userlist($stepslib);
+
+        $element = new \restore_path_element('restore_ds_userlist_row',
+                '/activity/cms/instance_datasources/userlist/userlistrows/userlistrow');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
+
+        $element = new \restore_path_element('restore_ds_userlist_field',
+                '/activity/cms/instance_datasources/userlist/userlistfields/userlistfield');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
+
+        return $paths;
     }
 }

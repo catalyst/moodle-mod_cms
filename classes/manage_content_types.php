@@ -268,7 +268,7 @@ class manage_content_types {
                     $this->update($id, $data);
                 }
                 \core\notification::success(get_string('changessaved'));
-            } catch (\Exception $e) {
+            } catch (\Throwable $e) {
                 \core\notification::error($e->getMessage());
             }
             $redirecturl = new \moodle_url(self::get_base_url());

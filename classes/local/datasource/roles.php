@@ -16,7 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
-use mod_cms\local\model\cms;
+use mod_cms\local\model\{cms, cms_types};
 
 /**
  * List roles
@@ -243,6 +243,7 @@ class roles extends base {
         ];
         $cmstype->set_custom_data('roles_config', $config);
         $cmstype->save();
+        $this->update_config_hash();
     }
 
     /**
@@ -325,5 +326,38 @@ class roles extends base {
             $cms->set_custom_data('roles_course_role_cache_rev', ++$cacherev);
             $cms->save();
         }
+    }
+
+    /**
+     * Create a structure of the config for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function config_backup_define_structure(\backup_nested_element $parent) {
+        $roles = new \backup_nested_element('roles', [], ['list', 'duplicates']);
+        $parent->add_child($roles);
+
+        $cmstype = $this->cms->get_type();
+        $config = $cmstype->get_custom_data('roles_config');
+        $source = is_null($config) ? [] : [
+            ['list' => implode(',', $config->list), 'duplicates' => $config->duplicates]
+        ];
+        $roles->set_source_array($source);
+    }
+
+    /**
+     * Add restore path elements to the restore activity.
+     *
+     * @param array $paths
+     * @param \restore_cms_activity_structure_step $stepslib
+     * @return array
+     */
+    public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
+        $processor = new restore\roles($stepslib);
+
+        $element = new \restore_path_element('restore_ds_roles', '/activity/cms/cms_types/config_datasources/roles');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
+        return $paths;
     }
 }

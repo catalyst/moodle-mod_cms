@@ -101,6 +101,10 @@ abstract class base {
     public static function get_datasources($cms, bool $enabledonly = true) {
         self::register_datasources();
 
+        if ($cms === null) {
+            $cms = new cms_types(0);
+        }
+
         if ($cms instanceof cms_types) {
             $cms = $cms->get_sample_cms();
         }
@@ -334,5 +338,32 @@ abstract class base {
      * Called when deleting a CMS instance.
      */
     public function instance_on_delete() {
+    }
+
+    /**
+     * Create a structure of the config for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function config_backup_define_structure(\backup_nested_element $parent) {
+    }
+
+    /**
+     * Create a structure of the instance for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function instance_backup_define_structure(\backup_nested_element $parent) {
+    }
+
+    /**
+     * Add restore path elements to the restore activity.
+     *
+     * @param array $paths
+     * @param \restore_cms_activity_structure_step $stepslib
+     * @return array
+     */
+    public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
+        return $paths;
     }
 }

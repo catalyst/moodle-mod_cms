@@ -223,4 +223,34 @@ class images extends base {
         $fs = get_file_storage();
         $fs->delete_area_files(context_system::instance()->id, 'mod_cms', self::FILE_AREA, $this->cms->get('typeid'));
     }
+
+    /**
+     * Create a structure of the config for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function config_backup_define_structure(\backup_nested_element $parent) {
+        $element = new \backup_nested_element('images', [], ['dummy']);
+        $parent->add_child($element);
+        $element->annotate_files('mod_cms', self::FILE_AREA, \backup::VAR_PARENTID, context_system::instance()->id);
+        // We place some dummy information into the backup to ensure that the restore method gets called.
+        $element->set_source_array([['dummy' => 'dummy']]);
+    }
+
+    /**
+     * Add restore path elements to the restore activity.
+     *
+     * @param array $paths
+     * @param \restore_cms_activity_structure_step $stepslib
+     * @return array
+     */
+    public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
+        $processor = new restore\images($stepslib);
+
+        $element = new \restore_path_element('restore_ds_images', '/activity/cms/cms_types/config_datasources/images');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
+
+        return $paths;
+    }
 }

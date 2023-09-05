@@ -22,6 +22,18 @@
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
+defined('MOODLE_INTERNAL') || die;
+
+require_once($CFG->dirroot . '/mod/cms/backup/moodle2/backup_cms_stepslib.php');
+
+/**
+ * Backup task for mod_cms.
+ *
+ * @package   mod_cms
+ * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
+ * @copyright 2023, Catalyst IT
+ * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ */
 class backup_cms_activity_task extends backup_activity_task {
     /**
      * Defines activity specific settings to be added to the common ones
@@ -34,7 +46,7 @@ class backup_cms_activity_task extends backup_activity_task {
      * Defines activity specific steps for this task
      */
     public function define_my_steps() {
-        // TODO: Implement define_my_steps() method.
+        $this->add_step(new backup_cms_activity_structure_step('cms_structure', 'cms.xml'));
     }
 
     /**
@@ -43,8 +55,19 @@ class backup_cms_activity_task extends backup_activity_task {
      * @param string $content some HTML text that eventually contains URLs to the activity instance scripts
      * @return string the content with the URLs encoded
      */
-    public static function encode_content_links($content) {
-        // TODO: Implement encode_content_links method.
+    public static function encode_content_links($content): string {
+        global $CFG;
+
+        $base = preg_quote($CFG->wwwroot, "/");
+
+        // Link to the index.
+        $search = "/(".$base."\/mod\/cms\/index.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@CMSINDEX*$2@$', $content);
+
+        // Link to cms view by moduleid.
+        $search = "/(".$base."\/mod\/cms\/view.php\?id\=)([0-9]+)/";
+        $content = preg_replace($search, '$@CMSVIEWBYID*$2@$', $content);
+
         return $content;
     }
 }

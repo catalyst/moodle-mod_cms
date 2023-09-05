@@ -16,7 +16,7 @@
 
 namespace mod_cms\customfield;
 
-use core_customfield\{field_controller, handler};
+use core_customfield\{api, field_controller, handler};
 use mod_cms\local\model\cms_types;
 use mod_cms\local\datasource\fields;
 
@@ -29,6 +29,8 @@ use mod_cms\local\datasource\fields;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cmsfield_handler extends handler {
+    use cms_restore;
+
     /**
      * Context that should be used for new categories created by this handler
      *

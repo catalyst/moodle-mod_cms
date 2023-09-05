@@ -242,4 +242,37 @@ class fields extends base {
     public function instance_on_delete() {
         $this->cfhandler->delete_instance($this->cms->get('id'));
     }
+
+    /**
+     * Create a structure of the instance for backup.
+     *
+     * @param \backup_nested_element $parent
+     */
+    public function instance_backup_define_structure(\backup_nested_element $parent) {
+        $fields = new \backup_nested_element('fields');
+        $field = new \backup_nested_element('field', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+
+        $parent->add_child($fields);
+        $fields->add_child($field);
+
+        $fieldsforbackup = $this->cfhandler->get_instance_data_for_backup($this->cms->get('id'));
+        $field->set_source_array($fieldsforbackup);
+    }
+
+    /**
+     * Add restore path elements to the restore activity.
+     *
+     * @param array $paths
+     * @param \restore_cms_activity_structure_step $stepslib
+     * @return array
+     */
+    public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
+        $processor = new restore\fields($stepslib);
+
+        $element = new \restore_path_element('restore_ds_fields', '/activity/cms/instance_datasources/fields/field');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
+
+        return $paths;
+    }
 }

@@ -29,6 +29,8 @@ use mod_cms\local\datasource\userlist;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cmsuserlist_handler extends handler {
+    use cms_restore;
+
     /**
      * Context that should be used for new categories created by this handler
      *
