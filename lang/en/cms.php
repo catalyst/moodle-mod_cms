@@ -56,9 +56,15 @@ $string['datasources'] = 'Datasources';
 $string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
  or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
  this list.';
-$string['cachedef_cms_content'] = 'CMS content';
-$string['cachedef_cms_name'] = 'CMS name';
 $string['visibility_updated'] = 'Visibility updated';
+
+// Cache defs.
+$string['cachedef_cms_content'] = 'CMS content';
+$string['cachedef_cms_content_fields'] = 'CMS fields datasource';
+$string['cachedef_cms_content_images'] = 'CMS images datasource';
+$string['cachedef_cms_content_roles'] = 'CMS roles datasource';
+$string['cachedef_cms_content_userlist'] = 'CMS userlist datasource';
+$string['cachedef_cms_name'] = 'CMS name';
 
 // Template form section.
 $string['instance:header'] = 'Activity fields';

@@ -116,6 +116,6 @@ class cmsuserlist_handler extends handler {
         parent::clear_configuration_cache();
         $cmstype = new cms_types($this->get_itemid());
         $userlist = new userlist($cmstype->get_sample_cms());
-        $userlist->update_config_hash();
+        $userlist->update_config_cache_key();
     }
 }

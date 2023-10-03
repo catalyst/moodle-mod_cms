@@ -294,11 +294,11 @@ class cms_types extends persistent {
     }
 
     /**
-     * Returns a hash representing the contents of the CMS type.
+     * Returns a cache key representing the contents of the CMS type.
      *
-     * @return string
+     * @return string|null
      */
-    public function get_content_hash(): string {
+    public function get_cache_key(): ?string {
         return hash(lib::HASH_ALGO, serialize($this->to_record()));
     }
 

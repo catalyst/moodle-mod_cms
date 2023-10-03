@@ -153,7 +153,7 @@ class images extends base {
                 $this->cms->get('typeid')
             );
         }
-        $this->update_config_hash();
+        $this->update_config_cache_key();
     }
 
     /**
@@ -204,15 +204,16 @@ class images extends base {
                 $fs->create_file_from_string($filerecord, base64_decode($filedata->content));
             }
         }
+        $this->update_config_cache_key();
     }
 
     /**
-     * Returns a hash of the content, representing the data stored for the datasource.
+     * Returns the cache key for the instance data.
      *
      * @return string
      */
-    public function get_content_hash(): string {
-        // There is no instance specific data, so no content hash is needed.
+    public function get_instance_cache_key(): string {
+        // There is no instance specific data, so key fragment is constant.
         return '';
     }
 

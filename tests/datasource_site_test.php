@@ -66,4 +66,25 @@ class datasource_site_test extends \advanced_testcase {
         $this->assertObjectHasAttribute('shortname', $data);
         $this->assertObjectHasAttribute('wwwroot', $data);
     }
+
+    /**
+     * Test the cache.
+     *
+     * @covers \mod_cms\local\datasource\site::get_full_cache_key
+     */
+    public function test_cache() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+
+        $cms = new cms();
+        $cms->set('typeid', $cmstype->get('id'));
+
+        $ds = new dssite($cms);
+
+        $this->assertEquals('', $ds->get_full_cache_key());
+        // This should crash if caching is used.
+        $this->assertEquals($ds->get_cached_data(), $ds->get_data());
+    }
 }

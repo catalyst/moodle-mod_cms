@@ -55,7 +55,7 @@ class renderer {
 
         foreach (dsbase::get_datasources($this->cms) as $ds) {
             $name = $ds::get_shortname();
-            $data->$name = $ds->get_data();
+            $data->$name = $ds->get_cached_data();
         }
 
         // Create a debug variable that contains the whole structure.
@@ -117,20 +117,7 @@ class renderer {
      * @return string
      */
     public function get_html(): string {
-        $contentcache = \cache::make('mod_cms', 'cms_content');
-
-        $contenthash = $this->cms->get_content_hash();
-        $content = $contentcache->get($contenthash);
-
-        if ($content === false) {
-            $data = $this->get_data();
-            $mustache = self::get_mustache();
-            $template = $this->cms->get_type()->get('mustache');
-            $content = $mustache->render($template, $data);
-            $contentcache->set($contenthash, $content);
-        }
-
-        return $content;
+        return $this->get_content('cms_content', 'mustache');
     }
 
     /**
@@ -139,20 +126,69 @@ class renderer {
      * @return string
      */
     public function get_name(): string {
-        $labelcache = \cache::make('mod_cms', 'cms_name');
+        return $this->get_content('cms_name', 'title_mustache');
+    }
 
-        $labelhash = $this->cms->get_content_hash();
-        $label = $labelcache->get($labelhash);
-
-        if ($label === false) {
-            $data = $this->get_data();
-            $mustache = self::get_mustache();
-            $template = $this->cms->get_type()->get('title_mustache');
-            $label = $mustache->render($template, $data);
-            $labelcache->set($labelhash, $label);
+    /**
+     * Gets content from a template using a cache.
+     * If the cache key is null, then the cache is not used.
+     *
+     * @param string $cachename
+     * @param string $varname Variable that holds the template.
+     * @return string
+     */
+    protected function get_content(string $cachename, string $varname): string {
+        $cache = \cache::make('mod_cms', $cachename);
+        $key = $this->get_cache_key();
+        if (is_null($key)) {
+            return $this->resolve_mustache($varname);
         }
 
-        return $label;
+        $content = $cache->get($key);
+
+        if ($content === false) {
+            $content = $this->resolve_mustache($varname);
+            $cache->set($key, $content);
+        }
+
+        return $content;
+    }
+
+    /**
+     * Resolves a mustache template using CMS data.
+     *
+     * @param string $varname The name of the template to use.
+     * @return string
+     */
+    protected function resolve_mustache(string $varname): string {
+        $data = $this->get_data();
+        $mustache = self::get_mustache();
+        $template = $this->cms->get_type()->get($varname);
+        return $mustache->render($template, $data);
+    }
+
+    /**
+     * Gets the cache key for the rendered content.
+     * Will return null if any datasource has a null key.
+     *
+     * @return string|null
+     */
+    public function get_cache_key(): ?string {
+        foreach (dsbase::get_datasources($this->cms) as $ds) {
+            $key = $ds->get_full_cache_key();
+            if (is_null($key)) {
+                return null;
+            }
+        }
+
+        $ckey = $this->cms->get_type()->get_cache_key();
+        $ikey = $this->cms->get_cache_key();
+
+        if (is_null($ckey) || is_null($ikey)) {
+            return null;
+        }
+
+        return $ckey . $ikey;
     }
 
     /**

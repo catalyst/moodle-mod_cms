@@ -201,7 +201,7 @@ class fields extends base {
                 }
             }
         }
-        $this->update_config_hash();
+        $this->update_config_cache_key();
     }
 
     /**
@@ -213,8 +213,10 @@ class fields extends base {
     public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
         // Save the custom field data.
         $this->cfhandler->instance_form_save($instancedata, $isnewinstance);
+
+        // Update the instance cache key.
+        // TODO: Change to use hash of $instancedata?
         $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
-        // The content hash is stored as a part fo the cms.
         $this->cms->set_custom_data('fieldsinstancehash', $hash);
         $this->cms->save();
     }

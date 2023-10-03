@@ -188,8 +188,7 @@ class manage_content_types {
     /**
      * Returns a form for the record.
      *
-     * @param cms_types $type
-     *
+     * @param cms_types|null $type
      * @return cms_types_form
      */
     protected function get_form(?cms_types $type = null): cms_types_form {
@@ -238,9 +237,7 @@ class manage_content_types {
      * Execute edit action.
      *
      * @param string $action Could be edit or create.
-     * @param int    $id     If no ID is provided, that means we are creating a new one
-     *
-     * @return void
+     * @param int|null $id   If no ID is provided, that means we are creating a new one
      */
     protected function edit(string $action, ?int $id = null): void {
         global $PAGE;
@@ -337,7 +334,7 @@ class manage_content_types {
         $instance->create();
 
         // Do post create actions for data sources.
-        foreach (dsbase::get_datasources($instance, false) as $ds) {
+        foreach (dsbase::get_datasources($instance) as $ds) {
             $ds->config_on_update($data);
         }
         return $instance;

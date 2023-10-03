@@ -14,51 +14,44 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-namespace mod_cms\local\datasource;
+namespace mod_cms\local\datasource\traits;
 
 /**
- * Data source for basic site metadata.
+ * A trait to implement for any datasource that uses null cache keys.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class site extends base {
-
-    /** @var bool Set to false when the datasource doees not cache. */
-    public static $usecache = false;
-
+trait nullcache {
     /**
-     * Get the display name.
+     * Returns the cache key fragment for the instance data.
+     * If null, then caching should be avoided, both here and for the overall instance.
      *
-     * @return string
+     * @return string|null
      */
-    public static function get_displayname(): string {
-        return get_string('site:displayname', 'mod_cms');
+    public function get_instance_cache_key(): ?string {
+        return null;
     }
 
     /**
-     * Pulls data from the datasource.
+     * Returns the cache key fragment for the config.
+     * If null, then caching should be avoided, both here and for the overall instance.
      *
-     * @return \stdClass
+     * @return string|null
      */
-    public function get_data(): \stdClass {
-        global $CFG, $SITE;
-
-        return (object) [
-            'fullname'  => $SITE->fullname,
-            'shortname' => $SITE->shortname,
-            'wwwroot'   => $CFG->wwwroot,
-        ];
+    public function get_config_cache_key(): ?string {
+        return null;
     }
 
     /**
-     * Can this datasource be disabled?
+     * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys.
+     * If either key is null, then this function returns null.
      *
-     * @return false
+     * @return string|null
      */
-    public static function is_optional(): bool {
-        return false;
+    public function get_full_cache_key(): ?string {
+        return null;
     }
 }

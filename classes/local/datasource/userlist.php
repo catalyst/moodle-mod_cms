@@ -289,9 +289,9 @@ class userlist extends base {
             $this->cms->set_custom_data('userlistinstanceids', $instanceids);
         }
 
-        // Update hash.
+        // Update the instance cache key.
+        // TODO: Change to use $instancedata->data?
         $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
-        // The content hash is stored as a part fo the cms.
         $this->cms->set_custom_data('userlistinstancehash', $hash);
         $this->cms->save();
     }
@@ -373,7 +373,7 @@ class userlist extends base {
         if (count($categories) === 0) {
             $this->cfhandler->create_category('');
         }
-        $this->update_config_hash();
+        $this->update_config_cache_key();
     }
 
     /**
@@ -417,16 +417,7 @@ class userlist extends base {
                 $field->save();
             }
         }
-    }
-
-    /**
-     * Returns a hash of the content, representing the data stored for the datasource.
-     *
-     * @return string
-     */
-    public function get_content_hash(): string {
-        // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
-        return '';
+        $this->update_config_cache_key();
     }
 
     /**

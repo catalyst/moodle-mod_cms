@@ -17,8 +17,14 @@
 namespace mod_cms;
 
 use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\datasource\images as dsimages;
 use mod_cms\local\model\{cms, cms_types};
 use mod_cms\local\renderer;
+use mod_cms\null_datasource as dsnull;
+
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/fixtures/null_datasource.php');
 
 /**
  * Unit test for renderer
@@ -46,7 +52,8 @@ class renderer_test extends \advanced_testcase {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
         $cmstype->set('idnumber', 'test-somename');
-        $cmstype->set('datasources', array_keys(dsbase::get_datasource_labels(false)));
+
+        $cmstype->set('datasources', ['fields', 'images', 'roles', 'list']);
         $cmstype->save();
 
         $cms = $cmstype->get_sample_cms();
@@ -81,10 +88,61 @@ class renderer_test extends \advanced_testcase {
         $cmstype->set('idnumber', 'test-somename');
         $cmstype->set('mustache', $template);
         $cmstype->save();
+        $cms = $cmstype->get_sample_cms();
 
-        $renderer = new renderer($cmstype);
+        $cache = \cache::make('mod_cms', 'cms_content');
+
+        $renderer = new renderer($cms);
+        $key = $renderer->get_cache_key();
+        $this->assertNotNull($key);
         $html = $renderer->get_html();
 
         $this->assertEquals($expected, $html);
+        $this->assertEquals($expected, $cache->get($key));
+    }
+
+    /**
+     * Tests null keys.
+     * Tests that a datasource with a null key with casue the overall HTML to no be cached, but not interfere with the caching
+     * of other datasources.
+     *
+     * @covers \mod_cms\local\renderer::get_html
+     */
+    public function test_null_key() {
+        global $SITE;
+
+        $labels = dsbase::get_datasource_labels(false);
+        if (!array_key_exists(dsnull::get_shortname(), $labels)) {
+            dsbase::add_datasource_class('\mod_cms\null_datasource');
+        }
+
+        $template = '<p>Joy to {{site.fullname}}</p>';
+        $expected = '<p>Joy to ' . $SITE->fullname . '</p>';
+
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'somename');
+        $cmstype->set('idnumber', 'test-somename');
+        $cmstype->set('mustache', $template);
+        $cmstype->set('datasources', ['images', 'null_datasource']);
+        $cmstype->save();
+
+        $cms = $cmstype->get_sample_cms();
+
+        $cache = \cache::make('mod_cms', 'cms_content');
+
+        $renderer = new renderer($cms);
+        $key = $renderer->get_cache_key();
+        $this->assertNull($key);
+        $html = $renderer->get_html();
+
+        // Check that the HMTL was correctly generated, but not cached.
+        $this->assertEquals($expected, $html);
+        $this->assertFalse($cache->get($key));
+
+        // Check that the other datasource(s) was still cached.
+        $ds = new dsimages($cms);
+        $dskey = $ds->get_full_cache_key();
+        $dscache = \cache::make('mod_cms', 'cms_content_images');
+        $this->assertNotFalse($dscache->get($dskey));
     }
 }

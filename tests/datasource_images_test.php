@@ -96,4 +96,38 @@ class datasource_images_test extends \advanced_testcase {
         $count = $DB->count_records('files', ['itemid' => $cmstype->get('id'), 'filearea' => dsimages::FILE_AREA]);
         $this->assertEquals(0, $count);
     }
+
+    /**
+     * Test the cache for images.
+     *
+     * @covers \mod_cms\local\datasource\images::update_config_cache_key
+     * @covers \mod_cms\local\datasource\images::get_config_cache_key
+     * @covers \mod_cms\local\datasource\images::get_cached_data
+     */
+    public function test_cache() {
+        $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+        $cms = $cmstype->get_sample_cms();
+
+        $ds = new dsimages($cms);
+
+        // Instance cache key is constant.
+        $this->assertEquals('', $ds->get_instance_cache_key());
+
+        // Setting the config should update the cache key.
+        $oldkey = $ds->get_config_cache_key();
+        $ds->set_from_import($importdata);
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+
+        $cache = \cache::make('mod_cms', 'cms_content_' . dsimages::get_shortname());
+        // Nothing in cache yet.
+        $this->assertFalse($cache->get($newkey));
+        $data = $ds->get_cached_data();
+        // Cache should now have data in it.
+        $this->assertEquals($data, $cache->get($newkey));
+    }
 }

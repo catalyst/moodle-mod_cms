@@ -243,7 +243,7 @@ class roles extends base {
         ];
         $cmstype->set_custom_data('roles_config', $config);
         $cmstype->save();
-        $this->update_config_hash();
+        $this->update_config_cache_key();
     }
 
     /**
@@ -275,16 +275,7 @@ class roles extends base {
         ];
         $cmstype->set_custom_data('roles_config', $config);
         $cmstype->save();
-    }
-
-    /**
-     * Returns a hash of the content, representing the data stored for the datasource.
-     *
-     * @return string
-     */
-    public function get_content_hash(): string {
-        // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
-        return '';
+        $this->update_config_cache_key();
     }
 
     /**
@@ -312,6 +303,19 @@ class roles extends base {
                 return $v !== '';
             }
         );
+    }
+
+    /**
+     * Returns the cache key fragment for the instance data.
+     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * @return string|null
+     */
+    public function get_instance_cache_key(): ?string {
+        if (!empty($this->cms->get('id'))) {
+            $this->cms->read();
+        }
+        return $this->cms->get_custom_data('roles_course_role_cache_rev') ?? '';
     }
 
     /**
