@@ -135,7 +135,7 @@ class lib {
     }
 
     /**
-     * Rest the name field of cms instances.
+     * Reset the name field of cms instances.
      *
      * @param int $typeid
      * @throws \coding_exception

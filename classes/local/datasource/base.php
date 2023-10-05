@@ -43,6 +43,12 @@ abstract class base {
     protected static $datasourceclasses = [];
 
     /**
+     * @var bool Set to true if the datasource makes use of caching.
+     * Override and set to false in any datasource that is not to be cached.
+     */
+    public static $usecache = true;
+
+    /**
      * Create the list of datasources to be used.
      */
     public static function register_datasources() {
@@ -207,11 +213,37 @@ abstract class base {
     }
 
     /**
-     * Pulls data from the datasource.
+     * Constructs the data structure to act as the data source.
      *
      * @return \stdClass
      */
     abstract public function get_data(): \stdClass;
+
+    /**
+     * Constructs the data structure to act as the data source. Uses a cache.
+     *
+     * @return \stdClass
+     * @throws \coding_exception
+     */
+    public function get_cached_data(): \stdClass {
+        if (!static::$usecache) {
+            return $this->get_data();
+        }
+
+        $key = $this->get_full_cache_key();
+
+        if (is_null($key)) {
+            return $this->get_data();
+        }
+
+        $cache = \cache::make('mod_cms', 'cms_content_' . self::get_shortname());
+        $data = $cache->get($key);
+        if ($data === false) {
+            $data = $this->get_data();
+            $cache->set($key, $data);
+        }
+        return $data;
+    }
 
     /**
      * Add fields to the CMS instance form.
@@ -313,19 +345,74 @@ abstract class base {
     /**
      * Returns a hash of the content, representing the data stored for the datasource.
      *
-     * @return string
+     * @deprecated
+     * @return string|null
+     * @throws \moodle_exception
      */
-    abstract public function get_content_hash(): string;
+    public function get_content_hash(): ?string {
+        throw new \moodle_exception('This method is deprecated. Use get_instance_cache_key() instead');
+    }
 
     /**
-     * Update the config hash.
+     * Returns the cache key fragment for the instance data.
+     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * @return string|null
      */
-    public function update_config_hash() {
+    public function get_instance_cache_key(): ?string {
+        if (!empty($this->cms->get('id'))) {
+            $this->cms->read();
+        }
+        return $this->cms->get_custom_data(self::get_shortname() . 'instancehash') ?? '';
+    }
+
+    /**
+     * Returns the cache key fragment for the config.
+     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * @return string|null
+     */
+    public function get_config_cache_key(): ?string {
+        $cmstype = $this->cms->get_type();
+        return $cmstype->get_custom_data(self::get_shortname() . 'confighash') ?? '';
+    }
+
+    /**
+     * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys.
+     * If either key is null, then this function returns null.
+     *
+     * @return string|null
+     */
+    public function get_full_cache_key(): ?string {
+        if (!static::$usecache) {
+            return '';
+        }
+        $ikey = $this->get_instance_cache_key();
+        $ckey = $this->get_config_cache_key();
+        if (is_null($ikey) || is_null($ckey)) {
+            return null;
+        }
+        return $ikey . $ckey;
+    }
+
+    /** Updates the config cache key fragment. */
+    public function update_config_cache_key() {
+        // TODO: Switch to revision based hashing?
         $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
         // The config hash is stored with the CMS type.
         $cmstype = $this->cms->get_type();
         $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
         $cmstype->save();
+    }
+
+    /**
+     * Update the config hash.
+     *
+     * @deprecated
+     * @throws \moodle_exception
+     */
+    public function update_config_hash() {
+        throw new \moodle_exception('This method is deprecated. Use update_config_cache_key() instead');
     }
 
     /**

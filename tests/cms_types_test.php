@@ -82,7 +82,7 @@ class cms_types_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\model\cms_types::validate_idnumber
      * @dataProvider idnumber_validity_datasource
-     * @param string $idnumber
+     * @param string|null $idnumber
      * @param bool $valid
      */
     public function test_idnumber(?string $idnumber, bool $valid) {

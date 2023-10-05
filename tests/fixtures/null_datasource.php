@@ -14,23 +14,40 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
+namespace mod_cms;
+
+use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\datasource\traits\nullcache;
+
 /**
- * Event listeners
+ * A small test datasource with a null cache key.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-defined('MOODLE_INTERNAL') || die();
+class null_datasource extends dsbase {
+    use nullcache;
 
-$observers = [
-    [
-        'eventname' => 'core\event\role_assigned',
-        'callback' => '\mod_cms\local\datasource\roles::on_role_changed',
-    ],
-    [
-        'eventname' => 'core\event\role_unassigned',
-        'callback' => '\mod_cms\local\datasource\roles::on_role_changed',
-    ],
-];
+    /**
+     * Get the display name.
+     *
+     * @return string
+     */
+    public static function get_displayname(): string {
+        return 'test-nulldatasource';
+    }
+
+    /**
+     * Pulls data from the datasource.
+     *
+     * @return \stdClass
+     */
+    public function get_data(): \stdClass {
+        return (object) [
+            'a' => 'A',
+            'b' => 'B',
+        ];
+    }
+}

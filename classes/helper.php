@@ -44,9 +44,8 @@ class helper {
      * @param string $url
      * @param string $icon
      * @param string $alt
-     * @param string $iconcomponent
+     * @param string|null $iconcomponent
      * @param array  $options
-     *
      * @return string
      */
     public static function format_icon_link(string $url, string $icon, string $alt,

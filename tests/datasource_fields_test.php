@@ -19,6 +19,7 @@ namespace mod_cms;
 use core_customfield\{category_controller, field_controller};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\fields as dsfields;
+use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 
 defined('MOODLE_INTERNAL') || die();
@@ -146,41 +147,43 @@ class datasource_fields_test extends \advanced_testcase {
     /**
      * Tests to see that changing the custom field configuration will alter the hash of the cms.
      *
-     * @covers \mod_cms\local\model\cms::get_content_hash
-     * @covers \mod_cms\local\model\cms_types::get_content_hash
-     * @covers \mod_cms\local\datasource\fields::update_config_hash
+     * @covers \mod_cms\local\datasource\fields::get_config_cache_key
+     * @covers \mod_cms\local\datasource\fields::update_config_cache_key
      * @covers \mod_cms\customfield\cmsfield_handler::clear_configuration_cache
      */
-    public function test_hash() {
+    public function test_config_cache_key() {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
-        $oldhash = $cmstype->get_sample_cms()->get_content_hash();
+        $cms = $cmstype->get_sample_cms();
+
+        $ds = new dsfields($cms);
+
+        $oldkey = $ds->get_config_cache_key();
 
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
-        $ds = new dsfields($cmstype->get_sample_cms());
         $ds->set_from_import($importdata);
         $cmstype->read();
-        $newhash = $cmstype->get_sample_cms()->get_content_hash();
-        $this->assertNotEquals($oldhash, $newhash);
-        $oldhash = $newhash;
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+        $oldkey = $newkey;
 
         $cfhandler = cmsfield_handler::create($cmstype->get('id'));
         $catid = $cfhandler->create_category('x');
         $cc = category_controller::create($catid);
 
         $cmstype->read();
-        $newhash = $cmstype->get_sample_cms()->get_content_hash();
-        $this->assertNotEquals($oldhash, $newhash);
-        $oldhash = $newhash;
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+        $oldkey = $newkey;
 
         $cfhandler->rename_category($cc, 'y');
 
         $cmstype->read();
-        $newhash = $cmstype->get_sample_cms()->get_content_hash();
-        $this->assertNotEquals($oldhash, $newhash);
-        $oldhash = $newhash;
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+        $oldkey = $newkey;
 
         $fieldobj = (object) [
             'name' => 'Extra Field',
@@ -192,8 +195,8 @@ class datasource_fields_test extends \advanced_testcase {
         $cfhandler->save_field_configuration($field, $fieldobj);
 
         $cmstype->read();
-        $newhash = $cmstype->get_sample_cms()->get_content_hash();
-        $this->assertNotEquals($oldhash, $newhash);
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
     }
 
     /**
@@ -251,5 +254,32 @@ class datasource_fields_test extends \advanced_testcase {
 
         $fields = $DB->get_records('customfield_data', ['instanceid' => $moduleinfo->instance]);
         $this->assertEquals(0, count($fields));
+    }
+
+    /**
+     * Test caching.
+     *
+     * @covers \mod_cms\local\datasource\fields::get_cached_data
+     * @covers \mod_cms\local\datasource\fields::get_full_cache_key
+     * @covers \mod_cms\local\datasource\fields::update_instance
+     */
+    public function  test_cache() {
+        $cmstype = $this->import();
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        $cms = new cms($moduleinfo->instance);
+        $ds = new dsfields($cms);
+        $oldkey = $ds->get_full_cache_key();
+        $this->assertNotNull($oldkey);
+        $ds->update_instance((object) ['id' => $moduleinfo->instance, 'customfield_afield' => 'Not field A'], false);
+        $newkey = $ds->get_full_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+
+        $cache = \cache::make('mod_cms', 'cms_content_fields');
+
+        $data = $ds->get_cached_data();
+        $this->assertEquals($data, $cache->get($newkey));
+        $this->assertEquals($data, $ds->get_data());
     }
 }

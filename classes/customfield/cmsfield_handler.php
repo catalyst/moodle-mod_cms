@@ -108,6 +108,6 @@ class cmsfield_handler extends handler {
         parent::clear_configuration_cache();
         $cmstype = new cms_types($this->get_itemid());
         $fields = new fields($cmstype->get_sample_cms());
-        $fields->update_config_hash();
+        $fields->update_config_cache_key();
     }
 }

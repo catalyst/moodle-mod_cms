@@ -70,17 +70,22 @@ class datasource_roles_test extends \advanced_testcase {
         $cmstype->set('idnumber', 'test-name');
         $cmstype->save();
         $cms = $cmstype->get_sample_cms();
-
         $ds = new dsroles($cms);
+
+        $oldkey = $ds->get_config_cache_key();
         $ds->set_from_import($importdata);
         $exportdata = $ds->get_for_export();
         $this->assertEquals($importdata, $exportdata);
+        // The config cache key fragment should be updated.
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
     }
 
     /**
      * Tests get_data().
      *
-     * @covers \mod_cms\local\datasource\roles::get_data
+     * @covers \mod_cms\local\datasource\roles::get_cached_data
+     * @covers \mod_cms\local\datasource\roles::get_full_cache_key
      */
     public function test_get_data() {
         $cmstype = $this->import();
@@ -108,23 +113,39 @@ class datasource_roles_test extends \advanced_testcase {
         $this->add_role($user2, 'student', $context);
 
         // Test data for 'all'.
-        $data = $dsroles->get_data();
+        $data = $this->get_cached_data($dsroles);
         $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2]);
         $this->assertEquals($expected, $data);
 
         // Test data for 'firstonly'.
         $config->roles_duplicates = 'firstonly';
         $manager->update($cmstype->get('id'), $config);
-        $data = $dsroles->get_data();
+        $data = $this->get_cached_data($dsroles);
         $expected = $this->get_expected('firstnonly', ['marysue' => $user1, 'garydue' => $user2]);
         $this->assertEquals($expected, $data);
 
         // Test data for 'nest'.
         $config->roles_duplicates = 'nest';
         $manager->update($cmstype->get('id'), $config);
-        $data = $dsroles->get_data();
+        $data = $this->get_cached_data($dsroles);
         $expected = $this->get_expected('nest', ['marysue' => $user1, 'garydue' => $user2]);
         $this->assertEquals($expected, $data);
+    }
+
+    /**
+     * Get data from the cache while testing cache integrity.
+     *
+     * @param dsroles $ds
+     * @return \stdClass
+     */
+    protected function get_cached_data(dsroles $ds): \stdClass {
+        $data = $ds->get_cached_data();
+        $cache = \cache::make('mod_cms', 'cms_content_roles');
+        $key = $ds->get_full_cache_key();
+        $this->assertEquals($data, $cache->get($key));
+        $this->assertEquals($data, $ds->get_data());
+
+        return $data;
     }
 
     /**

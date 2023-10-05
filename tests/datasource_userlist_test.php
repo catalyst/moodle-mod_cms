@@ -70,6 +70,7 @@ class datasource_userlist_test extends \advanced_testcase {
         $cms = $cmstype->get_sample_cms();
 
         $ds = new dsuserlist($cms);
+        $oldkey = $ds->get_config_cache_key();
         $ds->set_from_import($importdata);
 
         // Check the database directly.
@@ -78,6 +79,10 @@ class datasource_userlist_test extends \advanced_testcase {
         // Check that exporting produces the same content as was imported.
         $exportdata = $ds->get_for_export();
         $this->assertEquals($importdata, $exportdata);
+
+        // Check caching.
+        $newkey = $ds->get_config_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
     }
 
     /**
@@ -117,7 +122,7 @@ class datasource_userlist_test extends \advanced_testcase {
         global $DB;
 
         $manager = new manage_content_types();
-        $cmstype = $manager->create((object) ['name' => 'Name', 'idnumber' => 'test-name']);
+        $cmstype = $manager->create((object) ['name' => 'Name', 'idnumber' => 'test-name', 'datasources' => 'list']);
 
         // Test that stuff gets deleted even if not included in datasource list.
         $cmstype->set('datasources', []);
@@ -313,8 +318,14 @@ class datasource_userlist_test extends \advanced_testcase {
 
         $cms = new cms($moduleinfo->instance);
         $userlist = new dsuserlist($cms);
-        $data = $userlist->get_data();
+        $data = $userlist->get_cached_data();
         $this->assertEquals(2, $data->numrows);
         $this->assertEquals($expected, $data->data);
+
+        // Check cache.
+        $cache = \cache::make('mod_cms', 'cms_content_userlist');
+        $key = $userlist->get_full_cache_key();
+        $this->assertEquals($data, $cache->get($key));
+        $this->assertEquals($data, $userlist->get_data());
     }
 }

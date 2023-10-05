@@ -87,16 +87,35 @@ class cms extends persistent {
      * Includes hashes for the CMS type and the datasources as well, as they
      * contribute to what gets displayed.
      *
+     * @deprecated
      * @return string
+     * @throws \moodle_exception
      */
     public function get_content_hash(): string {
-        $hash = '';
+        throw new \moodle_exception('This method is deprecated. Use get_cache_key instead');
+    }
+
+    /**
+     * Creates and returns a cache key. This key is a hash of the combination of the
+     * datasources, the CMS type and the CMS data.
+     *
+     * @return string|null
+     */
+    public function get_cache_key(): ?string {
+        $key = '';
         foreach (dsbase::get_datasources($this) as $ds) {
-            $hash .= $ds->get_content_hash();
+            $dskey = $ds->get_full_cache_key();
+            if (is_null($dskey)) {
+                return null;
+            }
+            $key .= $dskey;
         }
-        $hash .= hash(lib::HASH_ALGO, serialize($this->to_record()));
-        $hash .= $this->get_type()->get_content_hash();
-        return $hash;
+
+        $key .= serialize($this->get_type()->to_record());
+        $key .= serialize($this->to_record());
+
+        // Return a hash to keep the key length to an acceptable size.
+        return hash(lib::HASH_ALGO, $key);
     }
 
     /**
