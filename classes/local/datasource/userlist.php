@@ -158,7 +158,7 @@ class userlist extends base {
         // This may not fill the screen. Add '.form-control-static {width: 100%}' to custom CSS.
         $html = $output->render($outputpage);
 
-        $mform->addElement('static', 'userlist', 'List columns', $html);
+        $mform->addElement('static', 'userlist', get_string('userlist:config:columns', 'mod_cms'), $html);
     }
 
     /**

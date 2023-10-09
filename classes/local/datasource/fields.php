@@ -16,7 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
-use core_customfield\{category_controller, field};
+use core_customfield\{category_controller, field, output\management};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
 use mod_cms\local\lib;
@@ -95,18 +95,23 @@ class fields extends base {
     }
 
     /**
-     * Return a action link to add to the CMS type table.
+     * Add fields to the CMS type config form.
      *
-     * @return string|null
+     * @param \MoodleQuickForm $mform
      */
-    public function config_action_link(): ?string {
-        // Link for custom fields.
-        return helper::format_icon_link(
-            new \moodle_url($this->cfhandler->get_configuration_url()),
-            't/index_drawer',
-            get_string('fields:custom_fields', 'mod_cms'),
-            null
-        );
+    public function config_form_definition(\MoodleQuickForm $mform) {
+        global $PAGE;
+
+        // Add a heading.
+        $mform->addElement('header', 'fields_heading', get_string('fields:config:header', 'mod_cms'));
+
+        $output = $PAGE->get_renderer('core_customfield');
+        $outputpage = new management($this->cfhandler);
+
+        // This may not fill the screen. Add '.form-control-static {width: 100%}' to custom CSS.
+        $html = $output->render($outputpage);
+
+        $mform->addElement('static', 'fields', get_string('fields:config:columns', 'mod_cms'), $html);
     }
 
     /**
