@@ -109,10 +109,13 @@ $string['images:images'] = 'Images';
 
 // Custom field datasource strings.
 $string['fields:custom_fields'] = 'Custom fields';
+$string['fields:config:columns'] = 'Fields and categories';
+$string['fields:config:header'] = 'Custom field settings';
 $string['fields:sample_text'] = 'text';
 $string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
 
 // User list datasource strings.
+$string['userlist:config:columns'] = 'User list columns';
 $string['userlist:config:header'] = 'User list settings';
 $string['userlist:displayname'] = 'User list';
 $string['userlist:listdata'] = 'List data';
