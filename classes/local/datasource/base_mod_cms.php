@@ -16,49 +16,25 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\lib;
+use mod_cms\local\model\cms;
+use mod_cms\local\model\cms_types;
+
 /**
- * Data source for basic site metadata.
+ * Base class for mod_cms defined data sources.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class site extends base_mod_cms {
-
-    /** @var bool Set to false when the datasource doees not cache. */
-    public static $usecache = false;
-
+abstract class base_mod_cms extends base {
     /**
-     * Get the display name.
+     * Get the cache used by the datasource.
      *
-     * @return string
+     * @return \cache
      */
-    public static function get_displayname(): string {
-        return get_string('site:displayname', 'mod_cms');
-    }
-
-    /**
-     * Pulls data from the datasource.
-     *
-     * @return \stdClass
-     */
-    public function get_data(): \stdClass {
-        global $CFG, $SITE;
-
-        return (object) [
-            'fullname'  => $SITE->fullname,
-            'shortname' => $SITE->shortname,
-            'wwwroot'   => $CFG->wwwroot,
-        ];
-    }
-
-    /**
-     * Can this datasource be disabled?
-     *
-     * @return false
-     */
-    public static function is_optional(): bool {
-        return false;
+    public function get_cache(): \cache {
+        return \cache::make('mod_cms', 'cms_content_' . self::get_shortname());
     }
 }

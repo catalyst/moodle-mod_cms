@@ -35,7 +35,7 @@ use mod_cms\local\model\cms;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class fields extends base {
+class fields extends base_mod_cms {
     /** @var cmsfield_handler Custom field handler. */
     protected $cfhandler;
 

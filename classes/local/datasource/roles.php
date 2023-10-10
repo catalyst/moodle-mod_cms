@@ -26,7 +26,7 @@ use mod_cms\local\model\{cms, cms_types};
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class roles extends base {
+class roles extends base_mod_cms {
     /** Prefix used for form elements. */
     const FORM_PREFIX = 'roles_';
 

@@ -28,7 +28,7 @@ use context_system;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class images extends base {
+class images extends base_mod_cms {
     /** The maximum amount of files allowed. */
     const MAX_FILES = 50;
 
