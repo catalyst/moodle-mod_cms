@@ -51,7 +51,7 @@ abstract class base {
     /**
      * Create the list of datasources to be used.
      */
-    public static function register_datasources() {
+    final public static function register_datasources() {
         // Only need to do this once.
         if (!empty(self::$datasourceclasses)) {
             return;
@@ -62,13 +62,15 @@ abstract class base {
             self::add_datasource_class(__NAMESPACE__ . '\\' . $classname);
         }
 
-        // Register any datasources defined in other plugins.
-        $plugintypes = get_plugins_with_function('modcms_datasources', 'lib.php');
-        foreach ($plugintypes as $plugins) {
-            foreach ($plugins as $pluginfunction) {
-                $result = $pluginfunction();
-                foreach ($result as $classname) {
-                    self::add_datasource_class($classname);
+        if (!PHPUNIT_TEST) {
+            // Register any datasources defined in other plugins.
+            $plugintypes = get_plugins_with_function('modcms_datasources', 'lib.php');
+            foreach ($plugintypes as $plugins) {
+                foreach ($plugins as $pluginfunction) {
+                    $result = $pluginfunction();
+                    foreach ($result as $classname) {
+                        self::add_datasource_class($classname);
+                    }
                 }
             }
         }
@@ -80,7 +82,7 @@ abstract class base {
      * @param string $classname
      * @throws \moodle_exception
      */
-    public static function add_datasource_class(string $classname) {
+    final public static function add_datasource_class(string $classname) {
         // Test for existence.
         if (!class_exists($classname)) {
             throw new \moodle_exception('error:class_missing', 'mod_cms', '', $classname);
@@ -104,7 +106,7 @@ abstract class base {
      * @param bool $enabledonly
      * @return \Generator
      */
-    public static function get_datasources($cms, bool $enabledonly = true) {
+    final public static function get_datasources($cms, bool $enabledonly = true) {
         self::register_datasources();
 
         if ($cms === null) {
@@ -130,7 +132,7 @@ abstract class base {
      * @param cms|cms_types $cms
      * @return false|base The datasource, or false if not found.
      */
-    public static function get_datasource(string $name, $cms) {
+    final public static function get_datasource(string $name, $cms) {
         self::register_datasources();
 
         if (!isset(self::$datasourceclasses[$name])) {
@@ -151,7 +153,7 @@ abstract class base {
      * @param bool $optionalonly
      * @return array
      */
-    public static function get_datasource_labels(bool $optionalonly = true): array {
+    final public static function get_datasource_labels(bool $optionalonly = true): array {
         self::register_datasources();
 
         $labels = [];
@@ -236,7 +238,7 @@ abstract class base {
             return $this->get_data();
         }
 
-        $cache = \cache::make('mod_cms', 'cms_content_' . self::get_shortname());
+        $cache = $this->get_cache();
         $data = $cache->get($key);
         if ($data === false) {
             $data = $this->get_data();
@@ -244,6 +246,16 @@ abstract class base {
         }
         return $data;
     }
+
+    /**
+     * Get the cache used by the datasource. This is required for caching the data returned by get_data(),
+     * and needs to be declared in the plugin of the datasource.
+     *
+     * If there is no caching done, have this return null.
+     *
+     * @return \cache|null
+     */
+    abstract public function get_cache(): ?\cache;
 
     /**
      * Add fields to the CMS instance form.

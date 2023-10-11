@@ -26,6 +26,16 @@ namespace mod_cms\local\datasource\traits;
  */
 trait nullcache {
     /**
+     * Get the cache used by the datasource.
+     * For null caching, this returns null.
+     *
+     * @return \cache|null
+     */
+    public function get_cache(): ?\cache {
+        return null;
+    }
+
+    /**
      * Returns the cache key fragment for the instance data.
      * If null, then caching should be avoided, both here and for the overall instance.
      *

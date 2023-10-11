@@ -34,7 +34,7 @@ use mod_cms\local\model\{cms, cms_userlist};
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class userlist extends base {
+class userlist extends base_mod_cms {
     /** Default number of rows to include in the list edit form. */
     const DEFAULT_NUM_ROWS = 2;
     /** Prefix to use for list elements. */

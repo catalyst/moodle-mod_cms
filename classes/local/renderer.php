@@ -133,7 +133,7 @@ class renderer {
      * Gets content from a template using a cache.
      * If the cache key is null, then the cache is not used.
      *
-     * @param string $cachename
+     * @param string $cachename Should either be 'cms_content' or 'cms_name'.
      * @param string $varname Variable that holds the template.
      * @return string
      */
