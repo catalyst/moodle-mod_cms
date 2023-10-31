@@ -227,16 +227,6 @@ class fields extends base_mod_cms {
     }
 
     /**
-     * Returns a hash of the content, representing the data stored for the datasource.
-     *
-     * @return string
-     */
-    public function get_content_hash(): string {
-        // Hash is stored in the DB with the cms, so gets returned by cms::get_content_hash().
-        return '';
-    }
-
-    /**
      * Called when deleting a CMS type.
      */
     public function config_on_delete() {

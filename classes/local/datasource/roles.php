@@ -247,6 +247,18 @@ class roles extends base_mod_cms {
     }
 
     /**
+     * Called when an instance is added/updated.
+     *
+     * @param \stdClass $instancedata
+     * @param bool $isnewinstance
+     */
+    public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
+        $cacherev = $this->cms->get_custom_data('roles_course_role_cache_rev') ?? 0;
+        $this->cms->set_custom_data('roles_course_role_cache_rev', ++$cacherev);
+        $this->cms->save();
+    }
+
+    /**
      * Get configuration data for exporting.
      *
      * @return \stdClass
@@ -312,10 +324,17 @@ class roles extends base_mod_cms {
      * @return string|null
      */
     public function get_instance_cache_key(): ?string {
+        $cacherev = 0;
         if (!empty($this->cms->get('id'))) {
             $this->cms->read();
+            $cacherev = $this->cms->get_custom_data('roles_course_role_cache_rev');
+            // We expect there to be something, so false, null, '', and 0 are all illigit.
+            if (empty($cacherev)) {
+                throw new \moodle_exception('error:no_instance_hash', 'mod_cms', '', $this->cms->get('id'));
+            }
         }
-        return $this->cms->get_custom_data('roles_course_role_cache_rev') ?? '';
+        // Combine with the ID to avoid clashes between instances.
+        return $this->cms->get('id') . 'o' . $cacherev;
     }
 
     /**

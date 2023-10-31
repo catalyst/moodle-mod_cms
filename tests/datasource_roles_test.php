@@ -58,6 +58,29 @@ class datasource_roles_test extends \advanced_testcase {
     }
 
     /**
+     * Tests get_key functions when the hash is not set.
+     *
+     * @covers \mod_cms\local\datasource\roles::get_config_cache_key
+     * @covers \mod_cms\local\datasource\roles::get_instance_cache_key
+     */
+    public function test_no_hash() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+
+        $cms = $cmstype->get_sample_cms();
+        $cms->set('intro', '');
+        $cms->set('course', 0);
+        $cms->set('name', '');
+        $cms->save();
+
+        $ds = new dsroles($cms);
+        $this->expectException('moodle_exception');
+        $ds->get_instance_cache_key();
+    }
+
+    /**
      * Tests import and export.
      *
      * @covers \mod_cms\local\datasource\roles::set_from_import
@@ -65,10 +88,12 @@ class datasource_roles_test extends \advanced_testcase {
      */
     public function test_import() {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'name');
-        $cmstype->set('idnumber', 'test-name');
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'name',
+            'idnumber' => 'test-name',
+            'datasources' => 'roles',
+        ]);
         $cms = $cmstype->get_sample_cms();
         $ds = new dsroles($cms);
 
@@ -98,6 +123,14 @@ class datasource_roles_test extends \advanced_testcase {
         $context = \context_course::instance($course->id);
         $manager = new manage_content_types();
         $config = $manager->get_config($cmstype->get('id'));
+        $idasstr = (string) $cms->get('id');
+
+        // Test that the cache key exists.
+        $oldkey = $dsroles->get_full_cache_key();
+        $this->assertNotEmpty($oldkey);
+        $instkey = $dsroles->get_instance_cache_key();
+        // Test that instance key starts with the ID.
+        $this->assertEquals($idasstr, substr($instkey, 0, strlen($idasstr)));
 
         // Create users.
         $user1 = $this->add_user('Mary', 'Sue');
@@ -112,6 +145,13 @@ class datasource_roles_test extends \advanced_testcase {
         $this->add_role($user1, 'student', $context);
         $this->add_role($user2, 'student', $context);
 
+        // Test that key has changed.
+        $newkey = $dsroles->get_full_cache_key();
+        $this->assertNotEquals($oldkey, $newkey);
+        $instkey = $dsroles->get_instance_cache_key();
+        // Test that instance key starts with the ID.
+        $this->assertEquals($idasstr, substr($instkey, 0, strlen($idasstr)));
+
         // Test data for 'all'.
         $data = $this->get_cached_data($dsroles);
         $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2]);
@@ -121,7 +161,7 @@ class datasource_roles_test extends \advanced_testcase {
         $config->roles_duplicates = 'firstonly';
         $manager->update($cmstype->get('id'), $config);
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('firstnonly', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('firstonly', ['marysue' => $user1, 'garydue' => $user2]);
         $this->assertEquals($expected, $data);
 
         // Test data for 'nest'.

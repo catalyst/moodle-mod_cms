@@ -55,6 +55,32 @@ class datasource_images_test extends \advanced_testcase {
     }
 
     /**
+     * Tests get_key functions when the hash is not set.
+     *
+     * @covers \mod_cms\local\datasource\images::get_config_cache_key
+     * @covers \mod_cms\local\datasource\images::get_instance_cache_key
+     */
+    public function test_no_hash() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+
+        $cms = $cmstype->get_sample_cms();
+        $cms->set('intro', '');
+        $cms->set('course', 0);
+        $cms->set('name', '');
+        $cms->save();
+
+        $ds = new dsimages($cms);
+        $this->assertEquals('', $ds->get_instance_cache_key());
+        $this->expectException('moodle_exception');
+        $cmstype->set_custom_data('imagesconfighash', null);
+        $cmstype->save();
+        $ds->get_config_cache_key();
+    }
+
+    /**
      * Tests import and export.
      *
      * @covers \mod_cms\local\datasource\images::set_from_import
@@ -62,10 +88,12 @@ class datasource_images_test extends \advanced_testcase {
      */
     public function test_import() {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'name');
-        $cmstype->set('idnumber', 'test-name');
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'name',
+            'idnumber' => 'test-name',
+            'datasources' => 'images',
+        ]);
         $cms = $cmstype->get_sample_cms();
 
         $ds = new dsimages($cms);
@@ -106,10 +134,12 @@ class datasource_images_test extends \advanced_testcase {
      */
     public function test_cache() {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'name');
-        $cmstype->set('idnumber', 'test-name');
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'name',
+            'idnumber' => 'test-name',
+            'datasources' => 'images',
+        ]);
         $cms = $cmstype->get_sample_cms();
 
         $ds = new dsimages($cms);
