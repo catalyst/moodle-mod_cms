@@ -210,5 +210,17 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023082800, 'cms');
     }
 
+    if ($oldversion < 2023110100) {
+        // Changing nullability of field idnumber on table cms_types to not null.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('idnumber', XMLDB_TYPE_CHAR, '255', null, XMLDB_NOTNULL, null, null, 'name');
+
+        // Launch change of nullability for field idnumber.
+        $dbman->change_field_notnull($table, $field);
+
+        // Cms savepoint reached.
+        upgrade_mod_savepoint(true, 2023110100, 'cms');
+    }
+
     return true;
 }
