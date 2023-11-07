@@ -54,6 +54,29 @@ class datasource_userlist_test extends \advanced_testcase {
     }
 
     /**
+     * Tests get_key functions when the hash is not set.
+     *
+     * @covers \mod_cms\local\datasource\userlist::get_config_cache_key
+     * @covers \mod_cms\local\datasource\userlist::get_instance_cache_key
+     */
+    public function test_no_hash() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+
+        $cms = $cmstype->get_sample_cms();
+        $cms->set('intro', '');
+        $cms->set('course', 0);
+        $cms->set('name', '');
+        $cms->save();
+
+        $ds = new dsuserlist($cms);
+        $this->expectException('moodle_exception');
+        $ds->get_instance_cache_key();
+    }
+
+    /**
      * Tests import and export.
      *
      * @covers \mod_cms\local\datasource\userlist::set_from_import
@@ -63,10 +86,14 @@ class datasource_userlist_test extends \advanced_testcase {
         global $DB;
 
         $importdata = json_decode(file_get_contents(self::IMPORT_JSONFILE));
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'name');
-        $cmstype->set('idnumber', 'test-name');
-        $cmstype->save();
+
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'name',
+            'idnumber' => 'test-name',
+            'datasources' => 'list',
+        ]);
+
         $cms = $cmstype->get_sample_cms();
 
         $ds = new dsuserlist($cms);
@@ -98,6 +125,7 @@ class datasource_userlist_test extends \advanced_testcase {
             'customfield_category',
             ['itemid' => $itemid]
         );
+
         $this->assertEquals(1, count($categoryrecord));
         $categoryrecord = array_shift($categoryrecord);
 

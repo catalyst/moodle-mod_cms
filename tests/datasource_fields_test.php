@@ -61,6 +61,29 @@ class datasource_fields_test extends \advanced_testcase {
     }
 
     /**
+     * Tests get_key functions when the hash is not set.
+     *
+     * @covers \mod_cms\local\datasource\fields::get_config_cache_key
+     * @covers \mod_cms\local\datasource\fields::get_instance_cache_key
+     */
+    public function test_no_hash() {
+        $cmstype = new cms_types();
+        $cmstype->set('name', 'name');
+        $cmstype->set('idnumber', 'test-name');
+        $cmstype->save();
+
+        $cms = $cmstype->get_sample_cms();
+        $cms->set('intro', '');
+        $cms->set('course', 0);
+        $cms->set('name', '');
+        $cms->save();
+
+        $ds = new dsfields($cms);
+        $this->expectException('moodle_exception');
+        $ds->get_instance_cache_key();
+    }
+
+    /**
      * Tests import and export.
      *
      * @dataProvider import_dataprovider
@@ -152,10 +175,13 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\customfield\cmsfield_handler::clear_configuration_cache
      */
     public function test_config_cache_key() {
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'name');
-        $cmstype->set('idnumber', 'test-name');
-        $cmstype->save();
+
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'name',
+            'idnumber' => 'test-name',
+            'datasources' => 'fields',
+        ]);
         $cms = $cmstype->get_sample_cms();
 
         $ds = new dsfields($cms);

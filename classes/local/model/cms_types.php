@@ -291,6 +291,8 @@ class cms_types extends persistent {
             $ds = dsbase::get_datasource($name, $this);
             $ds->set_from_import($data);
         }
+        // Update this object with whatever was added to the database.
+        $this->read();
     }
 
     /**

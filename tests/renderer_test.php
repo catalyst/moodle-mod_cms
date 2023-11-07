@@ -49,12 +49,12 @@ class renderer_test extends \advanced_testcase {
      * @covers \mod_cms\local\renderer::get_data
      */
     public function test_get_data() {
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'somename');
-        $cmstype->set('idnumber', 'test-somename');
-
-        $cmstype->set('datasources', ['fields', 'images', 'roles', 'list']);
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'somename',
+            'idnumber' => 'test-somename',
+            'datasources' => 'fields,images,roles,list',
+        ]);
 
         $cms = $cmstype->get_sample_cms();
 
@@ -83,11 +83,13 @@ class renderer_test extends \advanced_testcase {
         $template = '<p>{{site.fullname}}</p>';
         $expected = '<p>' . $SITE->fullname . '</p>';
 
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'somename');
-        $cmstype->set('idnumber', 'test-somename');
-        $cmstype->set('mustache', $template);
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'somename',
+            'idnumber' => 'test-somename',
+            'mustache' => $template,
+            'datasources' => '',
+        ]);
         $cms = $cmstype->get_sample_cms();
 
         $cache = \cache::make('mod_cms', 'cms_content');
@@ -119,12 +121,13 @@ class renderer_test extends \advanced_testcase {
         $template = '<p>Joy to {{site.fullname}}</p>';
         $expected = '<p>Joy to ' . $SITE->fullname . '</p>';
 
-        $cmstype = new cms_types();
-        $cmstype->set('name', 'somename');
-        $cmstype->set('idnumber', 'test-somename');
-        $cmstype->set('mustache', $template);
-        $cmstype->set('datasources', ['images', 'null_datasource']);
-        $cmstype->save();
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'somename',
+            'idnumber' => 'test-somename',
+            'mustache' => $template,
+            'datasources' => 'images,null_datasource',
+        ]);
 
         $cms = $cmstype->get_sample_cms();
 

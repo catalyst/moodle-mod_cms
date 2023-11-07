@@ -19,16 +19,15 @@ namespace mod_cms\local\datasource;
 /**
  * Data source for basic site metadata.
  *
+ * This datasource does not use caching, but does not use nullcache. This is because the data returned is constant and small. It
+ * does not affect the caching done by the CMS, so we do not use nullcache. We do not use a cache because it would not be faster.
+ *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class site extends base_mod_cms {
-
-    /** @var bool Set to false when the datasource doees not cache. */
-    public static $usecache = false;
-
     /**
      * Get the display name.
      *
@@ -60,5 +59,48 @@ class site extends base_mod_cms {
      */
     public static function is_optional(): bool {
         return false;
+    }
+
+    /**
+     * Constructs the data structure to act as the data source. Uses a cache.
+     *
+     * @return \stdClass
+     * @throws \coding_exception
+     */
+    public function get_cached_data(): \stdClass {
+        // Because the data is constant, and small, using a cache would be counter-productive.
+        return $this->get_data();
+    }
+
+    /**
+     * Returns the cache key fragment for the instance data.
+     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * @return string|null
+     */
+    public function get_instance_cache_key(): ?string {
+        // Returns a constant, because caching is not used in this datasource, but still used for the CMS.
+        return '';
+    }
+
+    /**
+     * Returns the cache key fragment for the config.
+     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * @return string|null
+     */
+    public function get_config_cache_key(): ?string {
+        // Returns a constant, because caching is not used in this datasource, but still used for the CMS.
+        return '';
+    }
+
+    /**
+     * Gets the current cache key used for this datasource for this instance.
+     *
+     * @return string|null
+     */
+    public function get_full_cache_key(): ?string {
+        // Returns a constant, because caching is not used in this datasource.
+        return '';
     }
 }

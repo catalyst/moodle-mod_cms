@@ -99,6 +99,8 @@ $string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be 
 $string['error:no_file_uploaded'] = 'No file uploaded';
 $string['error:cant_delete_content_type'] = 'Cannot delete content type.';
 $string['error:invalid'] = 'Invalid: {$a}';
+$string['error:no_instance_hash'] = 'Module {$a} has no instance hash.';
+$string['error:no_config_hash'] = 'Module {$a} has no config hash.';
 
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';

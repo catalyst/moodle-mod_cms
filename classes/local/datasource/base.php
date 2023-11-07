@@ -43,12 +43,6 @@ abstract class base {
     protected static $datasourceclasses = [];
 
     /**
-     * @var bool Set to true if the datasource makes use of caching.
-     * Override and set to false in any datasource that is not to be cached.
-     */
-    public static $usecache = true;
-
-    /**
      * Create the list of datasources to be used.
      */
     final public static function register_datasources() {
@@ -228,10 +222,6 @@ abstract class base {
      * @throws \coding_exception
      */
     public function get_cached_data(): \stdClass {
-        if (!static::$usecache) {
-            return $this->get_data();
-        }
-
         $key = $this->get_full_cache_key();
 
         if (is_null($key)) {
@@ -335,6 +325,7 @@ abstract class base {
      * @param mixed $data
      */
     public function config_on_update($data) {
+        $this->update_config_cache_key();
     }
 
     /**
@@ -372,10 +363,20 @@ abstract class base {
      * @return string|null
      */
     public function get_instance_cache_key(): ?string {
+        $key = '';
+        // We test for an ID because temporary cms instances (i.e. sample cms) do not have caching.
         if (!empty($this->cms->get('id'))) {
+            // By default, all stored instances are expected to have a stored hash to be used as a key. If one is not stored, then an
+            // exception will be thrown.
+            // If a datasource doesn't use caching (either returning '' or null), then this method should be overridden.
             $this->cms->read();
+            $key = $this->cms->get_custom_data(self::get_shortname() . 'instancehash');
+            // We expect there to be something, so false, null, '', and 0 are all illigit.
+            if (empty($key)) {
+                throw new \moodle_exception('error:no_instance_hash', 'mod_cms', '', $this->cms->get('id'));
+            }
         }
-        return $this->cms->get_custom_data(self::get_shortname() . 'instancehash') ?? '';
+        return $key;
     }
 
     /**
@@ -386,7 +387,15 @@ abstract class base {
      */
     public function get_config_cache_key(): ?string {
         $cmstype = $this->cms->get_type();
-        return $cmstype->get_custom_data(self::get_shortname() . 'confighash') ?? '';
+        // By default, all stored configs are expected to have a stored hash to be used as a key. If one is not stored, then an
+        // exception will be thrown.
+        // If a datasource doesn't use caching (either returning '' or null), then this method should be overridden.
+        $key = $cmstype->get_custom_data(self::get_shortname() . 'confighash');
+        // We expect there to be something, so false, null, '', and 0 are all illigit.
+        if (empty($key)) {
+            throw new \moodle_exception('error:no_config_hash', 'mod_cms', '', $this->cms->get('id'));
+        }
+        return $key;
     }
 
     /**
@@ -396,9 +405,6 @@ abstract class base {
      * @return string|null
      */
     public function get_full_cache_key(): ?string {
-        if (!static::$usecache) {
-            return '';
-        }
         $ikey = $this->get_instance_cache_key();
         $ckey = $this->get_config_cache_key();
         if (is_null($ikey) || is_null($ckey)) {

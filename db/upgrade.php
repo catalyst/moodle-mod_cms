@@ -23,8 +23,11 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\model\cms;
+use mod_cms\local\datasource\fields;
+use mod_cms\local\datasource\userlist;
 
 /**
  * Function to upgrade mod_cms database
@@ -220,6 +223,62 @@ function xmldb_cms_upgrade($oldversion) {
 
         // Cms savepoint reached.
         upgrade_mod_savepoint(true, 2023110100, 'cms');
+    }
+
+    if ($oldversion < 2023110200) {
+        // Set instance hash for fields, if not yet set.
+        $like = $DB->sql_like('datasources', ':fields');
+        $cmstypeids = $DB->get_records_select_menu('cms_types', $like, ['fields' => '%fields%'], '', 'id,name');
+        if (count($cmstypeids) !== 0) {
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($cmstypeids));
+            $records = cms::get_records_select("typeid $insql", $inparams);
+            foreach ($records as $record) {
+                $hash = $record->get_custom_data('fieldsinstancehash');
+                // We expect there to be something, so false, null, '', and 0 are all illigit.
+                if (empty($hash)) {
+                    $ds = new fields($record);
+                    $hash = hash(lib::HASH_ALGO, serialize($ds->get_data()));
+                    $record->set_custom_data('fieldsinstancehash', $hash);
+                    $record->save();
+                }
+            }
+        }
+
+        // Set instance revisions for roles, if not yet set.
+        $like = $DB->sql_like('datasources', ':roles');
+        $cmstypeids = $DB->get_records_select_menu('cms_types', $like, ['roles' => '%roles%'], '', 'id,name');
+        if (count($cmstypeids) !== 0) {
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($cmstypeids));
+            $records = cms::get_records_select("typeid $insql", $inparams);
+            foreach ($records as $record) {
+                $cacherev = $record->get_custom_data('roles_course_role_cache_rev');
+                // We expect there to be something, so false, null, '', and 0 are all illigit.
+                if (empty($cacherev)) {
+                    $record->set_custom_data('roles_course_role_cache_rev', 1);
+                    $record->save();
+                }
+            }
+        }
+
+        // Set instance hash for userlist, if not yet set.
+        $like = $DB->sql_like('datasources', ':list');
+        $cmstypeids = $DB->get_records_select_menu('cms_types', $like, ['list' => '%list%'], '', 'id,name');
+        if (count($cmstypeids) !== 0) {
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($cmstypeids));
+            $records = cms::get_records_select("typeid $insql", $inparams);
+            foreach ($records as $record) {
+                $hash = $record->get_custom_data('userlistinstancehash');
+                // We expect there to be something, so false, null, '', and 0 are all illigit.
+                if (empty($hash)) {
+                    $ds = new userlist($record);
+                    $hash = hash(lib::HASH_ALGO, serialize($ds->get_data()));
+                    $record->set_custom_data('userlistinstancehash', $hash);
+                    $record->save();
+                }
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2023110200, 'cms');
     }
 
     return true;

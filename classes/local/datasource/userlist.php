@@ -371,7 +371,7 @@ class userlist extends base_mod_cms {
         $categories = $this->cfhandler->get_categories_with_fields();
         // Add a category if creating.
         if (count($categories) === 0) {
-            $this->cfhandler->create_category('');
+            $this->cfhandler->create_category();
         }
         $this->update_config_cache_key();
     }
@@ -406,8 +406,14 @@ class userlist extends base_mod_cms {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
-        // Create a dummy category to hold the fields.
-        $catid = $this->cfhandler->create_category('');
+        // There needs to be at least one category. So create it if it doesn't exist.
+        $categories = $this->cfhandler->get_categories_with_fields();
+        if (count($categories) === 0) {
+            $catid = $this->cfhandler->create_category();
+        } else {
+            $catid = array_shift($categories)->get('id');
+        }
+
         if (!empty($data->columns)) {
             foreach ($data->columns as $columndata) {
                 $record = clone $columndata;
@@ -417,6 +423,8 @@ class userlist extends base_mod_cms {
                 $field->save();
             }
         }
+        // Reset the handler to ensure that the fields get loaded.
+        $this->cfhandler = cmsuserlist_handler::create($this->cms->get('typeid'));
         $this->update_config_cache_key();
     }
 

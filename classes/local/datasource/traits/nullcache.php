@@ -18,6 +18,8 @@ namespace mod_cms\local\datasource\traits;
 
 /**
  * A trait to implement for any datasource that uses null cache keys.
+ * A datasource that implements this does not use caches. In addition, it 'vetos' the
+ * instance from caching the rendered content.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -63,5 +65,10 @@ trait nullcache {
      */
     public function get_full_cache_key(): ?string {
         return null;
+    }
+
+    /** Updates the config cache key fragment. */
+    public function update_config_cache_key() {
+        // Do nothing as caching is not used.
     }
 }
