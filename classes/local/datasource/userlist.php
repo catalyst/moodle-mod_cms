@@ -20,7 +20,8 @@ use core_customfield\{data_controller, field, field_controller};
 use core_customfield\output\management;
 use mod_cms\customfield\cmsuserlist_handler;
 use mod_cms\local\lib;
-use mod_cms\local\model\{cms, cms_userlist};
+use mod_cms\local\datasource\traits\hashcache;
+use mod_cms\local\model\cms;
 
 /**
  * User designed lists
@@ -35,6 +36,8 @@ use mod_cms\local\model\{cms, cms_userlist};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class userlist extends base_mod_cms {
+    use hashcache;
+
     /** Default number of rows to include in the list edit form. */
     const DEFAULT_NUM_ROWS = 2;
     /** Prefix to use for list elements. */
@@ -289,11 +292,7 @@ class userlist extends base_mod_cms {
             $this->cms->set_custom_data('userlistinstanceids', $instanceids);
         }
 
-        // Update the instance cache key.
-        // TODO: Change to use $instancedata->data?
-        $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
-        $this->cms->set_custom_data('userlistinstancehash', $hash);
-        $this->cms->save();
+        $this->update_instance_cache_key();
     }
 
     /**

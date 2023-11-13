@@ -57,4 +57,16 @@ class fields {
         $handler = cmsfield_handler::create($cms->get('typeid'));
         $handler->cms_restore_instance_data_from_backup($this->stepslib->get_task(), $data, $cmsid);
     }
+
+    /**
+     * Code to be run after restoration.
+     */
+    public function after_execute() {
+        $cmsid = $this->stepslib->get_new_parentid('cms');
+        $cms = new cms($cmsid);
+        $ds = new dsfields($cms);
+        if ($ds->is_enabled()) {
+            $ds->update_instance_cache_key();
+        }
+    }
 }

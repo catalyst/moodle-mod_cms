@@ -356,32 +356,30 @@ abstract class base {
         throw new \moodle_exception('This method is deprecated. Use get_instance_cache_key() instead');
     }
 
+
+    /**
+     * Update the cache key fragment for the instance.
+     *
+     * Each instance has it's own strategy for caching and generating cache keys. Each instance will need to implement this
+     * function (and get_instance_cache_key())
+     */
+    abstract public function update_instance_cache_key();
+
     /**
      * Returns the cache key fragment for the instance data.
-     * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * Each instance has it's own strategy for caching and generating cache keys. Each instance will need to implement this
+     * function (and update_instance_cache_key())
      *
      * @return string|null
      */
-    public function get_instance_cache_key(): ?string {
-        $key = '';
-        // We test for an ID because temporary cms instances (i.e. sample cms) do not have caching.
-        if (!empty($this->cms->get('id'))) {
-            // By default, all stored instances are expected to have a stored hash to be used as a key. If one is not stored, then an
-            // exception will be thrown.
-            // If a datasource doesn't use caching (either returning '' or null), then this method should be overridden.
-            $this->cms->read();
-            $key = $this->cms->get_custom_data(self::get_shortname() . 'instancehash');
-            // We expect there to be something, so false, null, '', and 0 are all illigit.
-            if (empty($key)) {
-                throw new \moodle_exception('error:no_instance_hash', 'mod_cms', '', $this->cms->get('id'));
-            }
-        }
-        return $key;
-    }
+    abstract public function get_instance_cache_key(): ?string;
 
     /**
      * Returns the cache key fragment for the config.
      * If null, then caching should be avoided, both here and for the overall instance.
+     *
+     * By default, a hash of the config data is used for the cache key fragment.
      *
      * @return string|null
      */
@@ -399,6 +397,19 @@ abstract class base {
     }
 
     /**
+     * Updates the config cache key fragment.
+     *
+     * By default, a hash of the config data is used for the cache key fragment.
+     */
+    public function update_config_cache_key() {
+        $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
+        // The config hash is stored with the CMS type.
+        $cmstype = $this->cms->get_type();
+        $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
+        $cmstype->save();
+    }
+
+    /**
      * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys.
      * If either key is null, then this function returns null.
      *
@@ -411,16 +422,6 @@ abstract class base {
             return null;
         }
         return $ikey . $ckey;
-    }
-
-    /** Updates the config cache key fragment. */
-    public function update_config_cache_key() {
-        // TODO: Switch to revision based hashing?
-        $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
-        // The config hash is stored with the CMS type.
-        $cmstype = $this->cms->get_type();
-        $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
-        $cmstype->save();
     }
 
     /**

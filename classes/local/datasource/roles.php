@@ -16,6 +16,7 @@
 
 namespace mod_cms\local\datasource;
 
+use mod_cms\local\datasource\traits\revcache;
 use mod_cms\local\model\{cms, cms_types};
 
 /**
@@ -27,6 +28,8 @@ use mod_cms\local\model\{cms, cms_types};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class roles extends base_mod_cms {
+    use revcache;
+
     /** Prefix used for form elements. */
     const FORM_PREFIX = 'roles_';
 
@@ -253,9 +256,7 @@ class roles extends base_mod_cms {
      * @param bool $isnewinstance
      */
     public function update_instance(\stdClass $instancedata, bool $isnewinstance) {
-        $cacherev = $this->cms->get_custom_data('roles_course_role_cache_rev') ?? 0;
-        $this->cms->set_custom_data('roles_course_role_cache_rev', ++$cacherev);
-        $this->cms->save();
+        $this->update_instance_cache_key();
     }
 
     /**
@@ -318,26 +319,6 @@ class roles extends base_mod_cms {
     }
 
     /**
-     * Returns the cache key fragment for the instance data.
-     * If null, then caching should be avoided, both here and for the overall instance.
-     *
-     * @return string|null
-     */
-    public function get_instance_cache_key(): ?string {
-        $cacherev = 0;
-        if (!empty($this->cms->get('id'))) {
-            $this->cms->read();
-            $cacherev = $this->cms->get_custom_data('roles_course_role_cache_rev');
-            // We expect there to be something, so false, null, '', and 0 are all illigit.
-            if (empty($cacherev)) {
-                throw new \moodle_exception('error:no_instance_hash', 'mod_cms', '', $this->cms->get('id'));
-            }
-        }
-        // Combine with the ID to avoid clashes between instances.
-        return $this->cms->get('id') . 'o' . $cacherev;
-    }
-
-    /**
      * Called whenever a role assignment has changed in order to update the datasource cache.
      *
      * @param \core\event\base $event
@@ -345,9 +326,8 @@ class roles extends base_mod_cms {
     public static function on_role_changed(\core\event\base $event) {
         $cmslist = cms::get_records(['course' => $event->get_data()['courseid']]);
         foreach ($cmslist as $cms) {
-            $cacherev = $cms->get_custom_data('roles_course_role_cache_rev') ?? 0;
-            $cms->set_custom_data('roles_course_role_cache_rev', ++$cacherev);
-            $cms->save();
+            $ds = new roles($cms);
+            $ds->update_instance_cache_key();
         }
     }
 

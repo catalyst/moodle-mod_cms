@@ -23,6 +23,10 @@ use context_system;
 /**
  * Data source for images defined in the template.
  *
+ * Image datasources do not contain any instance specific data. Therefore the content is the same for all instances of a type.
+ * Therefore the data would use the same cache. Because of this the instance cache key fragment is constant, and updating does
+ * nothing.
+ *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
  * @copyright 2023, Catalyst IT
@@ -210,11 +214,22 @@ class images extends base_mod_cms {
     /**
      * Returns the cache key for the instance data.
      *
+     * There is no instance specific data, so this key fragment is constant.
+     *
      * @return string
      */
     public function get_instance_cache_key(): string {
-        // There is no instance specific data, so key fragment is constant.
+        // There is no instance specific data, so this key fragment is constant.
         return '';
+    }
+
+    /**
+     * Update the cache key fragment for the instance.
+     *
+     * There is no instance specific data, so this key fragment is constant.
+     */
+    public function update_instance_cache_key() {
+        // There is no instance specific data, so this key fragment is constant.
     }
 
     /**

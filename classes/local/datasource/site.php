@@ -19,8 +19,10 @@ namespace mod_cms\local\datasource;
 /**
  * Data source for basic site metadata.
  *
- * This datasource does not use caching, but does not use nullcache. This is because the data returned is constant and small. It
- * does not affect the caching done by the CMS, so we do not use nullcache. We do not use a cache because it would not be faster.
+ * This datasource does not use caching, but does not use nullcache. This is because the data returned is constant and small. This
+ * datasource also is non-optional. It is always included. Because of this we do not need to use a cache key.
+ *
+ * We do not use nullcache, because we still want the rendered HTML for the CMS instance to be cached.
  *
  * @package   mod_cms
  * @author    Jason den Dulk <jasondendulk@catalyst-au.net>
@@ -73,14 +75,31 @@ class site extends base_mod_cms {
     }
 
     /**
+     * Update the cache key fragment for the instance.
+     *
+     * This implementation does nothing because this datasource does not use caching.
+     */
+    public function update_instance_cache_key() {
+        // We do nothing because this datasource does not use caching.
+    }
+
+    /**
      * Returns the cache key fragment for the instance data.
-     * If null, then caching should be avoided, both here and for the overall instance.
      *
      * @return string|null
      */
     public function get_instance_cache_key(): ?string {
         // Returns a constant, because caching is not used in this datasource, but still used for the CMS.
         return '';
+    }
+
+    /**
+     * Updates the config cache key fragment.
+     *
+     * This implementation does nothing because this datasource does not use caching.
+     */
+    public function update_config_cache_key() {
+        // We do nothing because this datasource does not use caching.
     }
 
     /**

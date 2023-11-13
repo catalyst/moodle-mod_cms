@@ -281,5 +281,23 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023110200, 'cms');
     }
 
+    if ($oldversion < 2023111500) {
+        // Change name of cache key rev.
+        $like = $DB->sql_like('datasources', ':roles');
+        $cmstypeids = $DB->get_records_select_menu('cms_types', $like, ['roles' => '%roles%'], '', 'id,name');
+        if (count($cmstypeids) !== 0) {
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($cmstypeids));
+            $records = cms::get_records_select("typeid $insql", $inparams);
+            foreach ($records as $record) {
+                $cacherev = $record->get_custom_data('roles_course_role_cache_rev');
+                $record->set_custom_data('roles_course_role_cache_rev', null);
+                $record->set_custom_data('rolesinstancerev', $cacherev);
+                $record->save();
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2023111500, 'cms');
+    }
+
     return true;
 }

@@ -356,4 +356,26 @@ class datasource_userlist_test extends \advanced_testcase {
         $this->assertEquals($data, $cache->get($key));
         $this->assertEquals($data, $userlist->get_data());
     }
+
+    /**
+     * Test duplication (also tests backup and restore).
+     *
+     * @covers \mod_cms\local\datasource\userlist::instance_backup_define_structure
+     * @covers \mod_cms\local\datasource\userlist::restore_define_structure
+     */
+    public function test_duplicate() {
+        $cmstype = $this->import();
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        $cm = get_coursemodule_from_id('', $moduleinfo->coursemodule, 0, false, MUST_EXIST);
+
+        $cms = new cms($cm->instance);
+        $ds = new dsuserlist($cms);
+        $newcm = duplicate_module($course, $cm);
+        $newcms = new cms($newcm->instance);
+        $newds = new dsuserlist($newcms);
+
+        $this->assertEquals($ds->get_data(), $newds->get_data());
+    }
 }
