@@ -311,5 +311,8 @@ class datasource_roles_test extends \advanced_testcase {
         $newds = new dsroles($newcms);
 
         $this->assertEquals($ds->get_data(), $newds->get_data());
+
+        // Assert that the CMS type is not duplicated.
+        $this->assertEquals($cms->get('typeid'), $newcms->get('typeid'));
     }
 }

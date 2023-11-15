@@ -56,7 +56,5 @@ trait cms_restore {
                 return $d->get('id');
             }
         }
-        // Should not get here.
-        throw new \moodle_exception("Bad shorname {$data['shortname']}, and type {$data['type']}");
     }
 }

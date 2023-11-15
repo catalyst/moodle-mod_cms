@@ -89,12 +89,13 @@ class restore_cms_activity_structure_step extends restore_activity_structure_ste
 
         $typeid = $this->find_existing_cms_type($data);
 
+        // TODO: Ignoring a missing CMS type currently causes a crash during the restore process.
         if ($typeid === false) {
-            $typeid = $DB->insert_record('cms_types', $data);
+            throw new moodle_exception('CMS type not found for idnumber ' . $data->idnumber);
         }
 
+        // If we can find a type ID, we can restore the mapping.
         $this->set_mapping('cms_types', $oldid, $typeid, true);
-
         $DB->update_record('cms', (object) ['id' => $this->get_new_parentid('cms'), 'typeid' => $typeid]);
     }
 
@@ -111,33 +112,8 @@ class restore_cms_activity_structure_step extends restore_activity_structure_ste
             return $typeid;
         }
 
-        if ($this->task->is_samesite()) {
-            if ($DB->record_exists('cms_types', ['id' => $data->id])) {
-                return $data->id;
-            }
-        }
-
-        // Try to find a CMS type is that is a match for content. Returns false if none found.
-        $sqltitlemustache = $DB->sql_compare_text('title_mustache');
-        $sqltitlemustacheparam = $DB->sql_compare_text(':title_mustache');
-        $sqlmustache = $DB->sql_compare_text('mustache');
-        $sqlmustacheparam = $DB->sql_compare_text(':mustache');
-
-        $sql = "SELECT id
-                  FROM {cms_types}
-                 WHERE name = :name
-                   AND idnumber = :idnumber
-                   AND datasources = :datasources
-                   AND $sqltitlemustache = $sqltitlemustacheparam
-                   AND $sqlmustache = $sqlmustacheparam";
-        $params = [
-            'name' => $data->name,
-            'idnumber' => $data->idnumber,
-            'datasources' => $data->datasources,
-            'title_mustache' => $data->title_mustache,
-            'mustache' => $data->mustache,
-        ];
-        $record = $DB->get_record_sql($sql, $params);
+        // Try to find a CMS type that matches idnumber. Returns false if none found.
+        $record = $DB->get_record('cms_types', ['idnumber' => $data->idnumber]);
 
         return $record->id ?? false;
     }
