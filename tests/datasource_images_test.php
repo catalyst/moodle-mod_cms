@@ -18,6 +18,7 @@ namespace mod_cms;
 
 use mod_cms\local\datasource\images as dsimages;
 use mod_cms\local\model\cms_types;
+use mod_cms\local\model\cms;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -43,6 +44,7 @@ class datasource_images_test extends \advanced_testcase {
     protected function setUp(): void {
         parent::setUp();
         $this->resetAfterTest();
+        $this->setAdminUser();
     }
 
     /**
@@ -159,5 +161,27 @@ class datasource_images_test extends \advanced_testcase {
         $data = $ds->get_cached_data();
         // Cache should now have data in it.
         $this->assertEquals($data, $cache->get($newkey));
+    }
+
+    /**
+     * Test duplication (also tests backup and restore).
+     *
+     * @covers \mod_cms\local\datasource\images::instance_backup_define_structure
+     * @covers \mod_cms\local\datasource\images::restore_define_structure
+     */
+    public function test_duplicate() {
+        $cmstype = $this->import();
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        $cm = get_coursemodule_from_id('', $moduleinfo->coursemodule, 0, false, MUST_EXIST);
+
+        $cms = new cms($cm->instance);
+        $ds = new dsimages($cms);
+        $newcm = duplicate_module($course, $cm);
+        $newcms = new cms($newcm->instance);
+        $newds = new dsimages($newcms);
+
+        $this->assertEquals($ds->get_data(), $newds->get_data());
     }
 }

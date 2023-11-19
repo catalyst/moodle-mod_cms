@@ -84,4 +84,16 @@ class userlist {
 
         $this->stepslib->set_mapping('cms_userlist_field', $oldid, $newid, true, $handler->get_instance_context()->id);
     }
+
+    /**
+     * Code to be run after restoration.
+     */
+    public function after_execute() {
+        $cmsid = $this->stepslib->get_new_parentid('cms');
+        $cms = new cms($cmsid);
+        $ds = new dsuserlist($cms);
+        if ($ds->is_enabled()) {
+            $ds->update_instance_cache_key();
+        }
+    }
 }

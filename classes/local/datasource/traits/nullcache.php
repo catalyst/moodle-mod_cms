@@ -48,10 +48,18 @@ trait nullcache {
     }
 
     /**
+     * Update the cache key fragment for the instance.
+     *
+     * No caching is done. Therefore this implementation does nothing.
+     */
+    public function update_instance_cache_key() {
+    }
+
+    /**
      * Returns the cache key fragment for the config.
      * If null, then caching should be avoided, both here and for the overall instance.
      *
-     * @return string|null
+     * @return null
      */
     public function get_config_cache_key(): ?string {
         return null;
@@ -59,15 +67,19 @@ trait nullcache {
 
     /**
      * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys.
-     * If either key is null, then this function returns null.
      *
-     * @return string|null
+     * This returns null as this is a nullcache datasource.
+     * @return null
      */
     public function get_full_cache_key(): ?string {
         return null;
     }
 
-    /** Updates the config cache key fragment. */
+    /**
+     * Updates the config cache key fragment.
+     *
+     * No caching is done. Therefore this implementation does nothing.
+     */
     public function update_config_cache_key() {
         // Do nothing as caching is not used.
     }

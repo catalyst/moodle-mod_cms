@@ -18,6 +18,7 @@ namespace mod_cms\local\datasource\restore;
 
 use mod_cms\local\datasource\roles as dsroles;
 use mod_cms\local\model\cms_types;
+use mod_cms\local\model\cms;
 
 /**
  * Class to handle restoring of roles datasource backups.
@@ -38,6 +39,7 @@ class roles {
      */
     public function __construct(\restore_cms_activity_structure_step $stepslib) {
         $this->stepslib = $stepslib;
+        $stepslib->add_to_after_party($this);
     }
 
     /**
@@ -54,5 +56,17 @@ class roles {
         $data->list = explode(',', $data->list);
         $cmstype->set_custom_data('roles_config', $data);
         $cmstype->save();
+    }
+
+    /**
+     * Code to be run after restoration.
+     */
+    public function after_execute() {
+        $cmsid = $this->stepslib->get_new_parentid('cms');
+        $cms = new cms($cmsid);
+        $ds = new dsroles($cms);
+        if ($ds->is_enabled()) {
+            $ds->update_instance_cache_key();
+        }
     }
 }

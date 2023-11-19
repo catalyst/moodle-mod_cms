@@ -19,6 +19,7 @@ namespace mod_cms\local\datasource;
 use core_customfield\{category_controller, field, output\management};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\helper;
+use mod_cms\local\datasource\traits\hashcache;
 use mod_cms\local\lib;
 use mod_cms\local\model\cms;
 
@@ -36,6 +37,8 @@ use mod_cms\local\model\cms;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class fields extends base_mod_cms {
+    use hashcache;
+
     /** @var cmsfield_handler Custom field handler. */
     protected $cfhandler;
 
@@ -219,11 +222,7 @@ class fields extends base_mod_cms {
         // Save the custom field data.
         $this->cfhandler->instance_form_save($instancedata, $isnewinstance);
 
-        // Update the instance cache key.
-        // TODO: Change to use hash of $instancedata?
-        $hash = hash(lib::HASH_ALGO, serialize($this->get_data()));
-        $this->cms->set_custom_data('fieldsinstancehash', $hash);
-        $this->cms->save();
+        $this->update_instance_cache_key();
     }
 
     /**
