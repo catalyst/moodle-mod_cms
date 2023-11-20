@@ -299,5 +299,47 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023111500, 'cms');
     }
 
+    if ($oldversion < 2023112100) {
+        // Update CMS types settings to upgrade list to userlist.
+        $like = $DB->sql_like('datasources', ':list');
+        $records = cms_types::get_records_select($like, ['list' => '%list%']);
+        foreach ($records as $record) {
+            $datasources = $record->get('datasources');
+            // Remove list.
+            $datasources = array_filter($datasources, function ($i) {
+                return $i !== 'list';
+            });
+            // Add userlist.
+            $datasources[] = 'userlist';
+            $record->set('datasources', $datasources);
+            // Convert config hash name.
+            $hash = $record->get_custom_data('listconfighash');
+            if ($hash !== null) {
+                $record->set_custom_data('listconfighash', null);
+                $record->set_custom_data('userlistconfighash', $hash);
+            }
+            $record->save();
+        }
+
+        // Update CMS instances.
+        $like = $DB->sql_like('datasources', ':userlist');
+        $cmstypeids = $DB->get_records_select_menu('cms_types', $like, ['userlist' => '%userlist%'], '', 'id,name');
+        if (count($cmstypeids) !== 0) {
+            [$insql, $inparams] = $DB->get_in_or_equal(array_keys($cmstypeids));
+            $records = cms::get_records_select("typeid $insql", $inparams);
+            foreach ($records as $record) {
+                // Convert config hash name.
+                $hash = $record->get_custom_data('listinstancehash');
+                if ($hash !== null) {
+                    $record->set_custom_data('listinstancehash', null);
+                    $record->set_custom_data('userlistinstancehash', $hash);
+                    $record->save();
+                }
+            }
+        }
+
+        upgrade_mod_savepoint(true, 2023112100, 'cms');
+    }
+
     return true;
 }

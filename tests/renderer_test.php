@@ -53,7 +53,7 @@ class renderer_test extends \advanced_testcase {
         $cmstype = $manager->create((object) [
             'name' => 'somename',
             'idnumber' => 'test-somename',
-            'datasources' => 'fields,images,roles,list',
+            'datasources' => 'fields,images,roles,userlist',
         ]);
 
         $cms = $cmstype->get_sample_cms();
