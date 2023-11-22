@@ -50,7 +50,7 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::get_shortname
      */
     public function test_name() {
-        $this->assertEquals('list', dsuserlist::get_shortname());
+        $this->assertEquals('userlist', dsuserlist::get_shortname());
     }
 
     /**
@@ -91,7 +91,7 @@ class datasource_userlist_test extends \advanced_testcase {
         $cmstype = $manager->create((object) [
             'name' => 'name',
             'idnumber' => 'test-name',
-            'datasources' => 'list',
+            'datasources' => 'userlist',
         ]);
 
         $cms = $cmstype->get_sample_cms();
@@ -150,7 +150,7 @@ class datasource_userlist_test extends \advanced_testcase {
         global $DB;
 
         $manager = new manage_content_types();
-        $cmstype = $manager->create((object) ['name' => 'Name', 'idnumber' => 'test-name', 'datasources' => 'list']);
+        $cmstype = $manager->create((object) ['name' => 'Name', 'idnumber' => 'test-name', 'datasources' => 'userlist']);
 
         // Test that stuff gets deleted even if not included in datasource list.
         $cmstype->set('datasources', []);
@@ -207,7 +207,6 @@ class datasource_userlist_test extends \advanced_testcase {
      */
     public function test_instance_form_validataion() {
         $cmstype = $this->import();
-        $cmstype->set('datasources', ['userlist']);
         $cmstype->save();
 
         $cms = new cms();
@@ -236,7 +235,6 @@ class datasource_userlist_test extends \advanced_testcase {
      */
     public function test_update_instance() {
         $cmstype = $this->import();
-        $cmstype->set('datasources', ['userlist']);
         $cmstype->save();
 
         $cms = new cms();

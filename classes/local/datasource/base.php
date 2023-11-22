@@ -388,7 +388,7 @@ abstract class base {
         // By default, all stored configs are expected to have a stored hash to be used as a key. If one is not stored, then an
         // exception will be thrown.
         // If a datasource doesn't use caching (either returning '' or null), then this method should be overridden.
-        $key = $cmstype->get_custom_data(self::get_shortname() . 'confighash');
+        $key = $cmstype->get_custom_data(static::get_shortname() . 'confighash');
         // We expect there to be something, so false, null, '', and 0 are all illigit.
         if (empty($key)) {
             throw new \moodle_exception('error:no_config_hash', 'mod_cms', '', $this->cms->get('id'));
@@ -405,7 +405,7 @@ abstract class base {
         $hash = hash(lib::HASH_ALGO, serialize($this->get_for_export()));
         // The config hash is stored with the CMS type.
         $cmstype = $this->cms->get_type();
-        $cmstype->set_custom_data(self::get_shortname() . 'confighash', $hash);
+        $cmstype->set_custom_data(static::get_shortname() . 'confighash', $hash);
         $cmstype->save();
     }
 

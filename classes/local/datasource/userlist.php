@@ -51,15 +51,6 @@ class userlist extends base_mod_cms {
     protected $cfhandler;
 
     /**
-     * The short name of the datasource type. Must be unique.
-     *
-     * @return string
-     */
-    public static function get_shortname(): string {
-        return 'list';
-    }
-
-    /**
      * Get the display name.
      *
      * @return string
