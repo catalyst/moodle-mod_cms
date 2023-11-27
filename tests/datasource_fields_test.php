@@ -329,5 +329,8 @@ class datasource_fields_test extends \advanced_testcase {
         $newds = new dsfields($newcms);
 
         $this->assertEquals($ds->get_data(), $newds->get_data());
+
+        // Assert that the CMS type is not duplicated.
+        $this->assertEquals($cms->get('typeid'), $newcms->get('typeid'));
     }
 }
