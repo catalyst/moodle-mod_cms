@@ -50,6 +50,9 @@ class cms_types extends persistent {
      */
     const TABLE = 'cms_types';
 
+    /** File area name used for storing images. */
+    const ICON_FILE_AREA = 'cms_types_icon';
+
     /**
      * Return the definition of the properties of this model.
      *
@@ -141,6 +144,52 @@ class cms_types extends persistent {
     public function get_custom_data(string $name) {
         $cdata = json_decode($this->raw_get('customdata'), false);
         return $cdata->$name ?? null;
+    }
+
+    /**
+     * Get the metadata for the icon, or null if no icon is stored.
+     *
+     * @return \stored_file|null
+     */
+    public function get_icon_metadata(): ?\stored_file {
+        $fs = get_file_storage();
+        $files = $fs->get_area_files(
+            \context_system::instance()->id,
+            'mod_cms',
+            self::ICON_FILE_AREA,
+            $this->get('id')
+        );
+        // There should be 0 or 1 files. We ignore the directory (.) entry.
+        foreach ($files as $file) {
+            if ($file->get_filename() !== '.') {
+                return $file;
+            }
+        }
+        return null;
+    }
+
+    /**
+     * Gets the URL for the type icon.
+     *
+     * @return \moodle_url|null
+     */
+    public function get_type_icon(): ?\moodle_url {
+        $file = $this->get_icon_metadata();
+
+        $url = null;
+        // There should only be at most one entry in the array.
+        if (!is_null($file)) {
+            $filename = $file->get_filename();
+            $url = \moodle_url::make_pluginfile_url(
+                \context_system::instance()->id,
+                'mod_cms',
+                self::ICON_FILE_AREA,
+                $this->get('id'),
+                '/',
+                $filename
+            );
+        }
+        return $url;
     }
 
     /**
@@ -261,6 +310,19 @@ class cms_types extends persistent {
         }
         unset($export->customdata);
 
+        $file = $this->get_icon_metadata();
+
+        // There should be at most one file.
+        if (!is_null($file)) {
+            $filename = $file->get_filename();
+            $obj = new \stdClass();
+            $obj->filename = $filename;
+            $obj->filesize = $file->get_filesize();
+            $obj->mimetype = $file->get_mimetype();
+            $obj->content = base64_encode($file->get_content());
+            $export->icon = $obj;
+        }
+
         $export->datasourcedefs = new \stdClass();
         foreach (dsbase::get_datasources($this) as $ds) {
             $name = $ds::get_shortname();
@@ -287,6 +349,20 @@ class cms_types extends persistent {
 
         $this->create();
 
+        if (isset($data->icon)) {
+            $fs = get_file_storage();
+            $filerecord = [
+                'component' => 'mod_cms',
+                'filearea' => self::ICON_FILE_AREA,
+                'itemid' => $this->get('id'),
+                'filename' => $data->icon->filename,
+                'filepath' => '/',
+                'contextid' => \context_system::instance()->id,
+                'mimetype' => $data->icon->mimetype,
+            ];
+            $fs->create_file_from_string($filerecord, base64_decode($data->icon->content));
+        }
+
         foreach ($data->datasourcedefs as $name => $data) {
             $ds = dsbase::get_datasource($name, $this);
             $ds->set_from_import($data);
@@ -301,7 +377,16 @@ class cms_types extends persistent {
      * @return string|null
      */
     public function get_cache_key(): ?string {
-        return hash(lib::HASH_ALGO, serialize($this->to_record()));
+        $data = $this->to_record();
+
+        $file = $this->get_icon_metadata();
+        if (!is_null($file)) {
+            $data->filename = $file->get_filename();
+            $data->filesize = $file->get_filesize();
+            $data->mimetype = $file->get_mimetype();
+        }
+
+        return hash(lib::HASH_ALGO, serialize($data));
     }
 
     /**

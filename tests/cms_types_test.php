@@ -19,6 +19,10 @@ namespace mod_cms;
 use mod_cms\form\cms_types_form;
 use mod_cms\local\model\cms_types;
 
+defined('MOODLE_INTERNAL') || die();
+
+require_once(__DIR__ . '/fixtures/test_import1_trait.php');
+
 /**
  * Unit tests for cms_types.
  *
@@ -28,6 +32,9 @@ use mod_cms\local\model\cms_types;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_types_test extends \advanced_testcase {
+    /** Test data for import/export. */
+    public const IMPORT_DATAFILE = __DIR__ . '/fixtures/type_data.json';
+
     /**
      * Set up before each test
      */
@@ -116,5 +123,34 @@ class cms_types_test extends \advanced_testcase {
             ['test-unique', true],
             ['test-exists', false],
         ];
+    }
+
+    /**
+     * Tests the import/export functions.
+     *
+     * @covers \mod_cms\local\model\cms_types::get_for_export
+     * @covers \mod_cms\local\model\cms_types::get_from_import
+     * @covers \mod_cms\local\model\cms_types::get_cache_key
+     * @covers \mod_cms\local\model\cms_types::get_icon_metadata
+     */
+    public function test_import() {
+        $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
+        $cmstype = new cms_types();
+        $cmstype->set_from_import($importdata);
+        $cachekey = $cmstype->get_cache_key();
+        $exportdata = $cmstype->get_for_export();
+
+        $this->assertNotNull($cmstype->get_icon_metadata());
+        $this->assertEquals($importdata, $exportdata);
+
+        unset($importdata->icon);
+        $importdata->idnumber = 'diffname';
+        $cmstype = new cms_types();
+        $cmstype->set_from_import($importdata);
+        $exportdata = $cmstype->get_for_export();
+
+        $this->assertNull($cmstype->get_icon_metadata());
+        $this->assertNotEquals($cachekey,  $cmstype->get_cache_key());
+        $this->assertEquals($importdata, $exportdata);
     }
 }

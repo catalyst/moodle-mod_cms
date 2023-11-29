@@ -52,6 +52,10 @@ class renderer {
     public function get_data(): \stdClass {
         $data = new \stdClass();
         $data->name = $this->cms->get('name');
+        $data->icon = $this->cms->get_type()->get_type_icon();
+        if ($data->icon instanceof \moodle_url) {
+            $data->icon = $data->icon->out();
+        }
 
         foreach (dsbase::get_datasources($this->cms) as $ds) {
             $name = $ds::get_shortname();

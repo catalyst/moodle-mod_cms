@@ -72,6 +72,7 @@ $string['instance:name'] = 'Name';
 $string['mustache'] = 'Content';
 $string['mustache_help'] = 'The two fields above will form the content displayed in the activity. They both will need to be valid {$a}. Variables that are available for use in these templates are given below.';
 $string['mustache_template'] = 'mustache templates';
+$string['cms_type:icon_desc'] = 'This icon will be displayed in the activity chooser menu.';
 
 // Event strings.
 $string['event:cms_type_created'] = 'Custom content type created';
