@@ -66,12 +66,14 @@ class content_types_list extends \flexible_table {
 
         // Column definition.
         $this->define_columns([
+            'icon',
             'name',
             'numinstances',
             'actions',
         ]);
 
         $this->define_headers([
+            '',
             get_string('table:name', 'mod_cms'),
             get_string('table:numinstances', 'mod_cms'),
             get_string('actions'),
@@ -80,6 +82,21 @@ class content_types_list extends \flexible_table {
         $this->cmscounts = $DB->get_records_sql_menu("SELECT typeid, count(*) FROM {cms} GROUP BY typeid");
 
         $this->setup();
+    }
+
+    /**
+     * Display icon, if any.
+     *
+     * @param cms_types $type
+     *
+     * @return string
+     */
+    protected function col_icon(cms_types $type): string {
+        $iconurl = $type->get_type_icon();
+        if (is_null($iconurl)) {
+            return '';
+        }
+        return \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon']);
     }
 
     /**

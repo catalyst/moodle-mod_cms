@@ -27,6 +27,7 @@ namespace mod_cms\form;
 use core\form\persistent as persistent_form;
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\renderer;
+use mod_cms\local\model\cms_types;
 
 /**
  * Form for manipulating the content types
@@ -39,7 +40,7 @@ use mod_cms\local\renderer;
 class cms_types_form extends persistent_form {
 
     /** The maximum amount of files allowed. */
-    const MAX_FILES = 50;
+    const MAX_FILES = 1;
 
     /** @var string Persistent class name. */
     protected static $persistentclass = 'mod_cms\\local\\model\\cms_types';
@@ -89,6 +90,22 @@ class cms_types_form extends persistent_form {
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
         $helptext .= \html_writer::tag('pre', implode(PHP_EOL, $renderer->get_variable_list()));
         $mform->addElement('static', 'mustache_help', '', $helptext);
+
+        $mform->addElement('static', 'iconfile_desc', get_string('icon'),
+            get_string('cms_type:icon_desc', 'mod_cms'));
+        $mform->addElement(
+            'filemanager',
+            'iconfile',
+            null,
+            null,
+            [
+                'subdirs' => 0,
+                'maxbytes' => $CFG->maxbytes,
+                'maxfiles' => 1,
+                'accepted_types' => ['web_image'],
+                'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
+            ]
+        );
 
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($cmstype) as $ds) {
@@ -154,6 +171,8 @@ class cms_types_form extends persistent_form {
      * @return \stdClass
      */
     protected function get_default_data() {
+        global $CFG;
+
         $data = parent::get_default_data();
 
         if (is_string($data->datasources)) {
@@ -163,6 +182,23 @@ class cms_types_form extends persistent_form {
                 $data->$name = $shortname;
             }
         }
+
+        // Set up a draft area for managing the type icon file.
+        $draftitemid = file_get_submitted_draft_itemid(cms_types::ICON_FILE_AREA);
+
+        file_prepare_draft_area(
+            $draftitemid,
+            \context_system::instance()->id,
+            'mod_cms',
+            cms_types::ICON_FILE_AREA,
+            $data->id,
+            [
+                'subdirs' => 0,
+                'maxbytes' => $CFG->maxbytes,
+                'maxfiles' => self::MAX_FILES,
+            ]
+        );
+        $data->iconfile = $draftitemid;
 
         // Get default data for data sources.
         foreach (dsbase::get_datasources($this->get_persistent()) as $ds) {

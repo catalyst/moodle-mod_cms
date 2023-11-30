@@ -240,7 +240,7 @@ class manage_content_types {
      * @param int|null $id   If no ID is provided, that means we are creating a new one
      */
     protected function edit(string $action, ?int $id = null): void {
-        global $PAGE;
+        global $CFG, $PAGE;
 
         $PAGE->set_url(new \moodle_url(self::get_base_url(), ['action' => $action, 'id' => $id]));
         $instance = null;
@@ -261,9 +261,25 @@ class manage_content_types {
                 // Create new.
                 if (empty($data->id)) {
                     $instance = $this->create($data);
+                    $id = $instance->get('id');
                 } else { // Update existing.
                     $this->update($id, $data);
                 }
+
+                // Save the icon file.
+                file_save_draft_area_files(
+                    $data->iconfile,
+                    \context_system::instance()->id,
+                    'mod_cms',
+                    cms_types::ICON_FILE_AREA,
+                    $id,
+                    [
+                        'subdirs' => 0,
+                        'maxbytes' => $CFG->maxbytes,
+                        'maxfiles' => cms_types_form::MAX_FILES,
+                    ]
+                );
+
                 \core\notification::success(get_string('changessaved'));
             } catch (\Throwable $e) {
                 \core\notification::error($e->getMessage());

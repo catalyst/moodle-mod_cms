@@ -18,6 +18,7 @@ namespace mod_cms\local;
 
 use core_course\local\entity\{content_item, string_title};
 use mod_cms\local\datasource\base as dsbase;
+use mod_cms\local\datasource\images as dsimages;
 use mod_cms\local\model\{cms, cms_types};
 
 
@@ -64,13 +65,19 @@ class lib {
         }
         $types = cms_types::get_records($filter);
         foreach ($types as $type) {
+            $iconurl = $type->get_type_icon();
+            if (!is_null($iconurl)) {
+                $icon = \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon']);
+            } else {
+                $icon = $defaultmodulecontentitem->get_icon();
+            }
             $linkurl->param('typeid', $type->get('id'));
             $items[] = new content_item(
                 $type->get('id'),
                 $defaultmodulecontentitem->get_name(),
                 new string_title($type->get('name')),
                 clone($linkurl),
-                $defaultmodulecontentitem->get_icon(),
+                $icon,
                 $type->get('description'),
                 $defaultmodulecontentitem->get_archetype(),
                 $defaultmodulecontentitem->get_component_name(),
@@ -204,7 +211,7 @@ class lib {
      */
     public static function pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
         // Make sure the filearea is one of those used by the plugin.
-        if ($filearea !== 'cms_type_images') {
+        if (!in_array($filearea, [dsimages::FILE_AREA, cms_types::ICON_FILE_AREA])) {
             return false;
         }
 
