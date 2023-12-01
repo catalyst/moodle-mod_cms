@@ -49,7 +49,9 @@ trait revcache {
             $cacherev = $this->cms->get_custom_data($name);
             // We expect there to be something, so false, null, '', and 0 are all illigit.
             if (empty($cacherev)) {
-                throw new \moodle_exception('error:no_instance_hash', 'mod_cms', '', $this->cms->get('id'));
+                debugging('Trying to gain an instance cache key for ' . $this->cms->get('id') . ' without it being made.');
+                $this->update_instance_cache_key();
+                $cacherev = $this->cms->get_custom_data($name);
             }
         }
         // Combine with the ID to avoid clashes between instances.

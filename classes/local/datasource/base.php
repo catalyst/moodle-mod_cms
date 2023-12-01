@@ -391,7 +391,10 @@ abstract class base {
         $key = $cmstype->get_custom_data(static::get_shortname() . 'confighash');
         // We expect there to be something, so false, null, '', and 0 are all illigit.
         if (empty($key)) {
-            throw new \moodle_exception('error:no_config_hash', 'mod_cms', '', $this->cms->get('id'));
+            debugging('Trying to gain a config cache key for ' . $this->cms->get('id') . ' without it being made.');
+            $this->update_config_cache_key();
+            $cmstype->read();
+            $key = $cmstype->get_custom_data(static::get_shortname() . 'confighash');
         }
         return $key;
     }

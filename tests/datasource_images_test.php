@@ -66,6 +66,7 @@ class datasource_images_test extends \advanced_testcase {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
+        $cmstype->set('datasources', ['images']);
         $cmstype->save();
 
         $cms = $cmstype->get_sample_cms();
@@ -76,10 +77,12 @@ class datasource_images_test extends \advanced_testcase {
 
         $ds = new dsimages($cms);
         $this->assertEquals('', $ds->get_instance_cache_key());
-        $this->expectException('moodle_exception');
         $cmstype->set_custom_data('imagesconfighash', null);
         $cmstype->save();
         $ds->get_config_cache_key();
+        // A cache key should be generated if one does not already exist.
+        $this->assertNotEmpty($ds->get_full_cache_key());
+        $this->assertDebuggingCalled();
     }
 
     /**
