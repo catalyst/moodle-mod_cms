@@ -363,16 +363,17 @@ class manage_content_types {
      * @param \stdClass $data Form compatible data
      */
     public function update(int $id, \stdClass $data) {
-        $instance = $this->get_instance($id);
+        $cmstype = $this->get_instance($id);
         $cleandata = cms_types::clean_record($data);
-        $instance->from_record($cleandata);
-        $instance->update();
-        lib::reset_cms_names($id);
+        $cmstype->from_record($cleandata);
+        $cmstype->update();
 
         // Do post update actions for data sources.
-        foreach (dsbase::get_datasources($instance) as $ds) {
+        foreach (dsbase::get_datasources($cmstype) as $ds) {
             $ds->config_on_update($data);
         }
+
+        lib::reset_cms_names($id);
     }
 
     /**

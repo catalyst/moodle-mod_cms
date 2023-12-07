@@ -63,6 +63,7 @@ class datasource_userlist_test extends \advanced_testcase {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
+        $cmstype->set('datasources', ['userlist']);
         $cmstype->save();
 
         $cms = $cmstype->get_sample_cms();
@@ -72,8 +73,9 @@ class datasource_userlist_test extends \advanced_testcase {
         $cms->save();
 
         $ds = new dsuserlist($cms);
-        $this->expectException('moodle_exception');
-        $ds->get_instance_cache_key();
+        // A cache key should be generated if one does not already exist.
+        $this->assertNotEmpty($ds->get_full_cache_key());
+        $this->assertDebuggingCalledCount(2);
     }
 
     /**
