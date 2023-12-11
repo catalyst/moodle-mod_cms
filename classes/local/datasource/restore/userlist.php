@@ -80,7 +80,11 @@ class userlist {
         $cmsid = $this->stepslib->get_new_parentid('cms');
         $cms = new cms($cmsid);
         $handler = cmsuserlist_handler::create($cms->get('typeid'));
+        $handler->cms = $cms;
         $newid = $handler->cms_restore_instance_data_from_backup($this->stepslib->get_task(), $data, $rowid);
+        if ($newid && method_exists($handler, 'restore_define_structure')) {
+            $handler->restore_define_structure($this->stepslib, $newid, $data['id']);
+        }
 
         $this->stepslib->set_mapping('cms_userlist_field', $oldid, $newid, true, $handler->get_instance_context()->id);
     }

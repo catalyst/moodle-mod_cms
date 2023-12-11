@@ -17,6 +17,7 @@
 namespace mod_cms\customfield;
 
 use core_customfield\{field_controller, handler};
+use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\datasource\userlist;
 
@@ -31,8 +32,11 @@ use mod_cms\local\datasource\userlist;
 class cmsuserlist_handler extends handler {
     use cms_restore;
 
+    /** @var cms The CMS for the fields. */
+    public $cms = null;
+
     /**
-     * Context that should be used for new categories created by this handler
+     * Context that should be used for new categories created by this handler.
      *
      * @return \context
      */
@@ -41,13 +45,20 @@ class cmsuserlist_handler extends handler {
     }
 
     /**
-     * Context that should be used for data stored for the given record
+     * Context that should be used for data stored for the given record.
+     * Uses the activity context.
      *
      * @param int $instanceid id of the instance or 0 if the instance is being created
      * @return \context
      */
     public function get_instance_context(int $instanceid = 0): \context {
-        return $this->get_configuration_context();
+        if (!is_null($this->cms)) {
+            $modinfo = get_coursemodule_from_instance('cms', $this->cms->get('id'));
+            if ($modinfo) {
+                return \context_module::instance($modinfo->id);
+            }
+        }
+        return \context_system::instance();
     }
 
     /**
@@ -78,11 +89,11 @@ class cmsuserlist_handler extends handler {
     }
 
     /**
-     * The current user can edit given custom fields on the given instance
+     * The current user can edit given custom fields on the given instance.
      *
-     * Called to filter list of fields displayed on the instance edit form
+     * Called to filter list of fields displayed on the instance edit form.
      *
-     * Capability to edit/create instance is checked separately
+     * Capability to edit/create instance is checked separately.
      *
      * @param field_controller $field
      * @param int $instanceid id of the instance or 0 if the instance is being created
@@ -93,7 +104,7 @@ class cmsuserlist_handler extends handler {
     }
 
     /**
-     * The current user can view the value of the custom field for a given custom field and instance
+     * The current user can view the value of the custom field for a given custom field and instance.
      *
      * Called to filter list of fields returned by methods get_instance_data(), get_instances_data(),
      * export_instance_data(), export_instance_data_object()

@@ -16,10 +16,12 @@
 
 namespace mod_cms;
 
+use context_module;
 use mod_cms\customfield\cmsuserlist_handler;
 use mod_cms\local\datasource\userlist as dsuserlist;
 use mod_cms\local\model\{cms, cms_types};
 use mod_cms\manage_content_types;
+use mod_cms_generator;
 
 /**
  * Unit tests for userlist datasource.
@@ -42,6 +44,14 @@ class datasource_userlist_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
         $this->setAdminUser();
+    }
+
+    /**
+     * Get generator for mod_cms.
+     * @return mod_cms_generator
+     */
+    protected function get_generator(): mod_cms_generator {
+        return $this->getDataGenerator()->get_plugin_generator('mod_cms');
     }
 
     /**
@@ -85,8 +95,6 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::get_for_export
      */
     public function test_import() {
-        global $DB;
-
         $importdata = json_decode(file_get_contents(self::IMPORT_JSONFILE));
 
         $manager = new manage_content_types();
@@ -380,5 +388,103 @@ class datasource_userlist_test extends \advanced_testcase {
 
         // Assert that the CMS type is not duplicated.
         $this->assertEquals($cms->get('typeid'), $newcms->get('typeid'));
+    }
+
+    /**
+     * Tests backup and restore of embedded files in textarea fields.
+     *
+     * @covers \mod_cms\local\datasource\userlist::instance_backup_define_structure
+     * @covers \mod_cms\local\datasource\userlsit::restore_define_structure
+     */
+    public function test_file_backup_and_restore() {
+        if (!method_exists('\core_customfield\handler', 'backup_define_structure')) {
+            $this->markTestSkipped('Only test if backup and restore is supported for embedded files.');
+        }
+
+        $file1name = 'anotherfilename.txt';
+        $file2name = 'differentfilename.txt';
+
+        $course = $this->getDataGenerator()->create_course();
+        $cmstype = $this->get_generator()->create_cms_type(['datasources' => 'userlist']);
+        $cffield = $this->get_generator()->create_datasource_userlist_field($cmstype, [
+            'shortname' => 'fielda',
+            'type' => 'textarea'
+        ]);
+
+        $fs = get_file_storage();
+
+        $file1id = $this->get_generator()->make_file($file1name, 'More content');
+        $file2id = $this->get_generator()->make_file($file2name, 'Different content');
+
+        // Create data for making a module. Add the files to the custom fields.
+        $instancedata = [
+            'modulename' => 'cms',
+            'course' => $course->id,
+            'section' => 0,
+            'visible' => true,
+            'typeid' => $cmstype->get('id'),
+            'name' => 'Some module',
+            'userlist_fielda_editor' => [[
+                'text' => 'Here is a file: @@PLUGINFILE@@/'.$file1name,
+                'format' => FORMAT_HTML,
+                'itemid' => $file1id,
+            ], [
+                'text' => 'Here is another file: @@PLUGINFILE@@/'.$file1name,
+                'format' => FORMAT_HTML,
+                'itemid' => $file2id,
+            ]],
+            dsuserlist::FORM_REPEATHIDDENNAME => 2,
+        ];
+
+        $module = create_module((object) $instancedata);
+        $cm = get_coursemodule_from_id('', $module->coursemodule, 0, false, MUST_EXIST);
+        $cms = new cms($cm->instance);
+        $dsuserlist = new dsuserlist($cms);
+        $context = context_module::instance($cm->id);
+
+        // Get the data ID to find the file with.
+        $cfhandler = cmsuserlist_handler::create($cmstype->get('id'));
+        $d1 = $cfhandler->get_instance_data($dsuserlist->get_instance_id(0));
+        $d2 = $cfhandler->get_instance_data($dsuserlist->get_instance_id(1));
+        $item1id = $d1[$cffield->get('id')]->get('id');
+        $item2id = $d2[$cffield->get('id')]->get('id');
+
+        // Check if the permanent file exists.
+        $file1 = $fs->get_file($context->id, 'customfield_textarea', 'value', $item1id, '/', $file1name);
+        $this->assertNotEmpty($file1);
+        $file2 = $fs->get_file($context->id, 'customfield_textarea', 'value', $item2id, '/', $file2name);
+        $this->assertNotEmpty($file2);
+
+        // Check that they are different.
+        $this->assertNotEquals($file1->get_content(), $file2->get_content());
+
+        // Duplicate the module (which is done via backup and restore).
+        $newcm = duplicate_module($course, $cm);
+        $newcms = new cms($newcm->instance);
+        $newdsuserlist = new dsuserlist($newcms);
+        $newcontext = context_module::instance($newcm->id);
+
+        // Get the data ID to find the new file with.
+        $d1 = $cfhandler->get_instance_data($newdsuserlist->get_instance_id(0));
+        $d2 = $cfhandler->get_instance_data($newdsuserlist->get_instance_id(1));
+        $item1id = $d1[$cffield->get('id')]->get('id');
+        $item2id = $d2[$cffield->get('id')]->get('id');
+
+        // Check if the permanent file exists.
+        $newfile1 = $fs->get_file($newcontext->id, 'customfield_textarea', 'value', $item1id, '/', $file1name);
+        $this->assertNotEmpty($newfile1);
+        $newfile2 = $fs->get_file($newcontext->id, 'customfield_textarea', 'value', $item2id, '/', $file2name);
+        $this->assertNotEmpty($newfile2);
+
+        // Check that the files are distinct.
+        $this->assertNotEquals($file1->get_id(), $newfile1->get_id());
+        $this->assertNotEquals($file2->get_id(), $newfile2->get_id());
+
+        // Check the files have the same content.
+        $this->assertEquals($file1->get_content(), $newfile1->get_content());
+        $this->assertEquals($file2->get_content(), $newfile2->get_content());
+
+        // Check that they are different.
+        $this->assertNotEquals($newfile1->get_content(), $newfile2->get_content());
     }
 }

@@ -55,7 +55,11 @@ class fields {
 
         // Add data to instance.
         $handler = cmsfield_handler::create($cms->get('typeid'));
-        $handler->cms_restore_instance_data_from_backup($this->stepslib->get_task(), $data, $cmsid);
+        $newid = $handler->cms_restore_instance_data_from_backup($this->stepslib->get_task(), $data, $cmsid);
+
+        if ($newid && method_exists($handler, 'restore_define_structure')) {
+            $handler->restore_define_structure($this->stepslib, $newid, $data['id']);
+        }
     }
 
     /**
