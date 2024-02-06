@@ -125,7 +125,7 @@ class datasource_userlist_test extends \advanced_testcase {
 
         $categoryrecord = $DB->get_records(
             'customfield_category',
-            ['itemid' => $itemid]
+            ['itemid' => $itemid, 'component' => 'mod_cms', 'area' => 'cmsuserlist']
         );
 
         $this->assertEquals(1, count($categoryrecord));
