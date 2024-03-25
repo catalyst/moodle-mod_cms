@@ -16,11 +16,13 @@
 
 namespace mod_cms;
 
+use context_module;
 use core_customfield\{category_controller, field_controller};
 use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\fields as dsfields;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
+use mod_cms_generator;
 
 defined('MOODLE_INTERNAL') || die();
 
@@ -49,6 +51,14 @@ class datasource_fields_test extends \advanced_testcase {
         parent::setUp();
         $this->resetAfterTest();
         $this->setAdminUser();
+    }
+
+    /**
+     * Get generator for mod_cms.
+     * @return mod_cms_generator
+     */
+    protected function get_generator(): mod_cms_generator {
+        return $this->getDataGenerator()->get_plugin_generator('mod_cms');
     }
 
     /**
@@ -334,5 +344,80 @@ class datasource_fields_test extends \advanced_testcase {
 
         // Assert that the CMS type is not duplicated.
         $this->assertEquals($cms->get('typeid'), $newcms->get('typeid'));
+    }
+
+    /**
+     * Tests backup and restore of embedded files in textarea fields.
+     *
+     * @covers \mod_cms\local\datasource\fields::instance_backup_define_structure
+     * @covers \mod_cms\local\datasource\fields::restore_define_structure
+     */
+    public function test_file_backup_and_restore() {
+        if (!method_exists('\core_customfield\handler', 'backup_define_structure')) {
+            $this->markTestSkipped('Only test if backup and restore is supported for embedded files.');
+        }
+
+        $filename = 'somefilename.txt';
+
+        $course = $this->getDataGenerator()->create_course();
+        $cmstype = $this->get_generator()->create_cms_type(['datasources' => 'fields']);
+        $category = $this->get_generator()->create_datasource_fields_category($cmstype);
+        $cffield = $this->get_generator()->create_datasource_fields_field([
+            'categoryid' => $category->get('id'),
+            'shortname' => 'field1',
+            'type' => 'textarea'
+        ]);
+
+        $fs = get_file_storage();
+
+        $fileid = $this->get_generator()->make_file($filename, 'Some content');
+
+        // Create data for making a module. Add the file to the custom field.
+        $instancedata = [
+            'modulename' => 'cms',
+            'course' => $course->id,
+            'section' => 0,
+            'visible' => true,
+            'typeid' => $cmstype->get('id'),
+            'name' => 'Some module',
+            'customfield_field1_editor' => [
+                'text' => 'Here is a file: @@PLUGINFILE@@/'.$filename,
+                'format' => FORMAT_HTML,
+                'itemid' => $fileid,
+            ]
+        ];
+
+        $module = create_module((object) $instancedata);
+        $cm = get_coursemodule_from_id('', $module->coursemodule, 0, false, MUST_EXIST);
+        $cms = new cms($cm->instance);
+        $context = context_module::instance($cm->id);
+
+        // Get the data ID to find the file with.
+        $cfhandler = cmsfield_handler::create($cmstype->get('id'));
+        $d = $cfhandler->get_instance_data($cms->get('id'));
+        $itemid = $d[$cffield->get('id')]->get('id');
+
+        // Check if the permanent file exists.
+        $file = $fs->get_file($context->id, 'customfield_textarea', 'value', $itemid, '/', $filename);
+        $this->assertNotEmpty($file);
+
+        // Duplicate the module (which is done via backup and restore).
+        $newcm = duplicate_module($course, $cm);
+        $newcms = new cms($newcm->instance);
+        $newcontext = context_module::instance($newcm->id);
+
+        // Get the data ID to find the new file with.
+        $d = $cfhandler->get_instance_data($newcms->get('id'));
+        $itemid = $d[$cffield->get('id')]->get('id');
+
+        // Check if the permanent file exists.
+        $newfile = $fs->get_file($newcontext->id, 'customfield_textarea', 'value', $itemid, '/', $filename);
+        $this->assertNotEmpty($newfile);
+
+        // Check that the files are distinct.
+        $this->assertNotEquals($file->get_id(), $newfile->get_id());
+
+        // Check the files have the same content.
+        $this->assertEquals($file->get_content(), $newfile->get_content());
     }
 }

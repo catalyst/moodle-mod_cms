@@ -96,14 +96,20 @@ class lib {
      * @return int The ID of the newly crated instance.
      */
     public static function add_instance(\stdClass $instancedata, $mform = null): int {
+        global $DB;
+
         $cms = new cms();
         $cms->set('typeid', $instancedata->typeid);
         $cms->set('intro', '');
         $cms->set('course', $instancedata->course);
         $cms->set('name', '');
         $cms->save();
-
         $instancedata->id = $cms->get('id');
+
+        // We must do this here before updating the datasources, otherwise customfield handler will not be able to find the right
+        // context.
+        $DB->set_field('course_modules', 'instance', $instancedata->id, ['id' => $instancedata->coursemodule]);
+
         foreach (dsbase::get_datasources($cms) as $ds) {
             $ds->update_instance($instancedata, true);
         }

@@ -67,6 +67,7 @@ class userlist extends base_mod_cms {
     public function __construct(cms $cms) {
         parent::__construct($cms);
         $this->cfhandler = cmsuserlist_handler::create($this->cms->get('typeid'));
+        $this->cfhandler->cms = $cms;
     }
 
     /**
@@ -462,7 +463,7 @@ class userlist extends base_mod_cms {
      * @param int $rownum
      * @return int
      */
-    protected function get_instance_id(int $rownum): int {
+    public function get_instance_id(int $rownum): int {
         $ids = $this->get_instance_ids();
         if (!isset($ids[$rownum])) {
             $ids[$rownum] = $this->get_new_row_id();
@@ -541,6 +542,10 @@ class userlist extends base_mod_cms {
                 )
             ];
             $fieldsforbackup = array_merge($fieldsforbackup, $this->cfhandler->get_instance_data_for_backup($id));
+            // Backup annotations. Check for function existence for the sake of backward compatibility.
+            if (method_exists($this->cfhandler, 'backup_define_structure')) {
+                $this->cfhandler->backup_define_structure($id, $field);
+            }
         }
         $row->set_source_array($instanceids);
         $field->set_source_array($fieldsforbackup);

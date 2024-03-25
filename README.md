@@ -16,7 +16,7 @@ Using git submodule:
 git submodule add git@github.com:catalyst/moodle-mod_cms.git mod/cms
 ```
 
-OR you can download as a zip from github
+Or you can download as a zip from github
 
 https://github.com/catalyst/moodle-mod_cms/archive/refs/heads/main.zip
 

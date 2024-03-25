@@ -252,6 +252,10 @@ class fields extends base_mod_cms {
         $fields->add_child($field);
 
         $fieldsforbackup = $this->cfhandler->get_instance_data_for_backup($this->cms->get('id'));
+        // Backup annotations. Check for function existence for the sake of backward compatibility.
+        if (method_exists($this->cfhandler, 'backup_define_structure')) {
+            $this->cfhandler->backup_define_structure($this->cms->get('id'), $field);
+        }
         $field->set_source_array($fieldsforbackup);
     }
 
