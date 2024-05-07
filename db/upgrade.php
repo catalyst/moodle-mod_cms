@@ -341,5 +341,35 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023112100, 'cms');
     }
 
+    if ($oldversion < 2023120101) {
+        // Update query for setting.
+        $sql = "UPDATE {customfield_data} mcd1
+                   SET contextid = sub.mcid
+                  FROM (
+                        SELECT mcd.id mcdid, mcd.contextid mcdcontextid, mc.id mcid
+                          FROM {customfield_data} mcd
+                          JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                          JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
+                          JOIN {course_modules} mcm ON mcm.instance = mcd.instanceid AND mcm.module = (
+                              SELECT id FROM {modules} WHERE name = 'cms'
+                          )
+                          JOIN {context} mc ON mc.instanceid = mcm.id AND contextlevel = 70
+                         WHERE mcd.id IN (
+                             SELECT mcd.id
+                               FROM {customfield_data} mcd
+                               JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                               JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
+                               JOIN {course_modules} mcm ON mcm.instance = mcd.instanceid AND mcm.module = (
+                                   SELECT id FROM {modules} WHERE name = 'cms'
+                               )
+                               JOIN {context} mc ON mc.instanceid = mcm.id AND contextlevel = 70
+                              WHERE mcf.type = 'textarea' AND mcc.component = 'mod_cms' AND mcd.contextid != mc.id
+                         )
+                  ) sub
+                 WHERE mcd1.id = sub.mcdid";
+        $DB->execute($sql);
+        upgrade_mod_savepoint(true, 2023120101, 'cms');
+    }
+
     return true;
 }
