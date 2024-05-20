@@ -23,11 +23,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\task\manager;
 use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\model\cms;
 use mod_cms\local\datasource\fields;
 use mod_cms\local\datasource\userlist;
+use mod_cms\task\update_customfield_context;
 
 /**
  * Function to upgrade mod_cms database
@@ -342,21 +344,8 @@ function xmldb_cms_upgrade($oldversion) {
     }
 
     if ($oldversion < 2024090301) {
-        // Collect records which have wrong contextid in the customfield data.
-        $sql = "SELECT mcd.id mcdid, mcd.contextid mcdcontextid, mc.id mcid
-                  FROM {customfield_data} mcd
-                  JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
-                  JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
-                  JOIN {course_modules} mcm ON mcm.instance = mcd.instanceid AND mcm.module = (
-                      SELECT id FROM mdl_modules WHERE name = 'cms'
-                  )
-                  JOIN {context} mc ON mc.instanceid = mcm.id AND contextlevel = " . CONTEXT_MODULE . "
-                 WHERE mcc.component = 'mod_cms' AND mcd.contextid != mc.id";
-        $records = $DB->get_records_sql($sql);
-        // Update records with correct contextid.
-        foreach ($records as $record) {
-            $DB->set_field('customfield_data', 'contextid', $record->mcid, ['id' => $record->mcdid]);
-        }
+        // Add adhoc task to update contextid in customfield records.
+        manager::queue_adhoc_task(new update_customfield_context());
         upgrade_mod_savepoint(true, 2024090301, 'cms');
     }
 
