@@ -61,6 +61,7 @@ class restore_cms_activity_task extends restore_activity_task {
 
         $contents[] = new restore_decode_content('cms', ['intro']);
         $contents[] = new restore_decode_content('cms_types', ['description']);
+        $contents[] = new restore_decode_content('customfield_data', 'value');
 
         return $contents;
     }
