@@ -349,5 +349,25 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2023120101, 'cms');
     }
 
+    if ($oldversion < 2023120102) {
+        $dbman = $DB->get_manager();
+        // Conditionally launch add field valuetrust.
+        if ($dbman->field_exists('customfield_data', 'valuetrust')) {
+            $sql = "SELECT mcd.id mcdid
+                      FROM {customfield_data} mcd
+                      JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                      JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
+                     WHERE mcc.component = 'mod_cms' AND mcd.valuetrust = 0";
+            $records = $DB->get_records_sql($sql);
+            $mcdids = array_keys($records);
+            foreach (array_chunk($mcdids, 100) as $ids) {
+                [$sql, $params] = $DB->get_in_or_equal($ids);
+                $sql = 'UPDATE {customfield_data} SET valuetrust = 1 WHERE id ' . $sql;
+                $DB->execute($sql, $params);
+            }
+        }
+        upgrade_mod_savepoint(true, 2023120102, 'cms');
+    }
+
     return true;
 }
