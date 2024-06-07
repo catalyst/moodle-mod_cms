@@ -36,6 +36,9 @@ class update_customfield_context extends adhoc_task {
     public function execute() {
         global $DB;
 
+        // Record {customfield_data}.instanceid is from {cms}.id.
+        // Record {customfield_data}.contextid is from contextid of {course_modules}, which is linked to {cms}.
+
         // Collect records which have wrong contextid in the customfield data.
         $sql = "SELECT mcd.id mcdid, mcd.contextid mcdcontextid, mc.id mcid
                   FROM {customfield_data} mcd
@@ -45,7 +48,7 @@ class update_customfield_context extends adhoc_task {
                       SELECT id FROM {modules} WHERE name = 'cms'
                   )
                   JOIN {context} mc ON mc.instanceid = mcm.id AND contextlevel = " . CONTEXT_MODULE . "
-                 WHERE mcc.component = 'mod_cms' AND mcd.contextid != mc.id";
+                 WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcd.contextid != mc.id";
         $records = $DB->get_records_sql($sql);
         // Update records with correct contextid.
         foreach ($records as $record) {
