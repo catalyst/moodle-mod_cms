@@ -26,10 +26,26 @@ use core_customfield\field_controller;
  * @copyright 2024, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class mod_cms_generator extends \component_generator_base {
+class mod_cms_generator extends testing_module_generator {
 
     /** @var int */
     protected $cmstypecount = 0;
+
+    /**
+     * Create new cms module instance
+     *
+     * @param array|stdClass $record
+     * @param array $options
+     * @return stdClass
+     */
+    public function create_instance($record = null, array $options = null) {
+        $record = (object) (array) $record;
+
+        // Simple setup to pass core_calendar\container_test::test_delete_module_delete_events.
+        $record->typeid = 0;
+
+        return parent::create_instance($record, (array) $options);
+    }
 
     /**
      * Get generator for custom fields.
