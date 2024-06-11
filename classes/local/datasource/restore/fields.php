@@ -65,7 +65,7 @@ class fields {
     /**
      * Code to be run after restoration.
      */
-    public function after_execute() {
+    public function after_restore() {
         $cmsid = $this->stepslib->get_new_parentid('cms');
         $cms = new cms($cmsid);
         $ds = new dsfields($cms);
