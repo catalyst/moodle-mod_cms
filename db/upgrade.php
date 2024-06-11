@@ -360,7 +360,7 @@ function xmldb_cms_upgrade($oldversion) {
                      WHERE mcc.component = 'mod_cms' AND mcd.valuetrust = 0";
             $records = $DB->get_records_sql($sql);
             $mcdids = array_keys($records);
-            foreach (array_chunk($mcdids, 100) as $ids) {
+            foreach (array_chunk($mcdids, 1000) as $ids) {
                 [$sql, $params] = $DB->get_in_or_equal($ids);
                 $sql = 'UPDATE {customfield_data} SET valuetrust = 1 WHERE id ' . $sql;
                 $DB->execute($sql, $params);
