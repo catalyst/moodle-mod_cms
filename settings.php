@@ -56,5 +56,23 @@ if ($ADMIN->fulltree) {
 
 $ADMIN->add('modcmsfolder', $settings);
 
+$settings = new admin_settingpage('mod_cms_search_settings', new lang_string('search:settings', 'mod_cms'));
+if ($ADMIN->fulltree) {
+    $sql = "SELECT mcf.id, mcf.name
+              FROM {customfield_category} mcc
+              JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
+             WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('text', 'textarea')";
+    $areas = $DB->get_records_sql_menu($sql);
+
+    $settings->add(new admin_setting_configmulticheckbox(
+        'mod_cms/search_area',
+        get_string('search:settings:area', 'mod_cms'),
+        get_string('search:settings:area_desc', 'mod_cms'),
+        null,
+        $areas,
+    ));
+}
+$ADMIN->add('modcmsfolder', $settings);
+
 // Tell core we already added the settings structure.
 $settings = null;

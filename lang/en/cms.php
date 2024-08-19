@@ -103,6 +103,12 @@ $string['error:invalid'] = 'Invalid: {$a}';
 $string['error:no_instance_hash'] = 'Module {$a} has no instance hash.';
 $string['error:no_config_hash'] = 'Module {$a} has no config hash.';
 
+// Search strings.
+$string['search:cms'] = 'CMS';
+$string['search:settings'] = 'Search settings';
+$string['search:settings:area'] = 'Search area';
+$string['search:settings:area_desc'] = 'Search area for global search';
+
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';
 
