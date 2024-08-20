@@ -59,18 +59,15 @@ class cmsfield extends \core_search\base_mod {
             return null;
         }
 
-        $searcharea = explode(',', get_config('mod_cms', 'search_area'));
-        if (empty($searcharea)) {
-            return null;
-        }
-        list($insql, $inparams) = $DB->get_in_or_equal($searcharea);
-
-        $sql = "SELECT mcd.*, mc.id AS cmsid, mc.course AS courseid
+        $sql = "SELECT mcd.*, mc.id AS cmsid, mc.course AS courseid, mcf.name AS fieldname
                   FROM {customfield_data} mcd
                   JOIN {cms} mc ON mc.id = mcd.instanceid
+                  JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                  JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
           $contextjoin
-                 WHERE mcd.timemodified >= ? AND mcd.fieldid " . $insql . " ORDER BY mcd.timemodified ASC";
-        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom], $inparams));
+                 WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
+              ORDER BY mcd.timemodified ASC";
+        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom]));
     }
 
     /**
@@ -97,7 +94,7 @@ class cmsfield extends \core_search\base_mod {
 
         // Prepare associative array with data from DB.
         $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
-        $doc->set('title', content_to_text($record->value, false));
+        $doc->set('title', content_to_text($record->fieldname, false));
         $doc->set('content', content_to_text($record->value, $record->valueformat));
         $doc->set('contextid', $context->id);
         $doc->set('courseid', $record->courseid);
@@ -150,7 +147,9 @@ class cmsfield extends \core_search\base_mod {
      * @return \moodle_url
      */
     public function get_doc_url(\core_search\document $doc) {
-        return $this->get_context_url($doc);
+        $contextmodule = \context::instance_by_id($doc->get('contextid'));
+        $cm = get_coursemodule_from_id('cms', $contextmodule->instanceid, $doc->get('courseid'), true);
+        return new \moodle_url('/course/view.php', ['id' => $doc->get('courseid'), 'section' => $cm->sectionnum]);
     }
 
     /**
