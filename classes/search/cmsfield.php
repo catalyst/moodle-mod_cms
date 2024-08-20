@@ -36,7 +36,7 @@ require_once($CFG->dirroot . '/mod/cms/lib.php');
  * @copyright  2024 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cms extends \core_search\base_mod {
+class cmsfield extends \core_search\base_mod {
 
     /**
      * @var array Internal quick static cache.
@@ -44,7 +44,7 @@ class cms extends \core_search\base_mod {
     protected $cmsdata = [];
 
     /**
-     * Returns recordset containing required data for indexing cms data records.
+     * Returns recordset containing required data for indexing cmsfield records.
      *
      * @param int $modifiedfrom timestamp
      * @param \context|null $context Optional context to restrict scope of returned results

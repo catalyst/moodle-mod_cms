@@ -69,7 +69,7 @@ if ($ADMIN->fulltree) {
         get_string('search:settings:area', 'mod_cms'),
         get_string('search:settings:area_desc', 'mod_cms'),
         null,
-        $areas,
+        $areas
     ));
 }
 $ADMIN->add('modcmsfolder', $settings);
