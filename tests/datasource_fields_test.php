@@ -372,7 +372,21 @@ class datasource_fields_test extends \advanced_testcase {
 
         $fileid = $this->get_generator()->make_file($filename, 'Some content');
 
-        // Create data for making a module. Add the file to the custom field.
+        // File from other place in the server.
+        $syscontext = \context_system::instance();
+        $filedata = [
+            'contextid' => $syscontext->id,
+            'component' => 'course',
+            'filearea'  => 'unittest',
+            'itemid'    => 0,
+            'filepath'  => '/textfiles/',
+            'filename'  => 'testtext.txt',
+        ];
+        $fs->create_file_from_string($filedata, 'text contents');
+        $url = \moodle_url::make_pluginfile_url($filedata['contextid'], $filedata['component'], $filedata['filearea'],
+            $filedata['itemid'], $filedata['filepath'], $filedata['filename']);
+
+        // Create data for making a module. Add the files to the custom field.
         $instancedata = [
             'modulename' => 'cms',
             'course' => $course->id,
@@ -381,7 +395,7 @@ class datasource_fields_test extends \advanced_testcase {
             'typeid' => $cmstype->get('id'),
             'name' => 'Some module',
             'customfield_field1_editor' => [
-                'text' => 'Here is a file: @@PLUGINFILE@@/'.$filename,
+                'text' => 'Here is a file: @@PLUGINFILE@@/' . $filename . ' AND ' . $url->out(),
                 'format' => FORMAT_HTML,
                 'itemid' => $fileid,
             ]
@@ -394,8 +408,11 @@ class datasource_fields_test extends \advanced_testcase {
 
         // Get the data ID to find the file with.
         $cfhandler = cmsfield_handler::create($cmstype->get('id'));
-        $d = $cfhandler->get_instance_data($cms->get('id'));
-        $itemid = $d[$cffield->get('id')]->get('id');
+        $instancedata = $cfhandler->get_instance_data($cms->get('id'));
+        $fielddata = $instancedata[$cffield->get('id')];
+        $itemid = $fielddata->get('id');
+        $originaltext = $fielddata->get('value');
+        $originalexportvalue = $fielddata->export_value();
 
         // Check if the permanent file exists.
         $file = $fs->get_file($context->id, 'customfield_textarea', 'value', $itemid, '/', $filename);
@@ -407,11 +424,14 @@ class datasource_fields_test extends \advanced_testcase {
         $newcontext = context_module::instance($newcm->id);
 
         // Get the data ID to find the new file with.
-        $d = $cfhandler->get_instance_data($newcms->get('id'));
-        $itemid = $d[$cffield->get('id')]->get('id');
+        $newinstancedata = $cfhandler->get_instance_data($newcms->get('id'));
+        $newfielddata = $newinstancedata[$cffield->get('id')];
+        $newitemid = $newfielddata->get('id');
+        $newtext = $newfielddata->get('value');
+        $newexportvalue = $newfielddata->export_value();
 
         // Check if the permanent file exists.
-        $newfile = $fs->get_file($newcontext->id, 'customfield_textarea', 'value', $itemid, '/', $filename);
+        $newfile = $fs->get_file($newcontext->id, 'customfield_textarea', 'value', $newitemid, '/', $filename);
         $this->assertNotEmpty($newfile);
 
         // Check that the files are distinct.
@@ -419,5 +439,21 @@ class datasource_fields_test extends \advanced_testcase {
 
         // Check the files have the same content.
         $this->assertEquals($file->get_content(), $newfile->get_content());
+
+        // Value should be same but export value should have different URL.
+        $this->assertEquals($originaltext, $newtext);
+        $this->assertNotEquals($originalexportvalue, $newexportvalue);
+
+        // Check the URL is using correct ids.
+        $this->assertStringContainsString(
+            '/' . $context->id . '/customfield_textarea/value/' . $itemid . '/' . $filename,
+            $originalexportvalue);
+        $this->assertStringContainsString(
+            '/' . $newcontext->id . '/customfield_textarea/value/' . $newitemid . '/' . $filename,
+            $newexportvalue);
+
+        // Check URL is correctly restored.
+        $this->assertStringContainsString($url->out(), $originalexportvalue);
+        $this->assertStringContainsString($url->out(), $newexportvalue);
     }
 }
