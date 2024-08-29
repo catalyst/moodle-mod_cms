@@ -14,14 +14,6 @@
 // You should have received a copy of the GNU General Public License
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
-/**
- * Define search area.
- *
- * @package    mod_cms
- * @author     Tomo Tsuyuki <tomotsuyuki@catalyst-au.com>
- * @copyright  2024 Catalyst IT
- * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- */
 namespace mod_cms\search;
 
 defined('MOODLE_INTERNAL') || die();
@@ -44,11 +36,16 @@ class cmsfield extends \core_search\base_mod {
     protected $cmsdata = [];
 
     /**
+     * @var array Internal quick static cache.
+     */
+    protected $defaultvalues = null;
+
+    /**
      * Returns recordset containing required data for indexing cmsfield records.
      *
      * @param int $modifiedfrom timestamp
      * @param \context|null $context Optional context to restrict scope of returned results
-     * @return moodle_recordset|null Recordset (or null if no results)
+     * @return \moodle_recordset|null Recordset (or null if no results)
      */
     public function get_document_recordset($modifiedfrom = 0, \context $context = null) {
         global $DB;
@@ -59,15 +56,25 @@ class cmsfield extends \core_search\base_mod {
             return null;
         }
 
-        $sql = "SELECT mcd.*, mc.id AS cmsid, mc.course AS courseid, mcf.name AS fieldname
-                  FROM {customfield_data} mcd
-                  JOIN {cms} mc ON mc.id = mcd.instanceid
+        $sql = "SELECT mc.id, mc.course AS courseid, mc.typeid, mcf.name AS fieldname, mcd.id dataid,
+                       mcd.value AS value, mcd.valueformat AS valueformat,
+                       mcd.timecreated AS timecreated, mcd.timemodified AS timemodified
+                  FROM {cms} mc
+                  JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
                   JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
                   JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
           $contextjoin
                  WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
-              ORDER BY mcd.timemodified ASC";
-        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom]));
+                   AND mcf.type IN ('textarea', 'text')
+                 UNION
+                SELECT mc.id, mc.course AS courseid, mc.typeid, null AS fieldname, null dataid,
+                       null AS value, null AS valueformat,
+                       mc.timecreated timecreated, mc.timemodified timemodified
+                 FROM {cms} mc
+            LEFT JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
+                WHERE mcd.id IS NULL AND mc.timecreated >= ?
+             ORDER BY timemodified ASC";
+        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom, $modifiedfrom]));
     }
 
     /**
@@ -78,8 +85,9 @@ class cmsfield extends \core_search\base_mod {
      * @return \core_search\document
      */
     public function get_document($record, $options = []) {
+        global $DB;
         try {
-            $cm = $this->get_cm('cms', $record->cmsid, $record->courseid);
+            $cm = $this->get_cm('cms', $record->id, $record->courseid);
             $context = \context_module::instance($cm->id);
         } catch (\dml_missing_record_exception $ex) {
             // Notify it as we run here as admin, we should see everything.
@@ -92,10 +100,42 @@ class cmsfield extends \core_search\base_mod {
             return false;
         }
 
+        if (is_null($this->defaultvalues)) {
+            $defaultvalues = [];
+            // Get default value for cms custom field.
+            $sql = "SELECT mct.id typeid, mcf.configdata, mcf.name fieldname
+                      FROM {cms_types} mct
+                      JOIN {customfield_category} mcc ON mcc.itemid = mct.id
+                      JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
+                     WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('textarea', 'text')";
+            $cmstypes = $DB->get_records_sql($sql);
+            $defaultvalues = [];
+            foreach ($cmstypes as $cmstype) {
+                $data = new \stdClass();
+                $configdata = json_decode($cmstype->configdata);
+                $data->value = $configdata->defaultvalue ?? 'Default value';
+                $data->valueformat = $configdata->defaultvalueformat ?? 0;
+                $data->fieldname = $cmstype->fieldname;
+                $defaultvalues[$cmstype->typeid] = $data;
+            }
+            $this->defaultvalues = $defaultvalues;
+        }
+
+        // Check if it's default value or not.
+        if (empty($record->dataid)) {
+            $title = $this->defaultvalues[$record->typeid]->fieldname  ?? 'Default title';
+            $value = $this->defaultvalues[$record->typeid]->value ?? 'Default value';
+            $valueformat = $this->defaultvalues[$record->typeid]->valueformat ?? 'Default valueformat';
+        } else {
+            $title = $record->fieldname;
+            $value = $record->value;
+            $valueformat = $record->valueformat;
+        }
+
         // Prepare associative array with data from DB.
         $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
-        $doc->set('title', content_to_text($record->fieldname, false));
-        $doc->set('content', content_to_text($record->value, $record->valueformat));
+        $doc->set('title', content_to_text($title, false));
+        $doc->set('content', content_to_text($value, $valueformat));
         $doc->set('contextid', $context->id);
         $doc->set('courseid', $record->courseid);
         $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
@@ -120,6 +160,7 @@ class cmsfield extends \core_search\base_mod {
         try {
             $data = $this->get_data($id);
             $cminfo = $this->get_cm('cms', $data->instanceid, $data->courseid);
+            $context = \context_module::instance($cminfo->id);
         } catch (\dml_missing_record_exception $ex) {
             return \core_search\manager::ACCESS_DELETED;
         } catch (\dml_exception $ex) {
@@ -130,8 +171,6 @@ class cmsfield extends \core_search\base_mod {
         if ($cminfo->uservisible === false) {
             return \core_search\manager::ACCESS_DENIED;
         }
-
-        $context = \context_module::instance($cminfo->id);
 
         if (!has_capability('mod/cms:view', $context)) {
             return \core_search\manager::ACCESS_DENIED;
