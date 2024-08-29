@@ -23,11 +23,13 @@
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
+use core\task\manager;
 use mod_cms\local\lib;
 use mod_cms\local\model\cms_types;
 use mod_cms\local\model\cms;
 use mod_cms\local\datasource\fields;
 use mod_cms\local\datasource\userlist;
+use mod_cms\task\update_customfield_context;
 
 /**
  * Function to upgrade mod_cms database
@@ -339,6 +341,76 @@ function xmldb_cms_upgrade($oldversion) {
         }
 
         upgrade_mod_savepoint(true, 2023112100, 'cms');
+    }
+
+    if ($oldversion < 2023120101) {
+        // Add adhoc task to update contextid in customfield records for 'cmsfield' type.
+        manager::queue_adhoc_task(new update_customfield_context());
+        upgrade_mod_savepoint(true, 2023120101, 'cms');
+    }
+
+    if ($oldversion < 2023120102) {
+        $dbman = $DB->get_manager();
+        // Update valuetrust if exists for mod_cms (both 'cmsfield' and 'cmsuserlist').
+        if ($dbman->field_exists('customfield_data', 'valuetrust')) {
+            $sql = "SELECT mcd.id mcdid
+                      FROM {customfield_data} mcd
+                      JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                      JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
+                     WHERE mcc.component = 'mod_cms' AND mcd.valuetrust = 0";
+            $records = $DB->get_records_sql($sql);
+            $mcdids = array_keys($records);
+            foreach (array_chunk($mcdids, 1000) as $ids) {
+                [$sql, $params] = $DB->get_in_or_equal($ids);
+                $sql = 'UPDATE {customfield_data} SET valuetrust = 1 WHERE id ' . $sql;
+                $DB->execute($sql, $params);
+            }
+        }
+        upgrade_mod_savepoint(true, 2023120102, 'cms');
+    }
+
+    if ($oldversion < 2023120103) {
+        // Update contextid in customfield records for 'cmsuserlist' type.
+        // {customfield_data}.instanceid" is from one of id from userlistinstanceids which is JSON encoded in {cms}.customdata.
+        // "userlistinstanceids" is a unique id for the customfield_data.
+        // New ID is from userlistmaxinstanceid which is JSON encoded in the {cms_types}.customdata" and add 1 to use.
+        $sql = "SELECT mc.id, mc.customdata, mcx.id contextid
+                  FROM {cms} mc
+                  JOIN {course_modules} mcm ON mc.id = mcm.instance AND mcm.module = (
+                           SELECT id FROM {modules} WHERE name = 'cms'
+                       )
+                  JOIN {context} mcx ON mcx.instanceid = mcm.id AND mcx.contextlevel = " . CONTEXT_MODULE . "
+                 WHERE mc.customdata LIKE '%userlistinstanceids%'";
+        $cmsrecords = $DB->get_records_sql($sql);
+
+        // Load userlist from customfield_data and set to array.
+        $userlist = [];
+        foreach ($cmsrecords as $cmsrecord) {
+            $customdata = json_decode($cmsrecord->customdata);
+            foreach ($customdata->userlistinstanceids as $instanceid) {
+                $userlist[$instanceid] = [
+                    'id' => $cmsrecord->id,
+                    'contextid' => $cmsrecord->contextid,
+                ];
+            }
+        }
+
+        // Check cmsuserlist records and set correct contextid if it's different one.
+        $sql = "SELECT mcd.id, mcd.instanceid, mcd.contextid
+                  FROM {customfield_data} mcd
+                  JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                  JOIN {customfield_category} mcc ON mcc.id = mcf.categoryid
+                 WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsuserlist'";
+        $cmsuserlistdata = $DB->get_records_sql($sql);
+        foreach ($cmsuserlistdata as $cmsuserlist) {
+            if (!empty($userlist[$cmsuserlist->instanceid])) {
+                if ($userlist[$cmsuserlist->instanceid]['contextid'] != $cmsuserlist->contextid) {
+                    $DB->set_field('customfield_data', 'contextid', $userlist[$cmsuserlist->instanceid]['contextid'],
+                        ['id' => $cmsuserlist->id]);
+                }
+            }
+        }
+        upgrade_mod_savepoint(true, 2023120103, 'cms');
     }
 
     return true;
