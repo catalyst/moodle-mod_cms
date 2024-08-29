@@ -78,6 +78,7 @@ class search_test extends \advanced_testcase {
         // Set \core_search::instance to the mock_search_engine as we don't require the search engine to be working to test this.
         $search = \testable_core_search::instance();
 
+        // Name for cms activity is using from "title_mustache".
         $cmstype = new cms_types();
         $cmstype->set('name', 'Overview')
             ->set('idnumber', 'overview')
@@ -134,7 +135,7 @@ class search_test extends \advanced_testcase {
 
         $course = self::getDataGenerator()->create_course();
 
-        // Name for cms is coming from "title_mustache" in cms_type.
+        // The name of cms activity is from cms_type, so we do not set when creating the activity.
         $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
         $record = new \stdClass();
         $record->course = $course->id;
@@ -219,7 +220,6 @@ class search_test extends \advanced_testcase {
 
         $course = self::getDataGenerator()->create_course();
 
-        // Name for cms is coming from "title_mustache" in cms_type.
         $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
         $record = new \stdClass();
         $record->course = $course->id;

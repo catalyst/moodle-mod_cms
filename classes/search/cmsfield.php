@@ -56,8 +56,9 @@ class cmsfield extends \core_search\base_mod {
             return null;
         }
 
-        $sql = "SELECT mc.id, mc.course AS courseid, mc.typeid, mcf.name AS fieldname, mcd.id dataid,
-                       mcd.value AS value, mcd.valueformat AS valueformat,
+        // Search area is from customfield_data, but if the record is missing from activity, use default value.
+        $sql = "SELECT mc.id, mc.course AS courseid, mc.typeid, mcf.name AS fieldname, mcf.type,
+                       mcd.id dataid, mcd.value AS value, mcd.valueformat AS valueformat,
                        mcd.timecreated AS timecreated, mcd.timemodified AS timemodified
                   FROM {cms} mc
                   JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
@@ -100,16 +101,15 @@ class cmsfield extends \core_search\base_mod {
             return false;
         }
 
+        // Get default value for cms custom field.
         if (is_null($this->defaultvalues)) {
             $defaultvalues = [];
-            // Get default value for cms custom field.
             $sql = "SELECT mct.id typeid, mcf.configdata, mcf.name fieldname
                       FROM {cms_types} mct
                       JOIN {customfield_category} mcc ON mcc.itemid = mct.id
                       JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
                      WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('textarea', 'text')";
             $cmstypes = $DB->get_records_sql($sql);
-            $defaultvalues = [];
             foreach ($cmstypes as $cmstype) {
                 $data = new \stdClass();
                 $configdata = json_decode($cmstype->configdata);
@@ -123,9 +123,17 @@ class cmsfield extends \core_search\base_mod {
 
         // Check if it's default value or not.
         if (empty($record->dataid)) {
-            $title = $this->defaultvalues[$record->typeid]->fieldname  ?? 'Default title';
-            $value = $this->defaultvalues[$record->typeid]->value ?? 'Default value';
-            $valueformat = $this->defaultvalues[$record->typeid]->valueformat ?? 'Default valueformat';
+            $title = $this->defaultvalues[$record->typeid]->fieldname  ?? '';
+            $value = $this->defaultvalues[$record->typeid]->value ?? '';
+            if (isset($this->defaultvalues[$record->typeid]->valueformat)) {
+                $valueformat = $this->defaultvalues[$record->typeid]->valueformat;
+            } else {
+                if ($record->type == 'textarea') {
+                    $valueformat = FORMAT_HTML;
+                } else {
+                    $valueformat = FORMAT_PLAIN;
+                }
+            }
         } else {
             $title = $record->fieldname;
             $value = $record->value;
@@ -216,10 +224,7 @@ class cmsfield extends \core_search\base_mod {
                       FROM {customfield_data} mcd
                       JOIN {cms} mc ON mc.id = mcd.instanceid
                      WHERE mcd.id = :id";
-            $this->cmsdata[$id] = $DB->get_record_sql($sql, ['id' => $id]);
-            if (!$this->cmsdata[$id]) {
-                throw new \dml_missing_record_exception('cms_data');
-            }
+            $this->cmsdata[$id] = $DB->get_record_sql($sql, ['id' => $id], MUST_EXIST);
         }
         return $this->cmsdata[$id];
     }
