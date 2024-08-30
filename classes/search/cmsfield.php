@@ -68,8 +68,8 @@ class cmsfield extends \core_search\base_mod {
                  WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
                    AND mcf.type IN ('textarea', 'text')
                  UNION
-                SELECT mc.id, mc.course AS courseid, mc.typeid, null AS fieldname, null dataid,
-                       null AS value, null AS valueformat,
+                SELECT mc.id, mc.course AS courseid, mc.typeid, null AS fieldname, null AS type,
+                       null AS dataid, null AS value, null AS valueformat,
                        mc.timecreated timecreated, mc.timemodified timemodified
                  FROM {cms} mc
             LEFT JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
@@ -123,7 +123,7 @@ class cmsfield extends \core_search\base_mod {
 
         // Check if it's default value or not.
         if (empty($record->dataid)) {
-            $title = $this->defaultvalues[$record->typeid]->fieldname  ?? '';
+            $title = $this->defaultvalues[$record->typeid]->fieldname ?? '';
             $value = $this->defaultvalues[$record->typeid]->value ?? '';
             if (isset($this->defaultvalues[$record->typeid]->valueformat)) {
                 $valueformat = $this->defaultvalues[$record->typeid]->valueformat;
