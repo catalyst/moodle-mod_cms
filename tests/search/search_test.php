@@ -106,6 +106,7 @@ class search_test extends \advanced_testcase {
      * Test search enabled.
      *
      * @return void
+     * @covers \core_search\manager::get_search_area
      */
     public function test_search_enabled(): void {
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
@@ -125,6 +126,8 @@ class search_test extends \advanced_testcase {
      * Indexing mod cms contents.
      *
      * @return void
+     * @covers ::get_document_recordset
+     * @covers ::get_document
      */
     public function test_get_document_recordset(): void {
         global $DB;
@@ -210,6 +213,8 @@ class search_test extends \advanced_testcase {
      * Test default value from cms content type
      *
      * @return void
+     * @covers ::get_document_recordset
+     * @covers ::get_document
      */
     public function test_default_content(): void {
         global $DB;
@@ -273,6 +278,7 @@ class search_test extends \advanced_testcase {
      * Test check_access.
      *
      * @return void
+     * @covers ::check_access
      */
     public function test_check_access(): void {
         global $DB;
@@ -286,25 +292,23 @@ class search_test extends \advanced_testcase {
 
         $this->getDataGenerator()->enrol_user($user1->id, $course->id, 'student');
 
-        // Name for cms is coming from "title_mustache" in cms_type.
         $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
         $record = new \stdClass();
         $record->course = $course->id;
         $record->customfield_overview = 'Test overview text 1';
         $record->typeid = $this->cmstype->get('id');
-        $generator->create_instance_with_data($record);
+        $cms = $generator->create_instance_with_data($record);
 
         $records = $DB->get_records('customfield_data', ['fieldid' => $this->field->get('id')]);
         $this->assertCount(1, $records);
-        $data = current($records);
 
         $this->setAdminUser();
-        $this->assertEquals(\core_search\manager::ACCESS_GRANTED, $searcharea->check_access($data->id));
+        $this->assertEquals(\core_search\manager::ACCESS_GRANTED, $searcharea->check_access($cms->id));
 
         $this->setUser($user1);
-        $this->assertEquals(\core_search\manager::ACCESS_GRANTED, $searcharea->check_access($data->id));
+        $this->assertEquals(\core_search\manager::ACCESS_GRANTED, $searcharea->check_access($cms->id));
 
         $this->setUser($user2);
-        $this->assertEquals(\core_search\manager::ACCESS_DENIED, $searcharea->check_access($data->id));
+        $this->assertEquals(\core_search\manager::ACCESS_DENIED, $searcharea->check_access($cms->id));
     }
 }

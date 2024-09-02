@@ -167,7 +167,7 @@ class cmsfield extends \core_search\base_mod {
     public function check_access($id) {
         try {
             $data = $this->get_data($id);
-            $cminfo = $this->get_cm('cms', $data->instanceid, $data->courseid);
+            $cminfo = $this->get_cm('cms', $data->id, $data->courseid);
             $context = \context_module::instance($cminfo->id);
         } catch (\dml_missing_record_exception $ex) {
             return \core_search\manager::ACCESS_DELETED;
@@ -220,10 +220,9 @@ class cmsfield extends \core_search\base_mod {
     protected function get_data($id) {
         global $DB;
         if (empty($this->cmsdata[$id])) {
-            $sql = "SELECT mcd.*, mc.id AS cmsid, mc.course AS courseid
-                      FROM {customfield_data} mcd
-                      JOIN {cms} mc ON mc.id = mcd.instanceid
-                     WHERE mcd.id = :id";
+            $sql = "SELECT mc.id, mc.course AS courseid
+                      FROM {cms} mc
+                     WHERE mc.id = :id";
             $this->cmsdata[$id] = $DB->get_record_sql($sql, ['id' => $id], MUST_EXIST);
         }
         return $this->cmsdata[$id];
