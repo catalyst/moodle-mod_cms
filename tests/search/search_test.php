@@ -171,7 +171,8 @@ class search_test extends \advanced_testcase {
         $record->course = $course->id;
         $record->customfield_overview = 'Test overview text 3';
         $record->typeid = $this->cmstype->get('id');
-        $generator->create_instance_with_data($record);
+        $cms3 = $generator->create_instance_with_data($record);
+        $context = \context_module::instance($cms3->cmid);
 
         // Return only new search.
         $recordset = $searcharea->get_document_recordset($time);
@@ -184,7 +185,7 @@ class search_test extends \advanced_testcase {
             $this->assertEquals('mod_cms-cmsfield-' . $record->id, $doc->get('id'));
             $this->assertEquals($record->id, $doc->get('itemid'));
             $this->assertEquals($course->id, $doc->get('courseid'));
-            $this->assertEquals($data->contextid, $doc->get('contextid'));
+            $this->assertEquals($context->id, $doc->get('contextid'));
             $this->assertEquals($this->field->get('name'), $doc->get('title'));
             $this->assertEquals($data->value, $doc->get('content'));
 
@@ -217,20 +218,17 @@ class search_test extends \advanced_testcase {
      * @covers ::get_document
      */
     public function test_default_content(): void {
-        global $DB;
-
-        // Returns the instance as long as the area is supported.
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
         $this->assertInstanceOf('\mod_cms\search\cmsfield', $searcharea);
 
         $course = self::getDataGenerator()->create_course();
 
+        // Create cms activity without customfield.
         $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
         $record = new \stdClass();
         $record->course = $course->id;
         $record->typeid = $this->cmstype->get('id');
         $cms1 = $generator->create_instance_with_data($record);
-        $context = \context_module::instance($cms1->cmid);
 
         $recordset = $searcharea->get_document_recordset();
         $count = 0;
@@ -239,18 +237,14 @@ class search_test extends \advanced_testcase {
             $this->assertEmpty($record->dataid);
             $doc = $searcharea->get_document($record);
             $this->assertInstanceOf('\core_search\document', $doc);
-            $this->assertEquals('mod_cms-cmsfield-' . $record->id, $doc->get('id'));
-            $this->assertEquals($record->id, $doc->get('itemid'));
-            $this->assertEquals($course->id, $doc->get('courseid'));
-            $this->assertEquals($context->id, $doc->get('contextid'));
-            $this->assertEquals($this->field->get('name'), $doc->get('title'));
+            // Confirm the content is from defaultvalue from cms fieldtype.
             $this->assertEquals('Default Text Overview', $doc->get('content'));
             $count++;
         }
         $this->assertEquals(1, $count);
         $recordset->close();
 
-        // Add data for the cms activity.
+        // Add custom data for the cms activity.
         $cms1->customfield_overview = 'Update test 1';
         $handler = cmsfield_handler::create($cms1->typeid);
         $handler->instance_form_save($cms1);
@@ -258,16 +252,70 @@ class search_test extends \advanced_testcase {
         $count = 0;
         foreach ($recordset as $record) {
             $this->assertInstanceOf('stdClass', $record);
-            $data = $DB->get_record('customfield_data', ['id' => $record->dataid]);
+            $doc = $searcharea->get_document($record);
+            $this->assertEquals('Update test 1', $doc->get('content'));
+            $count++;
+        }
+        $this->assertEquals(1, $count);
+        $recordset->close();
+    }
+
+    /**
+     * Test multiple contents in one cms activity
+     *
+     * @return void
+     * @covers ::get_document_recordset
+     * @covers ::get_document
+     */
+    public function test_multiple_contents(): void {
+        global $DB;
+
+        // Returns the instance as long as the area is supported.
+        $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
+        $this->assertInstanceOf('\mod_cms\search\cmsfield', $searcharea);
+
+        $course = self::getDataGenerator()->create_course();
+        $field = self::getDataGenerator()->create_custom_field([
+            'name' => 'Details',
+            'shortname' => 'details',
+            'type' => 'text',
+            'categoryid' => $this->fieldcategory->get('id'),
+            'configdata' => json_encode(['defaultvalue' => 'Default Text Details']),
+        ]);
+
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
+        $record = new \stdClass();
+        $record->course = $course->id;
+        $record->typeid = $this->cmstype->get('id');
+        $cms1 = $generator->create_instance_with_data($record);
+
+        $recordset = $searcharea->get_document_recordset();
+        $count = 0;
+        foreach ($recordset as $record) {
+            $this->assertInstanceOf('stdClass', $record);
+            $this->assertEmpty($record->dataid);
             $doc = $searcharea->get_document($record);
             $this->assertInstanceOf('\core_search\document', $doc);
-            $this->assertEquals('mod_cms-cmsfield-' . $record->id, $doc->get('id'));
-            $this->assertEquals($record->id, $doc->get('itemid'));
-            $this->assertEquals($course->id, $doc->get('courseid'));
-            $this->assertEquals($data->contextid, $doc->get('contextid'));
-            $this->assertEquals($this->field->get('name'), $doc->get('title'));
-            $this->assertEquals($data->value, $doc->get('content'));
-            $this->assertEquals('Update test 1', $doc->get('content'));
+            $this->assertStringContainsString('Default Text Overview', $doc->get('content'));
+            $this->assertStringContainsString('Default Text Details', $doc->get('content'));
+            $count++;
+        }
+        $this->assertEquals(1, $count);
+        $recordset->close();
+
+        // Add data for the cms activity.
+        $cms1->customfield_overview = 'Overview test 1';
+        $cms1->customfield_details = 'Details test 1';
+        $handler = cmsfield_handler::create($cms1->typeid);
+        $handler->instance_form_save($cms1);
+        $recordset = $searcharea->get_document_recordset();
+        $count = 0;
+        foreach ($recordset as $record) {
+            $this->assertInstanceOf('stdClass', $record);
+            $doc = $searcharea->get_document($record);
+            // Both strings are contained in the cms activity.
+            $this->assertStringContainsString('Overview test 1', $doc->get('content'));
+            $this->assertStringContainsString('Details test 1', $doc->get('content'));
             $count++;
         }
         $this->assertEquals(1, $count);

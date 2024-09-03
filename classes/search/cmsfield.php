@@ -57,16 +57,25 @@ class cmsfield extends \core_search\base_mod {
         }
 
         // Search area is from customfield_data, but if the record is missing from activity, use default value.
-        $sql = "SELECT mc.id, mc.course AS courseid, mc.typeid, mcf.name AS fieldname, mcf.type,
-                       mcd.id dataid, mcd.value AS value, mcd.valueformat AS valueformat,
-                       mcd.timecreated AS timecreated, mcd.timemodified AS timemodified
-                  FROM {cms} mc
-                  JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
-                  JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
-                  JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
-          $contextjoin
-                 WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
-                   AND mcf.type IN ('textarea', 'text')
+        $sqlgroupconcat = $DB->sql_group_concat("mcd.value", ', ', 'mcf.sortorder');
+        $sql = "SELECT ccms.id, ccms.course AS courseid, ccms.typeid, cmcf.name AS fieldname, cmcf.type,
+                       cdata.dataid dataid, cdata.value AS value, cdata.valueformat AS valueformat,
+                       cdata.timecreated AS timecreated, cdata.timemodified AS timemodified
+                  FROM {cms} ccms
+                  JOIN (
+                       SELECT mc.id, MAX(mcf.id) AS fieldid,
+                              MAX(mcd.id) dataid, {$sqlgroupconcat} AS value, MAX(mcd.valueformat) AS valueformat,
+                              MAX(mcd.timecreated) AS timecreated, MAX(mcd.timemodified) AS timemodified
+                         FROM {cms} mc
+                         JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
+                         JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                         JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
+                 $contextjoin
+                        WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
+                          AND mcf.type IN ('textarea', 'text')
+                     GROUP BY mc.id
+                       ) cdata ON ccms.id = cdata.id
+                  JOIN {customfield_field} cmcf ON cmcf.id = cdata.fieldid
                  UNION
                 SELECT mc.id, mc.course AS courseid, mc.typeid, null AS fieldname, null AS type,
                        null AS dataid, null AS value, null AS valueformat,
@@ -101,32 +110,14 @@ class cmsfield extends \core_search\base_mod {
             return false;
         }
 
-        // Get default value for cms custom field.
-        if (is_null($this->defaultvalues)) {
-            $defaultvalues = [];
-            $sql = "SELECT mct.id typeid, mcf.configdata, mcf.name fieldname
-                      FROM {cms_types} mct
-                      JOIN {customfield_category} mcc ON mcc.itemid = mct.id
-                      JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
-                     WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('textarea', 'text')";
-            $cmstypes = $DB->get_records_sql($sql);
-            foreach ($cmstypes as $cmstype) {
-                $data = new \stdClass();
-                $configdata = json_decode($cmstype->configdata);
-                $data->value = $configdata->defaultvalue ?? 'Default value';
-                $data->valueformat = $configdata->defaultvalueformat ?? 0;
-                $data->fieldname = $cmstype->fieldname;
-                $defaultvalues[$cmstype->typeid] = $data;
-            }
-            $this->defaultvalues = $defaultvalues;
-        }
+        $defaultvalues = $this->get_default_values();
 
         // Check if it's default value or not.
         if (empty($record->dataid)) {
-            $title = $this->defaultvalues[$record->typeid]->fieldname ?? '';
-            $value = $this->defaultvalues[$record->typeid]->value ?? '';
-            if (isset($this->defaultvalues[$record->typeid]->valueformat)) {
-                $valueformat = $this->defaultvalues[$record->typeid]->valueformat;
+            $title = $defaultvalues[$record->typeid]->fieldname ?? '';
+            $value = $defaultvalues[$record->typeid]->value ?? '';
+            if (isset($defaultvalues[$record->typeid]->valueformat)) {
+                $valueformat = $defaultvalues[$record->typeid]->valueformat;
             } else {
                 if ($record->type == 'textarea') {
                     $valueformat = FORMAT_HTML;
@@ -156,6 +147,41 @@ class cmsfield extends \core_search\base_mod {
         }
 
         return $doc;
+    }
+
+    /**
+     * Get default value for cms custom field.
+     *
+     * @return array
+     */
+    protected function get_default_values() {
+        global $DB;
+        if (is_null($this->defaultvalues)) {
+            $defaultvalues = [];
+            $sql = "SELECT mcf.id fieldid, mct.id typeid, mcf.configdata, mcf.name fieldname
+                      FROM {cms_types} mct
+                      JOIN {customfield_category} mcc ON mcc.itemid = mct.id
+                      JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
+                     WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('textarea', 'text')
+                  ORDER BY mct.id, mcf.sortorder";
+            $cmstypes = $DB->get_records_sql($sql);
+            foreach ($cmstypes as $cmstype) {
+                if (empty($defaultvalues[$cmstype->typeid])) {
+                    $data = new \stdClass();
+                    $configdata = json_decode($cmstype->configdata);
+                    $data->value = $configdata->defaultvalue ?? 'Default value';
+                    $data->valueformat = $configdata->defaultvalueformat ?? 0;
+                    $data->fieldname = $cmstype->fieldname;
+                } else {
+                    $data = $defaultvalues[$cmstype->typeid];
+                    $configdata = json_decode($cmstype->configdata);
+                    $data->value .= ', ' . $configdata->defaultvalue;
+                }
+                $defaultvalues[$cmstype->typeid] = $data;
+            }
+            $this->defaultvalues = $defaultvalues;
+        }
+        return $this->defaultvalues;
     }
 
     /**
