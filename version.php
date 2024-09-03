@@ -25,9 +25,9 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024082900;
-$plugin->requires = 2020061500; // Moodle 3.9.0 and above.
-$plugin->supported = [39, 401]; // Moodle 3.9 to 4.1 inclusive.
+$plugin->version = 2024090300;
+$plugin->requires = 2022112800; // Moodle 4.1 and above.
+$plugin->supported = [401, 401]; // Moodle 4.1.
 $plugin->component = 'mod_cms';
 $plugin->maturity = MATURITY_STABLE;
 $plugin->release = 2023051800;
