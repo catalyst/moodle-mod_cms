@@ -6,6 +6,14 @@
 
 An activity module for managing custom defined content types which are 'first class' concepts in Moodle. This is to enable course author to think in proper concepts that matter to them and not worry about the rendering of each content type which will be defined centrally.
 
+## Branches ##
+The following maps the plugin version to use depending on your Moodle version.
+
+| Moodle version    | Branch            |
+|-------------------| ------------------|
+| Moodle 3.9 to 4.0 | MOODLE_39_STABLE  |
+| Moodle 4.1        | MOODLE_401_STABLE |
+
 ## Installation
 
 Step 1: Install the activity module
@@ -13,7 +21,7 @@ Step 1: Install the activity module
 
 Using git submodule:
 ```
-git submodule add git@github.com:catalyst/moodle-mod_cms.git mod/cms
+git submodule add -b MOODLE_401_STABLE git@github.com:catalyst/moodle-mod_cms.git mod/cms
 ```
 
 Or you can download as a zip from github

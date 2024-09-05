@@ -15,6 +15,7 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 use mod_cms\local\model\cms_types;
+use mod_cms\customfield\cmsfield_handler;
 use core_customfield\category_controller;
 use core_customfield\field_controller;
 
@@ -45,6 +46,25 @@ class mod_cms_generator extends testing_module_generator {
         $record->typeid = 0;
 
         return parent::create_instance($record, (array) $options);
+    }
+
+    /**
+     * Create new cms module instance with custom data
+     *
+     * @param array|stdClass $record
+     * @param null|array $options
+     * @return stdClass
+     */
+    public function create_instance_with_data($record = null, ?array $options = null): object {
+        $record = (object)$record;
+        $cms = parent::create_instance($record, $options);
+
+        // Save customfield.
+        $handler = cmsfield_handler::create($cms->typeid);
+        $record->id = $cms->id;
+        $handler->instance_form_save($record);
+
+        return $cms;
     }
 
     /**
