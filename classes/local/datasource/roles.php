@@ -48,7 +48,7 @@ class roles extends base_mod_cms {
      * @return \stdClass
      */
     public function get_data(): \stdClass {
-        global $CFG;
+        global $CFG, $OUTPUT;
 
         $data = new \stdClass();
 
@@ -94,8 +94,7 @@ class roles extends base_mod_cms {
             require_once($CFG->dirroot .'/user/lib.php');
 
             $context = \context_course::instance($this->cms->get('course'));
-
-            $rolesincontext = get_all_roles($context);
+            $rolesincontext = role_fix_names(get_all_roles(), $context, ROLENAME_ORIGINAL);
 
             // Gets the roles assigned in the context, indexed by user ID, then assign ID.
             $usersroles = get_users_roles($context, [], false);
@@ -117,6 +116,7 @@ class roles extends base_mod_cms {
                 $rolesdata[$shortname] = new \stdClass();
                 $rolesdata[$shortname]->shortname = $shortname;
                 $rolesdata[$shortname]->name = $record->coursealias ?: $record->name ?: $shortname;
+                $rolesdata[$shortname]->hasusers = false;
                 $rolesdata[$shortname]->users = [];
             }
         } else {
@@ -125,22 +125,39 @@ class roles extends base_mod_cms {
                 $rolesdata[$shortname] = new \stdClass();
                 $rolesdata[$shortname]->shortname = $shortname;
                 $rolesdata[$shortname]->name = ''; // Placeholder to ensure consistent ordering.
+                $rolesdata[$shortname]->hasusers = false;
                 $rolesdata[$shortname]->users = [];
             }
             // Add the course alias name.
             foreach ($rolesincontext as $record) {
                 if (isset($rolesdata[$record->shortname])) {
-                    $rolesdata[$record->shortname]->name = $record->coursealias ?: $record->name ?: $record->shortname;
+                    $rolesdata[$record->shortname]->name = $record->coursealias ?: $record->localname ?: $record->shortname;
                 }
             }
         }
 
         // Convert user indexed array to role indexed array.
         foreach ($usersroles as $userid => $rolerecords) {
+
+            $user = $users[$userid];
+
             $userobj = new \stdClass();
             $userobj->id = $userid;
             // Add user fields.
-            $userobj->fullname = $users[$userid]->fullname;
+            $userobj->fullname      = $user->fullname;
+            $userobj->email         = $user->email;
+            $userobj->username      = $user->username;
+            $userobj->description   = $user->description;
+
+            // TODO This is hacky, better to create a mustache helper instead so the template
+            // can dictate the avatar size.
+            $userobj->picture       = $this->cms->issample ? '' : $OUTPUT->user_picture($user, [
+                                        'courseid' => SITEID, 'size' => 64]);
+            $userobj->picture100    = $this->cms->issample ? '' : $OUTPUT->user_picture($user, [
+                                        'courseid' => SITEID, 'size' => 100]);
+            $userobj->picture200    = $this->cms->issample ? '' : $OUTPUT->user_picture($user, [
+                                        'courseid' => SITEID, 'size' => 200]);
+
             // TODO: In future, more fields may be needed.
 
             if ($showuser === 'nest') {
@@ -160,6 +177,7 @@ class roles extends base_mod_cms {
                     }
                     if (!$alreadyadded || ($showuser === 'all')) {
                         $rolesdata[$record->shortname]->users[] = $userobj;
+                        $rolesdata[$record->shortname]->hasusers = true;
                     }
                     $alreadyadded = true;
                     break;
