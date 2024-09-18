@@ -72,7 +72,7 @@ class cmsfield extends \core_search\base_mod {
                          JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
                  $contextjoin
                         WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
-                          AND mcf.type IN ('textarea', 'text')
+                          AND mcf.type IN ('textarea', 'text', 'file')
                      GROUP BY mc.id
                        ) cdata ON ccms.id = cdata.id
                   JOIN {customfield_field} cmcf ON cmcf.id = cdata.fieldid
@@ -81,10 +81,11 @@ class cmsfield extends \core_search\base_mod {
                        null AS dataid, null AS value, null AS valueformat,
                        mc.timecreated timecreated, mc.timemodified timemodified
                  FROM {cms} mc
+         $contextjoin
             LEFT JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
                 WHERE mcd.id IS NULL AND mc.timecreated >= ?
              ORDER BY timemodified ASC";
-        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom, $modifiedfrom]));
+        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom], $contextparams, [$modifiedfrom]));
     }
 
     /**
@@ -252,5 +253,61 @@ class cmsfield extends \core_search\base_mod {
             $this->cmsdata[$id] = $DB->get_record_sql($sql, ['id' => $id], MUST_EXIST);
         }
         return $this->cmsdata[$id];
+    }
+
+    /**
+     * Returns true if this area uses file indexing.
+     *
+     * @return bool
+     */
+    public function uses_file_indexing() {
+        return true;
+    }
+
+    /**
+     * Return the context info required to index files for
+     * this search area.
+     *
+     * @return array
+     */
+    public function get_search_fileareas() {
+        return ['value'];
+    }
+
+    /**
+     * Add the cms file attachments.
+     *
+     * @param document $document The current document
+     * @return null
+     */
+    public function attach_files($document) {
+        global $DB;
+
+        $fileareas = $this->get_search_fileareas();
+        // File is in "customfield_file" for component, "value" for filearea, and for customfield data id for itemid.
+        $contextid = \context_system::instance()->id;
+        $component = 'customfield_file';
+        $cmsid = $document->get('itemid');
+
+        // Search customfield data from cms record.
+        $sql = "SELECT mcd.id
+                  FROM {cms} mc
+                  JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
+                  JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
+                  JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
+                 WHERE mc.id = ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type = 'file'";
+        $param = [$cmsid];
+        $filedata = $DB->get_records_sql($sql, $param);
+
+        foreach ($fileareas as $filearea) {
+            foreach ($filedata as $data) {
+                $fs = get_file_storage();
+                $files = $fs->get_area_files($contextid, $component, $filearea, $data->id, '', false);
+
+                foreach ($files as $file) {
+                    $document->add_stored_file($file);
+                }
+            }
+        }
     }
 }
