@@ -275,7 +275,7 @@ class cmsfield extends \core_search\base_mod {
     }
 
     /**
-     * Add the forum post attachments.
+     * Add the cms file attachments.
      *
      * @param document $document The current document
      * @return null
