@@ -82,6 +82,7 @@ class search_test extends \advanced_testcase {
         $cmstype = new cms_types();
         $cmstype->set('name', 'Overview')
             ->set('idnumber', 'overview')
+            ->set('mustache', 'Template doc')
             ->set('title_mustache', 'Overview');
         $cmstype->save();
         $fieldcategory = self::getDataGenerator()->create_custom_field_category([
@@ -187,7 +188,8 @@ class search_test extends \advanced_testcase {
             $this->assertEquals($course->id, $doc->get('courseid'));
             $this->assertEquals($context->id, $doc->get('contextid'));
             $this->assertEquals($this->field->get('name'), $doc->get('title'));
-            $this->assertEquals($data->value, $doc->get('content'));
+            $this->assertStringContainsString($data->value, $doc->get('content'));
+            $this->assertStringContainsString($this->cmstype->get('mustache'), $doc->get('content'));
 
             // Static caches are working.
             $dbreads = $DB->perf_get_reads();
@@ -238,7 +240,7 @@ class search_test extends \advanced_testcase {
             $doc = $searcharea->get_document($record);
             $this->assertInstanceOf('\core_search\document', $doc);
             // Confirm the content is from defaultvalue from cms fieldtype.
-            $this->assertEquals('Default Text Overview', $doc->get('content'));
+            $this->assertStringContainsString('Default Text Overview', $doc->get('content'));
             $count++;
         }
         $this->assertEquals(1, $count);
@@ -253,7 +255,7 @@ class search_test extends \advanced_testcase {
         foreach ($recordset as $record) {
             $this->assertInstanceOf('stdClass', $record);
             $doc = $searcharea->get_document($record);
-            $this->assertEquals('Update test 1', $doc->get('content'));
+            $this->assertStringContainsString('Update test 1', $doc->get('content'));
             $count++;
         }
         $this->assertEquals(1, $count);
