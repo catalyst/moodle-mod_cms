@@ -130,6 +130,14 @@ class cmsfield extends \core_search\base_mod {
             $value = $record->value;
             $valueformat = $record->valueformat;
         }
+        // Add mustache template to value.
+        if (!empty($defaultvalues[$record->typeid]->mustache)) {
+            $value .= ' ' . $defaultvalues[$record->typeid]->mustache;
+            if (empty($title)) {
+                $title = $defaultvalues[$record->typeid]->name;
+            }
+            $valueformat = FORMAT_HTML;
+        }
 
         // Prepare associative array with data from DB.
         $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
@@ -179,6 +187,19 @@ class cmsfield extends \core_search\base_mod {
                 }
                 $defaultvalues[$cmstype->typeid] = $data;
             }
+
+            // Add mustache template for default value.
+            $sql = "SELECT mct.id, mct.name, mct.mustache
+                      FROM {cms_types} mct";
+            $mustaches = $DB->get_records_sql($sql);
+            foreach ($mustaches as $mustache) {
+                if (empty($defaultvalues[$mustache->id])) {
+                    $defaultvalues[$mustache->id] = new \stdClass();
+                }
+                $defaultvalues[$mustache->id]->name = $mustache->name;
+                $defaultvalues[$mustache->id]->mustache = $mustache->mustache;
+            }
+
             $this->defaultvalues = $defaultvalues;
         }
         return $this->defaultvalues;
