@@ -104,7 +104,8 @@ $string['error:no_instance_hash'] = 'Module {$a} has no instance hash.';
 $string['error:no_config_hash'] = 'Module {$a} has no config hash.';
 
 // Search strings.
-$string['search:cmsfield'] = 'CMS';
+$string['search:cmsfield'] = 'CMS fields';
+$string['search:activity'] = 'CMS activity';
 
 // Site datasource strings.
 $string['site:displayname'] = 'Site Info';
