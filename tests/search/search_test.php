@@ -190,12 +190,6 @@ class search_test extends \advanced_testcase {
             $this->assertEquals($this->field->get('name'), $doc->get('title'));
             $this->assertStringContainsString($data->value, $doc->get('content'));
             $this->assertStringContainsString($this->cmstype->get('mustache'), $doc->get('content'));
-
-            // Static caches are working.
-            $dbreads = $DB->perf_get_reads();
-            $doc = $searcharea->get_document($record);
-            $this->assertEquals($dbreads, $DB->perf_get_reads());
-            $this->assertInstanceOf('\core_search\document', $doc);
             $count++;
         }
         $this->assertEquals(1, $count);

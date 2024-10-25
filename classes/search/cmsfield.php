@@ -18,6 +18,9 @@ namespace mod_cms\search;
 
 defined('MOODLE_INTERNAL') || die();
 
+use mod_cms\local\model\cms;
+use mod_cms\local\renderer;
+
 require_once($CFG->dirroot . '/mod/cms/lib.php');
 
 /**
@@ -95,7 +98,6 @@ class cmsfield extends \core_search\base_mod {
      * @return \core_search\document
      */
     public function get_document($record, $options = []) {
-        global $DB;
         try {
             $cm = $this->get_cm('cms', $record->id, $record->courseid);
             $context = \context_module::instance($cm->id);
@@ -130,9 +132,21 @@ class cmsfield extends \core_search\base_mod {
             $value = $record->value;
             $valueformat = $record->valueformat;
         }
+
         // Add mustache template to value.
         if (!empty($defaultvalues[$record->typeid]->mustache)) {
-            $value .= ' ' . $defaultvalues[$record->typeid]->mustache;
+            $cms = new cms($cm->instance);
+            $renderer = new renderer($cms);
+            ob_start();
+            try {
+                // Indexer uses "Empty" session, it may get an error from rendering.
+                $value .= $renderer->get_html();
+            } catch (\Exception $e) {
+                // Use template when an error occurs.
+                $value .= ' ' . $defaultvalues[$record->typeid]->mustache;
+            }
+            // Do not show any errors from rendering.
+            ob_end_clean();
             if (empty($title)) {
                 $title = $defaultvalues[$record->typeid]->name;
             }
