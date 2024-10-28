@@ -31,7 +31,7 @@ require_once($CFG->dirroot . '/mod/cms/lib.php');
  * @copyright  2024 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cmsfield extends \core_search\base_mod {
+class cmsfield extends \core_search\base_activity {
 
     /**
      * @var array Internal quick static cache.
@@ -44,53 +44,6 @@ class cmsfield extends \core_search\base_mod {
     protected $defaultvalues = null;
 
     /**
-     * Returns recordset containing required data for indexing cmsfield records.
-     *
-     * @param int $modifiedfrom timestamp
-     * @param \context|null $context Optional context to restrict scope of returned results
-     * @return \moodle_recordset|null Recordset (or null if no results)
-     */
-    public function get_document_recordset($modifiedfrom = 0, \context $context = null) {
-        global $DB;
-
-        list ($contextjoin, $contextparams) = $this->get_context_restriction_sql(
-                $context, 'cms', 'mc');
-        if ($contextjoin === null) {
-            return null;
-        }
-
-        // Search area is from customfield_data, but if the record is missing from activity, use default value.
-        $sqlgroupconcat = $DB->sql_group_concat("mcd.value", ', ', 'mcf.sortorder');
-        $sql = "SELECT ccms.id, ccms.course AS courseid, ccms.typeid, cmcf.name AS fieldname, cmcf.type,
-                       cdata.dataid dataid, cdata.value AS value, cdata.valueformat AS valueformat,
-                       cdata.timecreated AS timecreated, cdata.timemodified AS timemodified
-                  FROM {cms} ccms
-                  JOIN (
-                       SELECT mc.id, MAX(mcf.id) AS fieldid,
-                              MAX(mcd.id) dataid, {$sqlgroupconcat} AS value, MAX(mcd.valueformat) AS valueformat,
-                              MAX(mcd.timecreated) AS timecreated, MAX(mcd.timemodified) AS timemodified
-                         FROM {cms} mc
-                         JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
-                         JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
-                         JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
-                 $contextjoin
-                        WHERE mcd.timemodified >= ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield'
-                          AND mcf.type IN ('textarea', 'text')
-                     GROUP BY mc.id
-                       ) cdata ON ccms.id = cdata.id
-                  JOIN {customfield_field} cmcf ON cmcf.id = cdata.fieldid
-                 UNION
-                SELECT mc.id, mc.course AS courseid, mc.typeid, null AS fieldname, null AS type,
-                       null AS dataid, null AS value, null AS valueformat,
-                       mc.timecreated timecreated, mc.timemodified timemodified
-                 FROM {cms} mc
-            LEFT JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
-                WHERE mcd.id IS NULL AND mc.timecreated >= ?
-             ORDER BY timemodified ASC";
-        return $DB->get_recordset_sql($sql, array_merge($contextparams, [$modifiedfrom, $modifiedfrom]));
-    }
-
-    /**
      * Returns the document associated with this data id.
      *
      * @param stdClass $record
@@ -99,7 +52,7 @@ class cmsfield extends \core_search\base_mod {
      */
     public function get_document($record, $options = []) {
         try {
-            $cm = $this->get_cm('cms', $record->id, $record->courseid);
+            $cm = $this->get_cm('cms', $record->id, $record->course);
             $context = \context_module::instance($cm->id);
         } catch (\dml_missing_record_exception $ex) {
             // Notify it as we run here as admin, we should see everything.
@@ -112,53 +65,18 @@ class cmsfield extends \core_search\base_mod {
             return false;
         }
 
-        $defaultvalues = $this->get_default_values();
-
-        // Check if it's default value or not.
-        if (empty($record->dataid)) {
-            $title = $defaultvalues[$record->typeid]->fieldname ?? '';
-            $value = $defaultvalues[$record->typeid]->value ?? '';
-            if (isset($defaultvalues[$record->typeid]->valueformat)) {
-                $valueformat = $defaultvalues[$record->typeid]->valueformat;
-            } else {
-                if ($record->type == 'textarea') {
-                    $valueformat = FORMAT_HTML;
-                } else {
-                    $valueformat = FORMAT_PLAIN;
-                }
-            }
-        } else {
-            $title = $record->fieldname;
-            $value = $record->value;
-            $valueformat = $record->valueformat;
-        }
-
-        // Add mustache template to value.
-        if (!empty($defaultvalues[$record->typeid]->mustache)) {
-            $cms = new cms($cm->instance);
-            $renderer = new renderer($cms);
-            ob_start();
-            try {
-                // Indexer uses "Empty" session, it may get an error from rendering.
-                $value .= $renderer->get_html();
-            } catch (\Exception $e) {
-                // Use template when an error occurs.
-                $value .= ' ' . $defaultvalues[$record->typeid]->mustache;
-            }
-            // Do not show any errors from rendering.
-            ob_end_clean();
-            if (empty($title)) {
-                $title = $defaultvalues[$record->typeid]->name;
-            }
-            $valueformat = FORMAT_HTML;
-        }
+        $cms = new cms($cm->instance);
+        $renderer = new renderer($cms);
+        $value = $renderer->get_html();
+        $title = $cms->get('name');
+        $valueformat = FORMAT_HTML;
 
         // Prepare associative array with data from DB.
         $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
         $doc->set('title', content_to_text($title, false));
         $doc->set('content', content_to_text($value, $valueformat));
         $doc->set('contextid', $context->id);
-        $doc->set('courseid', $record->courseid);
+        $doc->set('courseid', $record->course);
         $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
         $doc->set('modified', $record->timemodified);
 
@@ -169,54 +87,6 @@ class cmsfield extends \core_search\base_mod {
         }
 
         return $doc;
-    }
-
-    /**
-     * Get default value for cms custom field.
-     *
-     * @return array
-     */
-    protected function get_default_values() {
-        global $DB;
-        if (is_null($this->defaultvalues)) {
-            $defaultvalues = [];
-            $sql = "SELECT mcf.id fieldid, mct.id typeid, mcf.configdata, mcf.name fieldname
-                      FROM {cms_types} mct
-                      JOIN {customfield_category} mcc ON mcc.itemid = mct.id
-                      JOIN {customfield_field} mcf ON mcf.categoryid = mcc.id
-                     WHERE mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type IN ('textarea', 'text')
-                  ORDER BY mct.id, mcf.sortorder";
-            $cmstypes = $DB->get_records_sql($sql);
-            foreach ($cmstypes as $cmstype) {
-                if (empty($defaultvalues[$cmstype->typeid])) {
-                    $data = new \stdClass();
-                    $configdata = json_decode($cmstype->configdata);
-                    $data->value = $configdata->defaultvalue ?? 'Default value';
-                    $data->valueformat = $configdata->defaultvalueformat ?? 0;
-                    $data->fieldname = $cmstype->fieldname;
-                } else {
-                    $data = $defaultvalues[$cmstype->typeid];
-                    $configdata = json_decode($cmstype->configdata);
-                    $data->value .= ', ' . $configdata->defaultvalue;
-                }
-                $defaultvalues[$cmstype->typeid] = $data;
-            }
-
-            // Add mustache template for default value.
-            $sql = "SELECT mct.id, mct.name, mct.mustache
-                      FROM {cms_types} mct";
-            $mustaches = $DB->get_records_sql($sql);
-            foreach ($mustaches as $mustache) {
-                if (empty($defaultvalues[$mustache->id])) {
-                    $defaultvalues[$mustache->id] = new \stdClass();
-                }
-                $defaultvalues[$mustache->id]->name = $mustache->name;
-                $defaultvalues[$mustache->id]->mustache = $mustache->mustache;
-            }
-
-            $this->defaultvalues = $defaultvalues;
-        }
-        return $this->defaultvalues;
     }
 
     /**
