@@ -21,8 +21,6 @@ defined('MOODLE_INTERNAL') || die();
 use mod_cms\local\model\cms;
 use mod_cms\local\renderer;
 
-require_once($CFG->dirroot . '/mod/cms/lib.php');
-
 /**
  * Define search area.
  *
