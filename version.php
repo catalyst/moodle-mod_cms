@@ -25,7 +25,7 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024090300;
+$plugin->version = 2024090301;
 $plugin->requires = 2022112800; // Moodle 4.1 and above.
 $plugin->supported = [401, 401]; // Moodle 4.1.
 $plugin->component = 'mod_cms';
