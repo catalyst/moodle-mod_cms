@@ -31,17 +31,7 @@ require_once($CFG->dirroot . '/mod/cms/lib.php');
  * @copyright  2024 Catalyst IT
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cmsfield extends \core_search\base_activity {
-
-    /**
-     * @var array Internal quick static cache.
-     */
-    protected $cmsdata = [];
-
-    /**
-     * @var array Internal quick static cache.
-     */
-    protected $defaultvalues = null;
+class activity extends \core_search\base_activity {
 
     /**
      * Returns the document associated with this data id.
@@ -87,76 +77,6 @@ class cmsfield extends \core_search\base_activity {
         }
 
         return $doc;
-    }
-
-    /**
-     * Whether the user can access the document or not.
-     *
-     * @param int $id data id
-     * @return bool
-     */
-    public function check_access($id) {
-        try {
-            $data = $this->get_data($id);
-            $cminfo = $this->get_cm('cms', $data->id, $data->courseid);
-            $context = \context_module::instance($cminfo->id);
-        } catch (\dml_missing_record_exception $ex) {
-            return \core_search\manager::ACCESS_DELETED;
-        } catch (\dml_exception $ex) {
-            return \core_search\manager::ACCESS_DENIED;
-        }
-
-        // Recheck uservisible although it should have already been checked in core_search.
-        if ($cminfo->uservisible === false) {
-            return \core_search\manager::ACCESS_DENIED;
-        }
-
-        if (!has_capability('mod/cms:view', $context)) {
-            return \core_search\manager::ACCESS_DENIED;
-        }
-
-        return \core_search\manager::ACCESS_GRANTED;
-    }
-
-    /**
-     * Link to the cms.
-     *
-     * @param \core_search\document $doc
-     * @return \moodle_url
-     */
-    public function get_doc_url(\core_search\document $doc) {
-        $contextmodule = \context::instance_by_id($doc->get('contextid'));
-        $cm = get_coursemodule_from_id('cms', $contextmodule->instanceid, $doc->get('courseid'), true);
-        return new \moodle_url('/course/view.php', ['id' => $doc->get('courseid'), 'section' => $cm->sectionnum]);
-    }
-
-    /**
-     * Link to the cms.
-     *
-     * @param \core_search\document $doc
-     * @return \moodle_url
-     */
-    public function get_context_url(\core_search\document $doc) {
-        $contextmodule = \context::instance_by_id($doc->get('contextid'));
-        return new \moodle_url('/mod/cms/view.php', ['id' => $contextmodule->instanceid]);
-    }
-
-    /**
-     * Returns the specified data from its internal cache.
-     *
-     * @throws \dml_missing_record_exception
-     * @param int $id
-     * @return stdClass
-     */
-    protected function get_data($id) {
-        global $DB;
-        if (empty($this->cmsdata[$id])) {
-            $sql = "SELECT mc.id, mc.course AS courseid
-                      FROM {cms} mc
-                     WHERE mc.id = :id";
-            $this->cmsdata[$id] = $DB->get_record_sql($sql, ['id' => $id], MUST_EXIST);
-        }
-        return $this->cmsdata[$id];
     }
 
     /**
