@@ -43,7 +43,7 @@ require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
  * @author      Tomo Tsuyuki <tomotsuyuki@catalyst-au.com>
  * @copyright   2024 Catalyst IT
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
- * @coversDefaultClass \mod_cms\search\cmsfield
+ * @coversDefaultClass \mod_cms\search\activity
  */
 class search_test extends \advanced_testcase {
 
@@ -74,7 +74,7 @@ class search_test extends \advanced_testcase {
         $this->resetAfterTest();
         set_config('enableglobalsearch', true);
 
-        $this->cmsareaid = \core_search\manager::generate_areaid('mod_cms', 'cmsfield');
+        $this->cmsareaid = \core_search\manager::generate_areaid('mod_cms', 'activity');
 
         // Set \core_search::instance to the mock_search_engine as we don't require the search engine to be working to test this.
         $search = \testable_core_search::instance();
@@ -137,7 +137,7 @@ class search_test extends \advanced_testcase {
 
         // Returns the instance as long as the area is supported.
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
-        $this->assertInstanceOf('\mod_cms\search\cmsfield', $searcharea);
+        $this->assertInstanceOf('\mod_cms\search\activity', $searcharea);
 
         $course = self::getDataGenerator()->create_course();
         $overviews = [];
@@ -191,7 +191,7 @@ class search_test extends \advanced_testcase {
             $this->assertInstanceOf('stdClass', $record);
             $doc = $searcharea->get_document($record);
             $this->assertInstanceOf('\core_search\document', $doc);
-            $this->assertEquals('mod_cms-cmsfield-' . $record->id, $doc->get('id'));
+            $this->assertEquals('mod_cms-activity-' . $record->id, $doc->get('id'));
             $this->assertEquals($record->id, $doc->get('itemid'));
             $this->assertEquals($course->id, $doc->get('courseid'));
             $this->assertEquals($context->id, $doc->get('contextid'));
@@ -223,7 +223,7 @@ class search_test extends \advanced_testcase {
      */
     public function test_default_content(): void {
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
-        $this->assertInstanceOf('\mod_cms\search\cmsfield', $searcharea);
+        $this->assertInstanceOf('\mod_cms\search\activity', $searcharea);
 
         $course = self::getDataGenerator()->create_course();
 
@@ -275,7 +275,7 @@ class search_test extends \advanced_testcase {
 
         // Returns the instance as long as the area is supported.
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
-        $this->assertInstanceOf('\mod_cms\search\cmsfield', $searcharea);
+        $this->assertInstanceOf('\mod_cms\search\activity', $searcharea);
 
         $cmstype = new cms_types();
         $cmstype->set('name', 'Multiple content')
