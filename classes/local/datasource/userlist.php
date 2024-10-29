@@ -512,6 +512,7 @@ class userlist extends base_mod_cms {
      * @param \backup_nested_element $parent
      */
     public function instance_backup_define_structure(\backup_nested_element $parent) {
+        global $DB;
         $userlist = new \backup_nested_element('userlist');
         $parent->add_child($userlist);
 
@@ -521,7 +522,11 @@ class userlist extends base_mod_cms {
         $rows->add_child($row);
 
         $fields = new \backup_nested_element('userlistfields');
-        $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+        if ($DB->get_manager()->field_exists('customfield_data', 'valuetrust')) {
+            $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat', 'valuetrust']);
+        } else {
+            $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+        }
         $userlist->add_child($fields);
         $fields->add_child($field);
 
