@@ -245,8 +245,13 @@ class fields extends base_mod_cms {
      * @param \backup_nested_element $parent
      */
     public function instance_backup_define_structure(\backup_nested_element $parent) {
+        global $DB;
         $fields = new \backup_nested_element('fields');
-        $field = new \backup_nested_element('field', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+        if ($DB->get_manager()->field_exists('customfield_data', 'valuetrust')) {
+            $field = new \backup_nested_element('field', ['id'], ['shortname', 'type', 'value', 'valueformat', 'valuetrust']);
+        } else {
+            $field = new \backup_nested_element('field', ['id'], ['shortname', 'type', 'value', 'valueformat']);
+        }
 
         $parent->add_child($fields);
         $fields->add_child($field);

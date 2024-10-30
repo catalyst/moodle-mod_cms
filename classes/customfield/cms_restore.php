@@ -37,6 +37,7 @@ trait cms_restore {
      * @throws \moodle_exception
      */
     public function cms_restore_instance_data_from_backup(\restore_task $task, array $data, int $instanceid) {
+        global $DB;
         $context = $this->get_instance_context($instanceid);
         $editablefields = $this->get_editable_fields($instanceid);
         $records = api::get_instance_fields_data($editablefields, $instanceid);
@@ -51,6 +52,9 @@ trait cms_restore {
                     $d->set('value', $data['value']);
                     $d->set('valueformat', $data['valueformat']);
                     $d->set('contextid', $context->id);
+                    if ($DB->get_manager()->field_exists('customfield_data', 'valuetrust')) {
+                        $d->set('valuetrust', !empty($data['valuetrust']));
+                    }
                     $d->save();
                 }
                 return $d->get('id');
