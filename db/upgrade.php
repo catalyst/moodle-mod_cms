@@ -416,7 +416,7 @@ function xmldb_cms_upgrade($oldversion) {
     if ($oldversion < 2024090304) {
         // Update files belonging to mod_cms overview section content types to use the course module context id.
         // Update the pathnamehash as well, otherwise files will display as missing until the content is edited and saved.
-        // Records are effectively copied, the old records remain in case anything relies on them and they can be used to 
+        // Records are effectively copied, the old records remain in case anything relies on them and they can be used to
         // cross reference the new records if needed.
 
         $sql = "SELECT f.*, ctx.id as ctxid
