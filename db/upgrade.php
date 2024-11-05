@@ -422,8 +422,9 @@ function xmldb_cms_upgrade($oldversion) {
         $sql = "SELECT f.*, ctx.id as ctxid
                   FROM {files} f
                   JOIN {customfield_data} cfd ON cfd.id = f.itemid
-                  JOIN {customfield_field} cff ON cff.id = cfd.fieldid AND cff.shortname = 'overview'
+                  JOIN {customfield_field} cff ON cff.id = cfd.fieldid
                   JOIN {cms} cms ON cms.id = cfd.instanceid
+                  JOIN {cms_types} cmst ON cmst.id = cms.typeid AND cmst.datasources LIKE '%fields%'
                   JOIN {course_modules} cm ON cm.instance = cms.id
                   JOIN {modules} m ON m.id = cm.module AND m.name = 'cms'
                   JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulecontextlevel
