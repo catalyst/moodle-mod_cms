@@ -413,5 +413,13 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024090303, 'cms');
     }
 
+    if ($oldversion < 2024090304) {
+        // Run ad hoc task for updating contextid in the files table.
+        $task = \mod_cms\task\update_files_context::instance(null, false);
+        manager::queue_adhoc_task($task);
+
+        upgrade_mod_savepoint(true, 2024090304, 'cms');
+    }
+
     return true;
 }
