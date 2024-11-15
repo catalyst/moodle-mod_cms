@@ -426,11 +426,10 @@ function xmldb_cms_upgrade($oldversion) {
                   JOIN {cms} cms ON cms.id = cfd.instanceid
                   JOIN {course_modules} cm ON cm.instance = cms.id
                   JOIN {modules} m ON m.id = cm.module AND m.name = 'cms'
-                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = :modulecontextlevel
+                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = 70
                  WHERE f.contextid = 1 AND f.component = 'customfield_textarea' AND f.filearea = 'value'";
-        $params = ['modulecontextlevel' => CONTEXT_MODULE];
 
-        $records = $DB->get_recordset_sql($sql, $params);
+        $records = $DB->get_recordset_sql($sql);
         foreach ($records as $record) {
             // Update the record with the new context id and path name hash.
             $record->contextid = $record->ctxid;
