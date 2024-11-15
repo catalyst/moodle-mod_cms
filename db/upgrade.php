@@ -413,49 +413,5 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024090303, 'cms');
     }
 
-    if ($oldversion < 2024090304) {
-        // Update files belonging to mod_cms overview section content types to use the course module context id.
-        // Update the pathnamehash as well, otherwise files will display as missing until the content is edited and saved.
-        // Records are effectively copied, the old records remain in case anything relies on them and they can be used to 
-        // cross reference the new records if needed.
-
-        $sql = "SELECT f.*, ctx.id as ctxid
-                  FROM {files} f
-                  JOIN {customfield_data} cfd ON cfd.id = f.itemid
-                  JOIN {customfield_field} cff ON cff.id = cfd.fieldid AND cff.shortname = 'overview'
-                  JOIN {cms} cms ON cms.id = cfd.instanceid
-                  JOIN {course_modules} cm ON cm.instance = cms.id
-                  JOIN {modules} m ON m.id = cm.module AND m.name = 'cms'
-                  JOIN {context} ctx ON ctx.instanceid = cm.id AND ctx.contextlevel = 70
-                 WHERE f.contextid = 1 AND f.component = 'customfield_textarea' AND f.filearea = 'value'";
-
-        $records = $DB->get_recordset_sql($sql);
-        foreach ($records as $record) {
-            // Update the record with the new context id and path name hash.
-            $record->contextid = $record->ctxid;
-            $record->pathnamehash = file_storage::get_pathname_hash(
-                $record->contextid,
-                $record->component,
-                $record->filearea,
-                $record->itemid,
-                $record->filepath,
-                $record->filename
-            );
-
-            // Remove the record id and ctxid fields.
-            unset($record->ctxid);
-            unset($record->id);
-
-            // Create a new record.
-            try {
-                $DB->insert_record('files', $record);
-            } catch (moodle_exception $e) {
-                debugging('Failed to insert record into files table: ' . $e->getMessage(), DEBUG_DEVELOPER);
-            }
-        }
-
-        upgrade_mod_savepoint(true, 2024090304, 'cms');
-    }
-
     return true;
 }
