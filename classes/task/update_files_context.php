@@ -61,7 +61,9 @@ class update_files_context extends adhoc_task {
      * @return csv_export_writer The CSV export writer containing the results of the task.
      */
     private static function update_contexts(?int $courseid, bool $dryrun): csv_export_writer {
-        global $DB;
+        global $CFG, $DB;
+
+        require_once($CFG->libdir . '/csvlib.class.php');
 
         $sql = "SELECT f.*, ctx.id AS ctxid, cms.course AS courseid
                   FROM {files} f
