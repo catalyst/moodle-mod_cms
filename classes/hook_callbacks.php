@@ -32,6 +32,8 @@ class hook_callbacks {
      * @param \core\hook\after_config $hook
      */
     public static function after_config(\core\hook\after_config $hook): void {
-        // The original callback performs no operations, so we don't need to do anything here.
+        global $CFG;
+
+        require_once($CFG->dirroot . '/vendor/autoload.php');
     }
 }
