@@ -67,7 +67,7 @@ class renderer_test extends \advanced_testcase {
         foreach (dsbase::BUILTIN_DATASOURCES as $ds) {
             $classname = 'mod_cms\\local\\datasource\\' . $ds;
             $attribute = $classname::get_shortname();
-            $this->assertObjectHasAttribute($attribute, $data);
+            $this->assertTrue(property_exists($data, $attribute));
             $this->assertIsObject($data->$attribute);
         }
     }

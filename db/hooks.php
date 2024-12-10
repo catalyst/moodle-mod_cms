@@ -15,21 +15,19 @@
 // along with Moodle.  If not, see <http://www.gnu.org/licenses/>.
 
 /**
- * Version information for the cms plugin.
+ * Hook callbacks.
  *
  * @package     mod_cms
- * @author      Marcus Boon<marcus@catalyst-au.net>
- * @copyright   Catalyst IT
- * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
+ * @author      Alexander Van der Bellen <alexandervanderbellen@catalyst-au.net>
+ * @copyright   2024 Catalyst IT Australia
+ * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2024090306;
-$plugin->requires = 2022112800; // Moodle 4.1 and above.
-$plugin->supported = [401, 405]; // Moodle 4.1.
-$plugin->component = 'mod_cms';
-$plugin->maturity = MATURITY_STABLE;
-$plugin->release = 2023051800;
-
-$plugin->dependencies = [];
+$callbacks = [
+    [
+        'hook' => \core\hook\after_config::class,
+        'callback' => '\mod_cms\hook_callbacks::after_config',
+    ],
+];

@@ -62,9 +62,10 @@ class datasource_site_test extends \advanced_testcase {
         $ds = new dssite($cms);
         $data = $ds->get_data();
 
-        $this->assertObjectHasAttribute('fullname', $data);
-        $this->assertObjectHasAttribute('shortname', $data);
-        $this->assertObjectHasAttribute('wwwroot', $data);
+        // Some versions of PHPUnit do not have assertObjectHasProperty(), and assertObjectHasAttribute() is deprecated.
+        $this->assertTrue(property_exists($data, 'fullname'));
+        $this->assertTrue(property_exists($data, 'shortname'));
+        $this->assertTrue(property_exists($data, 'wwwroot'));
     }
 
     /**

@@ -32,6 +32,9 @@ class fields {
     /** @var \restore_cms_activity_structure_step The stepslib controlling this process. */
     protected $stepslib;
 
+    /** @var array Components array */
+    protected $components = [];
+
     /**
      * Constructs the processor.
      *
