@@ -105,18 +105,18 @@ class activity extends \core_search\base_activity {
     public function attach_files($document) {
         global $DB;
 
-        $fileareas = $this->get_search_fileareas();
         // File is in "customfield_file" for component, "value" for filearea, and for customfield data id for itemid.
-        $contextid = \context_system::instance()->id;
+        $fileareas = $this->get_search_fileareas();
         $component = 'customfield_file';
         $cmsid = $document->get('itemid');
 
         // Search customfield data from cms record.
-        $sql = "SELECT mcd.id
+        $sql = "SELECT mcd.id, mcd.contextid
                   FROM {cms} mc
                   JOIN {customfield_data} mcd ON mc.id = mcd.instanceid
                   JOIN {customfield_field} mcf ON mcf.id = mcd.fieldid
                   JOIN {customfield_category} mcc ON mcf.categoryid = mcc.id
+                  JOIN {context} c ON c.id =  mcd.contextid
                  WHERE mc.id = ? AND mcc.component = 'mod_cms' AND mcc.area = 'cmsfield' AND mcf.type = 'file'";
         $param = [$cmsid];
         $filedata = $DB->get_records_sql($sql, $param);
@@ -124,7 +124,7 @@ class activity extends \core_search\base_activity {
         foreach ($fileareas as $filearea) {
             foreach ($filedata as $data) {
                 $fs = get_file_storage();
-                $files = $fs->get_area_files($contextid, $component, $filearea, $data->id, '', false);
+                $files = $fs->get_area_files($data->contextid, $component, $filearea, $data->id, '', false);
 
                 foreach ($files as $file) {
                     $document->add_stored_file($file);
