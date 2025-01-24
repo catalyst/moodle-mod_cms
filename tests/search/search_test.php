@@ -384,4 +384,38 @@ class search_test extends \advanced_testcase {
         $this->setUser($user2);
         $this->assertEquals(\core_search\manager::ACCESS_DENIED, $searcharea->check_access($cms->id));
     }
+
+    /**
+     * Test getting document catches errors.
+     *
+     * @return void
+     * @covers ::get_document
+     */
+    public function test_getting_document_catch_errors(): void {
+        global $DB;
+
+        $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
+        $course = self::getDataGenerator()->create_course();
+
+        $generator = self::getDataGenerator()->get_plugin_generator('mod_cms');
+        $record = new \stdClass();
+        $record->course = $course->id;
+        $record->customfield_overview = 'Test overview text 1';
+        $record->typeid = $this->cmstype->get('id');
+        $cms = $generator->create_instance_with_data($record);
+
+        // Let's break cms record so getting a document would throw an exception.
+        $cms->typeid = 8888;
+        $DB->update_record('cms', $cms);
+
+        // Test that an exception is not thrown, but debugging is triggered instead.
+        $this->assertEmpty($searcharea->get_document($cms));
+        $debuggingmessages = $this->getDebuggingMessages();
+        $this->assertDebuggingCalled();
+
+        $this->assertStringContainsString(
+            'Error getting mod_cms document for global search. cmid: ' . $cms->cmid . '  courseid: '. $course->id,
+            reset($debuggingmessages)->message
+        );
+    }
 }

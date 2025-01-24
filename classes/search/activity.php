@@ -53,28 +53,40 @@ class activity extends \core_search\base_activity {
             return false;
         }
 
-        $cms = new cms($cm->instance);
-        $renderer = new renderer($cms);
-        $value = $renderer->get_html();
-        $title = $cms->get('name');
-        $valueformat = FORMAT_HTML;
+        // As mod_cms is a complicated activity that may use data from different modules dynamically,
+        // there are many moving parts that potentially can break and throw errors/exception while doing global search indexing.
+        // We would like to prevent that if possible.
+        try {
+            $cms = new cms($cm->instance);
+            $renderer = new renderer($cms);
+            $value = $renderer->get_html();
+            $title = $cms->get('name');
+            $valueformat = FORMAT_HTML;
 
-        // Prepare associative array with data from DB.
-        $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
-        $doc->set('title', content_to_text($title, false));
-        $doc->set('content', content_to_text($value, $valueformat));
-        $doc->set('contextid', $context->id);
-        $doc->set('courseid', $record->course);
-        $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
-        $doc->set('modified', $record->timemodified);
+            // Prepare associative array with data from DB.
+            $doc = \core_search\document_factory::instance($record->id, $this->componentname, $this->areaname);
+            $doc->set('title', content_to_text($title, false));
+            $doc->set('content', content_to_text($value, $valueformat));
+            $doc->set('contextid', $context->id);
+            $doc->set('courseid', $record->course);
+            $doc->set('owneruserid', \core_search\manager::NO_OWNER_ID);
+            $doc->set('modified', $record->timemodified);
 
-        // Check if this document should be considered new.
-        if (isset($options['lastindexedtime']) && ($options['lastindexedtime'] < $record->timecreated)) {
-            // If the document was created after the last index time, it must be new.
-            $doc->set_is_new(true);
+            // Check if this document should be considered new.
+            if (isset($options['lastindexedtime']) && ($options['lastindexedtime'] < $record->timecreated)) {
+                // If the document was created after the last index time, it must be new.
+                $doc->set_is_new(true);
+            }
+
+            return $doc;
+
+        } catch (\Throwable $ex) {
+            debugging('Error getting mod_cms document for global search.'
+                . ' cmid: ' . $cm->id . ' '  . ' courseid: ' . $cm->course . ' '
+                . $ex->getMessage(), DEBUG_DEVELOPER);
+
+            return  false;
         }
-
-        return $doc;
     }
 
     /**
