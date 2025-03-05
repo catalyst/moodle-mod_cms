@@ -34,6 +34,6 @@ class hook_callbacks {
     public static function after_config(\core\hook\after_config $hook): void {
         global $CFG;
 
-        require_once($CFG->dirroot . '/vendor/autoload.php');
+        require_once($CFG->dirroot . '/mod/cms/vendor/autoload.php');
     }
 }
