@@ -312,22 +312,24 @@ class userlist extends base_mod_cms {
 
         $repeathiddenname = self::FORM_REPEATHIDDENNAME;
         $defs = [];
-        for ($i = 0; $i < $data->$repeathiddenname; ++$i) {
-            if (isset($deletehidden[$i])) {
-                continue;
-            }
-            $obj = new \stdClass();
-            $defs[$i] = $obj;
-        }
-
-        foreach ($columndefs as $columndef) {
-            $names = $this->get_element_names($columndef);
-            $formname = $names->ulelementname;
-            foreach ($data->$formname as $i => $val) {
+        if (isset($data->$repeathiddenname)) {
+            for ($i = 0; $i < $data->$repeathiddenname; ++$i) {
                 if (isset($deletehidden[$i])) {
                     continue;
                 }
-                $defs[$i]->$formname = $val;
+                $obj = new \stdClass();
+                $defs[$i] = $obj;
+            }
+
+            foreach ($columndefs as $columndef) {
+                $names = $this->get_element_names($columndef);
+                $formname = $names->ulelementname;
+                foreach ($data->$formname as $i => $val) {
+                    if (isset($deletehidden[$i])) {
+                        continue;
+                    }
+                    $defs[$i]->$formname = $val;
+                }
             }
         }
 
