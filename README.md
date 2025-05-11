@@ -34,6 +34,22 @@ Then run the Moodle upgrade as normal.
 
 https://docs.moodle.org/en/Installing_plugins
 
+Step 2: Create a new content type
+-----------------------------------
+
+Visit Admin > Plugins > CMS > Manage content types and create a new type. Each type has data
+sources which can add which provide various data to your template, for example the
+'Custom fields' data type will let you define custom fields which are editable in module
+settings page and those fields will be availanle for use in your template. The 'Roles list'
+source will provide a dynamic list of anyone who has a specified role in the course, eg
+you could display a list of all the course teachers and tutors, and what role they have.
+
+Once you have defined the data source then you configure a mustache template to display that data
+on the course page. To see the raw data the `{{{debug}}}` mustache variable shows you the complete
+copy of the templates input context. You can see a basic preview however it is likely easier
+to go and create a new instance of your content type in a course. Turn on editing mode, add a
+new activty, and you should see your new content type in the chooser.
+
 ## Data sources
 
 Extra detail can be added to CMSs and CMS types via data sources. Within your plugin, add classes that derive from
