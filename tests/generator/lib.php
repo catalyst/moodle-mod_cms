@@ -32,6 +32,9 @@ class mod_cms_generator extends testing_module_generator {
     /** @var int */
     protected $cmstypecount = 0;
 
+    /** @var array $userlistcategories */
+    private $userlistcategories;
+
     /**
      * Create new cms module instance
      *
