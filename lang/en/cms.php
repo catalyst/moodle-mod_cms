@@ -26,36 +26,36 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addnewtype'] = 'Add new content type';
-$string['chooser:show'] = 'Show in activity chooser';
 $string['chooser:hide'] = 'Hide in activity chooser';
+$string['chooser:show'] = 'Show in activity chooser';
+$string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
+$string['datasources'] = 'Datasources';
+$string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
+ or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
+ this list.';
 $string['editcontenttype'] = 'Edit content type';
 $string['export'] = 'Export';
-$string['import'] = 'Import';
 $string['idnumber'] = 'ID number';
-$string['idnumber_help'] = 'An identifier to uniquely label this CMS type. This will be used in backup and restoring. It must be unique within the system, and ideally, unique universally.';
 $string['idnumber_exists'] = 'Id number \'{$a}\' already exists in the system.';
+$string['idnumber_help'] = 'An identifier to uniquely label this CMS type. This will be used in backup and restoring. It must be unique within the system, and ideally, unique universally.';
+$string['import'] = 'Import';
+$string['import_cms_type'] = 'Import content type';
+$string['import_file'] = 'Import file';
+$string['manage_types_return'] = 'Return to manage types';
 $string['managetypes'] = 'Manage content types';
 $string['maxgrade'] = 'Default max grade';
 $string['maxgrade_desc'] = 'The default max grade when creating a new custom content type instance.';
 $string['modulename'] = 'CMS';
 $string['modulenameplural'] = 'CMS';
 $string['newcontenttype'] = 'Add new content type';
+$string['pluginadministration'] = 'Plugin administration';
 $string['pluginname'] = 'CMS';
+$string['preview_with_hint'] = 'Preview (click "{$a}" to update)';
+$string['sample_value'] = 'Sample value';
 $string['settings'] = 'Custom content type settings';
+$string['some_name'] = 'Some name';
 $string['table:name'] = 'Custom content type';
 $string['table:numinstances'] = 'Number of instances';
-$string['pluginadministration'] = 'Plugin administration';
-$string['preview_with_hint'] = 'Preview (click "{$a}" to update)';
-$string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
-$string['manage_types_return'] = 'Return to manage types';
-$string['sample_value'] = 'Sample value';
-$string['some_name'] = 'Some name';
-$string['import_file'] = 'Import file';
-$string['import_cms_type'] = 'Import content type';
-$string['datasources'] = 'Datasources';
-$string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
- or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
- this list.';
 $string['visibility_updated'] = 'Visibility updated';
 
 // Cache defs.

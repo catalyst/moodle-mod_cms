@@ -31,7 +31,7 @@ require_once(__DIR__ . '/fixtures/test_import1_trait.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cms_types_test extends \advanced_testcase {
+final class cms_types_test extends \advanced_testcase {
     /** Test data for import/export. */
     public const IMPORT_DATAFILE = __DIR__ . '/fixtures/type_data.json';
 
@@ -54,7 +54,7 @@ class cms_types_test extends \advanced_testcase {
      * @param string $mustache
      * @param bool $valid
      */
-    public function test_mustache_validity(string $field, string $mustache, bool $valid) {
+    public function test_mustache_validity(string $field, string $mustache, bool $valid): void {
         $cmstype = new cms_types();
         $cmstype->set($field, $mustache);
 
@@ -71,7 +71,7 @@ class cms_types_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function mustache_validity_datasource(): array {
+    public static function mustache_validity_datasource(): array {
         return [
             ['title_mustache', 'test', true],
             ['title_mustache', '{{test}}', true],
@@ -92,7 +92,7 @@ class cms_types_test extends \advanced_testcase {
      * @param string|null $idnumber
      * @param bool $valid
      */
-    public function test_idnumber(?string $idnumber, bool $valid) {
+    public function test_idnumber(?string $idnumber, bool $valid): void {
 
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
@@ -115,7 +115,7 @@ class cms_types_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function idnumber_validity_datasource(): array {
+    public static function idnumber_validity_datasource(): array {
         return [
             [null, false],
             ['', false],
@@ -133,7 +133,7 @@ class cms_types_test extends \advanced_testcase {
      * @covers \mod_cms\local\model\cms_types::get_cache_key
      * @covers \mod_cms\local\model\cms_types::get_icon_metadata
      */
-    public function test_import() {
+    public function test_import(): void {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
         $cmstype = new cms_types();
         $cmstype->set_from_import($importdata);

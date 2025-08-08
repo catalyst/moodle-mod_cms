@@ -28,6 +28,8 @@ use mod_cms\local\datasource\userlist;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 trait test_import1_trait {
+
+    /** @var string Import file. */
     public $importfile = __DIR__ . '/test_import_1.yml';
 
     /**

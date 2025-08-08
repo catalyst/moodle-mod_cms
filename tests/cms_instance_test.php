@@ -31,7 +31,7 @@ require_once( __DIR__ . '/fixtures/test_import1_trait.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class cms_instance_test  extends \advanced_testcase {
+final class cms_instance_test  extends \advanced_testcase {
     use test_import1_trait;
 
     /**
@@ -49,7 +49,7 @@ class cms_instance_test  extends \advanced_testcase {
      * @covers \mod_cms\local\lib::add_instance
      * @throws \coding_exception
      */
-    public function test_add_instance() {
+    public function test_add_instance(): void {
         $cmstype = $this->import();
 
         // Create a course.
@@ -80,7 +80,7 @@ class cms_instance_test  extends \advanced_testcase {
      * @covers \mod_cms\local\lib::add_instance
      * @throws \coding_exception
      */
-    public function test_update_instance() {
+    public function test_update_instance(): void {
         $cmstype = $this->import();
 
         // Create a course.
@@ -113,7 +113,7 @@ class cms_instance_test  extends \advanced_testcase {
      *
      * @covers \mod_cms\local\lib::delete_instance
      */
-    public function test_delete_instance() {
+    public function test_delete_instance(): void {
         $cmstype = $this->import();
 
         // Create a course.

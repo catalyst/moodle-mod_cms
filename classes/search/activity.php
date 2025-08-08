@@ -16,8 +16,6 @@
 
 namespace mod_cms\search;
 
-defined('MOODLE_INTERNAL') || die();
-
 use mod_cms\local\model\cms;
 use mod_cms\local\renderer;
 

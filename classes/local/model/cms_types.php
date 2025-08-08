@@ -68,23 +68,23 @@ class cms_types extends persistent {
             ],
             'description' => [
                 'type' => PARAM_RAW,
-                'default' => ''
+                'default' => '',
             ],
             'descriptionformat' => [
                 'type' => PARAM_INT,
-                'default' => 1
+                'default' => 1,
             ],
             'title_mustache' => [
                 'type' => PARAM_TEXT,
-                'default' => ''
+                'default' => '',
             ],
             'mustache' => [
                 'type' => PARAM_RAW,
-                'default' => '{{{debug}}}'
+                'default' => '{{{debug}}}',
             ],
             'datasources' => [
                 'type' => PARAM_TEXT,
-                'default' => ''
+                'default' => '',
             ],
             'customdata' => [
                 'type' => PARAM_TEXT,

@@ -27,7 +27,7 @@ use mod_cms\local\model\cms_types;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datasource_base_test extends \advanced_testcase {
+final class datasource_base_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -43,7 +43,7 @@ class datasource_base_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\base::register_datasources
      * @covers \mod_cms\local\datasource\base::add_datasource_class
      */
-    public function test_get_datasources() {
+    public function test_get_datasources(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
         $cmstype->set('idnumber', 'test-name');
@@ -71,7 +71,7 @@ class datasource_base_test extends \advanced_testcase {
      * @param string $classname
      * @param string $errormessage
      */
-    public function test_add_datasource_class_errors(string $classname, string $errormessage) {
+    public function test_add_datasource_class_errors(string $classname, string $errormessage): void {
         // Make sure the datasources are there.
         dsbase::register_datasources();
 
@@ -87,7 +87,7 @@ class datasource_base_test extends \advanced_testcase {
      *
      * @return array[]
      */
-    public function add_datasource_class_provider() {
+    public static function add_datasource_class_provider(): array {
         return [
             ['not_a_namespace\\not_a_class', get_string('error:class_missing', 'mod_cms', 'not_a_namespace\\not_a_class')],
             ['mod_cms\\local\\lib', get_string('error:must_be_base', 'mod_cms', 'mod_cms\\local\\lib')],

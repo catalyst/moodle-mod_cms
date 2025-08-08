@@ -45,7 +45,7 @@ require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  * @coversDefaultClass \mod_cms\search\activity
  */
-class search_test extends \advanced_testcase {
+final class search_test extends \advanced_testcase {
 
     /**
      * @var string Area id
@@ -71,6 +71,7 @@ class search_test extends \advanced_testcase {
      * Set up.
      */
     public function setUp(): void {
+        parent::setUp();
         $this->resetAfterTest();
         set_config('enableglobalsearch', true);
 

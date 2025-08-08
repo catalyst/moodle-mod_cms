@@ -34,7 +34,7 @@ require_once(__DIR__ . '/fixtures/null_datasource.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class nullcache_test extends \advanced_testcase {
+final class nullcache_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -50,7 +50,7 @@ class nullcache_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\traits\nullcache::get_instance_cache_key
      * @covers \mod_cms\local\datasource\traits\nullcache::get_full_cache_key
      */
-    public function test_nullcache() {
+    public function test_nullcache(): void {
         $labels = dsbase::get_datasource_labels(false);
         if (!array_key_exists(dsnull::get_shortname(), $labels)) {
             dsbase::add_datasource_class('\mod_cms\null_datasource');

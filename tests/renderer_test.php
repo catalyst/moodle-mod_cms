@@ -34,7 +34,7 @@ require_once(__DIR__ . '/fixtures/null_datasource.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class renderer_test extends \advanced_testcase {
+final class renderer_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -48,7 +48,7 @@ class renderer_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\renderer::get_data
      */
-    public function test_get_data() {
+    public function test_get_data(): void {
         $manager = new manage_content_types();
         $cmstype = $manager->create((object) [
             'name' => 'somename',
@@ -77,7 +77,7 @@ class renderer_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\renderer::get_html
      */
-    public function test_get_html() {
+    public function test_get_html(): void {
         global $SITE;
 
         $template = '<p>{{site.fullname}}</p>';
@@ -110,7 +110,7 @@ class renderer_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\renderer::get_html
      */
-    public function test_null_key() {
+    public function test_null_key(): void {
         global $SITE;
 
         $labels = dsbase::get_datasource_labels(false);

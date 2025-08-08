@@ -343,7 +343,7 @@ class roles extends base_mod_cms {
         $cmstype = $this->cms->get_type();
         $config = $cmstype->get_custom_data('roles_config');
         $source = is_null($config) ? [] : [
-            ['list' => implode(',', $config->list), 'duplicates' => $config->duplicates]
+            ['list' => implode(',', $config->list), 'duplicates' => $config->duplicates],
         ];
         $roles->set_source_array($source);
     }

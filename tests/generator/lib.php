@@ -38,11 +38,11 @@ class mod_cms_generator extends testing_module_generator {
     /**
      * Create new cms module instance
      *
-     * @param array|stdClass $record
-     * @param array $options
+     * @param array|stdClass|null $record
+     * @param array|null $options
      * @return stdClass
      */
-    public function create_instance($record = null, array $options = null) {
+    public function create_instance($record = null, ?array $options = null) {
         $record = (object) (array) $record;
 
         // Simple setup to pass core_calendar\container_test::test_delete_module_delete_events.

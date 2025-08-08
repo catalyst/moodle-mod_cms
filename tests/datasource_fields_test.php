@@ -36,7 +36,7 @@ require_once(__DIR__ . '/fixtures/test_import1_trait.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datasource_fields_test extends \advanced_testcase {
+final class datasource_fields_test extends \advanced_testcase {
     use test_import1_trait;
 
     /** Test data for import/export. */
@@ -66,7 +66,7 @@ class datasource_fields_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\fields::get_shortname
      */
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals('fields', dsfields::get_shortname());
     }
 
@@ -76,7 +76,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::get_config_cache_key
      * @covers \mod_cms\local\datasource\fields::get_instance_cache_key
      */
-    public function test_no_hash() {
+    public function test_no_hash(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
@@ -103,7 +103,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::get_for_export
      * @param string $importfile
      */
-    public function test_import(string $importfile) {
+    public function test_import(string $importfile): void {
         $importdata = json_decode(file_get_contents($importfile));
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
@@ -125,7 +125,7 @@ class datasource_fields_test extends \advanced_testcase {
      *
      * @return \string[][]
      */
-    public function import_dataprovider(): array {
+    public static function import_dataprovider(): array {
         return [
             [ self::IMPORT_DATAFILE ],
         ];
@@ -136,7 +136,7 @@ class datasource_fields_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\fields::set_from_import
      */
-    public function test_unsupported_field() {
+    public function test_unsupported_field(): void {
         $importdata = json_decode(file_get_contents(self::UNSUPPORTED_FIELD_DATAFILE));
 
         $cmstype = new cms_types();
@@ -186,7 +186,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::update_config_cache_key
      * @covers \mod_cms\customfield\cmsfield_handler::clear_configuration_cache
      */
-    public function test_config_cache_key() {
+    public function test_config_cache_key(): void {
 
         $manager = new manage_content_types();
         $cmstype = $manager->create((object) [
@@ -242,7 +242,7 @@ class datasource_fields_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\fields::config_on_delete
      */
-    public function test_config_delete() {
+    public function test_config_delete(): void {
         global $DB;
 
         $cmstype = $this->import();
@@ -272,7 +272,7 @@ class datasource_fields_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\fields::instance_on_delete
      */
-    public function test_instance_delete() {
+    public function test_instance_delete(): void {
         global $DB;
 
         $cmstype = $this->import();
@@ -301,7 +301,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::get_full_cache_key
      * @covers \mod_cms\local\datasource\fields::update_instance
      */
-    public function  test_cache() {
+    public function test_cache(): void {
         $cmstype = $this->import();
         $course = $this->create_course();
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
@@ -327,7 +327,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::instance_backup_define_structure
      * @covers \mod_cms\local\datasource\fields::restore_define_structure
      */
-    public function test_duplicate() {
+    public function test_duplicate(): void {
         $cmstype = $this->import();
         $course = $this->create_course();
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
@@ -352,7 +352,7 @@ class datasource_fields_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\fields::instance_backup_define_structure
      * @covers \mod_cms\local\datasource\fields::restore_define_structure
      */
-    public function test_file_backup_and_restore() {
+    public function test_file_backup_and_restore(): void {
         if (!method_exists('\core_customfield\handler', 'backup_define_structure')) {
             $this->markTestSkipped('Only test if backup and restore is supported for embedded files.');
         }
@@ -365,7 +365,7 @@ class datasource_fields_test extends \advanced_testcase {
         $cffield = $this->get_generator()->create_datasource_fields_field([
             'categoryid' => $category->get('id'),
             'shortname' => 'field1',
-            'type' => 'textarea'
+            'type' => 'textarea',
         ]);
 
         $fs = get_file_storage();
@@ -398,7 +398,7 @@ class datasource_fields_test extends \advanced_testcase {
                 'text' => 'Here is a file: @@PLUGINFILE@@/' . $filename . ' AND ' . $url->out(),
                 'format' => FORMAT_HTML,
                 'itemid' => $fileid,
-            ]
+            ],
         ];
 
         $module = create_module((object) $instancedata);
