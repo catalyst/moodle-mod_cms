@@ -28,7 +28,7 @@ use mod_cms\local\model\cms_types;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class get_course_content_items_test extends \advanced_testcase {
+final class get_course_content_items_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -69,7 +69,7 @@ class get_course_content_items_test extends \advanced_testcase {
      * Tests the lib::get_course_content_items function
      * @covers \mod_cms\local\lib::get_course_content_items
      */
-    public function test_get_course_content_items() {
+    public function test_get_course_content_items(): void {
         global $COURSE;
 
         $types = [

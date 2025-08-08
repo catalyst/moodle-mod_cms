@@ -26,113 +26,89 @@
 defined('MOODLE_INTERNAL') || die();
 
 $string['addnewtype'] = 'Add new content type';
-$string['chooser:show'] = 'Show in activity chooser';
-$string['chooser:hide'] = 'Hide in activity chooser';
-$string['editcontenttype'] = 'Edit content type';
-$string['export'] = 'Export';
-$string['import'] = 'Import';
-$string['idnumber'] = 'ID number';
-$string['idnumber_help'] = 'An identifier to uniquely label this CMS type. This will be used in backup and restoring. It must be unique within the system, and ideally, unique universally.';
-$string['idnumber_exists'] = 'Id number \'{$a}\' already exists in the system.';
-$string['managetypes'] = 'Manage content types';
-$string['maxgrade'] = 'Default max grade';
-$string['maxgrade_desc'] = 'The default max grade when creating a new custom content type instance.';
-$string['modulename'] = 'CMS';
-$string['modulenameplural'] = 'CMS';
-$string['newcontenttype'] = 'Add new content type';
-$string['pluginname'] = 'CMS';
-$string['settings'] = 'Custom content type settings';
-$string['table:name'] = 'Custom content type';
-$string['table:numinstances'] = 'Number of instances';
-$string['pluginadministration'] = 'Plugin administration';
-$string['preview_with_hint'] = 'Preview (click "{$a}" to update)';
-$string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
-$string['manage_types_return'] = 'Return to manage types';
-$string['sample_value'] = 'Sample value';
-$string['some_name'] = 'Some name';
-$string['import_file'] = 'Import file';
-$string['import_cms_type'] = 'Import content type';
-$string['datasources'] = 'Datasources';
-$string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
- or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
- this list.';
-$string['visibility_updated'] = 'Visibility updated';
-
-// Cache defs.
 $string['cachedef_cms_content'] = 'CMS content';
 $string['cachedef_cms_content_fields'] = 'CMS fields datasource';
 $string['cachedef_cms_content_images'] = 'CMS images datasource';
 $string['cachedef_cms_content_roles'] = 'CMS roles datasource';
 $string['cachedef_cms_content_userlist'] = 'CMS userlist datasource';
 $string['cachedef_cms_name'] = 'CMS name';
-
-// Template form section.
+$string['chooser:hide'] = 'Hide in activity chooser';
+$string['chooser:show'] = 'Show in activity chooser';
+$string['cms:addinstance'] = 'Add a new custom content instance';
+$string['cms:seeall'] = 'Can see hidden CMS types in the activity chooser';
+$string['cms:view'] = 'View a new custom content instance';
+$string['cms_type:icon_desc'] = 'This icon will be displayed in the activity chooser menu.';
+$string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
+$string['datasources'] = 'Datasources';
+$string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
+ or editable at the instance level, or be called upon to provide data. Some datasources are always included and do not appear in
+ this list.';
+$string['editcontenttype'] = 'Edit content type';
+$string['error:cant_delete_content_type'] = 'Cannot delete content type.';
+$string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
+$string['error:invalid'] = 'Invalid: {$a}';
+$string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
+$string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
+$string['error:no_config_hash'] = 'Module {$a} has no config hash.';
+$string['error:no_file_uploaded'] = 'No file uploaded';
+$string['error:no_instance_hash'] = 'Module {$a} has no instance hash.';
+$string['event:cms_type_created'] = 'Custom content type created';
+$string['event:cms_type_deleted'] = 'Custom content type deleted';
+$string['event:cms_type_updated'] = 'Custom content type updated';
+$string['event_cms_type_created_desc'] = 'The user with ID: {$a->userid} has created a custom content type with ID: {$a->typeid}';
+$string['event_cms_type_deleted_desc'] = 'The user with ID: {$a->userid} has deleted a custom content type with ID: {$a->typeid}';
+$string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has updated a custom content type with ID: {$a->typeid}';
+$string['export'] = 'Export';
+$string['fields:config:columns'] = 'Fields and categories';
+$string['fields:config:header'] = 'Custom field settings';
+$string['fields:custom_fields'] = 'Custom fields';
+$string['fields:sample_text'] = 'text';
+$string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
+$string['idnumber'] = 'ID number';
+$string['idnumber_exists'] = 'Id number \'{$a}\' already exists in the system.';
+$string['idnumber_help'] = 'An identifier to uniquely label this CMS type. This will be used in backup and restoring. It must be unique within the system, and ideally, unique universally.';
+$string['images:config:header'] = 'Images settings';
+$string['images:images'] = 'Images';
+$string['import'] = 'Import';
+$string['import_cms_type'] = 'Import content type';
+$string['import_file'] = 'Import file';
 $string['instance:header'] = 'Activity fields';
 $string['instance:name'] = 'Name';
+$string['manage_types_return'] = 'Return to manage types';
+$string['managetypes'] = 'Manage content types';
+$string['maxgrade'] = 'Default max grade';
+$string['maxgrade_desc'] = 'The default max grade when creating a new custom content type instance.';
+$string['modulename'] = 'CMS';
+$string['modulenameplural'] = 'CMS';
 $string['mustache'] = 'Content';
 $string['mustache_help'] = 'The two fields above will form the content displayed in the activity. They both will need to be valid {$a}. Variables that are available for use in these templates are given below.';
 $string['mustache_template'] = 'mustache templates';
-$string['cms_type:icon_desc'] = 'This icon will be displayed in the activity chooser menu.';
-
-// Event strings.
-$string['event:cms_type_created'] = 'Custom content type created';
-$string['event_cms_type_created_desc'] = 'The user with ID: {$a->userid} has created a custom content type with ID: {$a->typeid}';
-$string['event:cms_type_deleted'] = 'Custom content type deleted';
-$string['event_cms_type_deleted_desc'] = 'The user with ID: {$a->userid} has deleted a custom content type with ID: {$a->typeid}';
-$string['event:cms_type_updated'] = 'Custom content type updated';
-$string['event_cms_type_updated_desc'] = 'The user with ID: {$a->userid} has updated a custom content type with ID: {$a->typeid}';
-
-// Capability strings.
-$string['cms:addinstance'] = 'Add a new custom content instance';
-$string['cms:view'] = 'View a new custom content instance';
-$string['cms:seeall'] = 'Can see hidden CMS types in the activity chooser';
-
-// Privacy strings.
+$string['newcontenttype'] = 'Add new content type';
+$string['pluginadministration'] = 'Plugin administration';
+$string['pluginname'] = 'CMS';
+$string['preview_with_hint'] = 'Preview (click "{$a}" to update)';
 $string['privacy:metadata:cms'] = 'Custom content type instances';
 $string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
 $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
-
-// Error strings.
-$string['error:class_missing'] = 'Datasource class \'{$a}\' does not exist.';
-$string['error:must_be_base'] = 'Datasource class \'($a}\' must inherit from mod_cms\\datasource\\base.';
-$string['error:name_not_unique'] = 'Datasource class shortname \'($a}\' must be unique.';
-$string['error:no_file_uploaded'] = 'No file uploaded';
-$string['error:cant_delete_content_type'] = 'Cannot delete content type.';
-$string['error:invalid'] = 'Invalid: {$a}';
-$string['error:no_instance_hash'] = 'Module {$a} has no instance hash.';
-$string['error:no_config_hash'] = 'Module {$a} has no config hash.';
-
-// Search strings.
+$string['roles:config:duplicates'] = 'Duplicates';
+$string['roles:config:duplicates:all'] = 'Show in all';
+$string['roles:config:duplicates:firstonly'] = 'Show in first';
+$string['roles:config:duplicates:nest'] = 'Show in first with roles';
+$string['roles:config:header'] = 'Role list settings';
+$string['roles:config:list'] = 'Roles included';
+$string['roles:displayname'] = 'Roles list';
+$string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';
+$string['sample_value'] = 'Sample value';
 $string['search:activity'] = 'CMS - activity information';
-
-// Site datasource strings.
+$string['settings'] = 'Custom content type settings';
 $string['site:displayname'] = 'Site Info';
-
-// Image datasource strings.
-$string['images:config:header'] = 'Images settings';
-$string['images:images'] = 'Images';
-
-// Custom field datasource strings.
-$string['fields:custom_fields'] = 'Custom fields';
-$string['fields:config:columns'] = 'Fields and categories';
-$string['fields:config:header'] = 'Custom field settings';
-$string['fields:sample_text'] = 'text';
-$string['fields:sample_time'] = 'Thursday, 15 June 2023, 12:00 AM';
-
-// User list datasource strings.
+$string['some_name'] = 'Some name';
+$string['table:name'] = 'Custom content type';
+$string['table:numinstances'] = 'Number of instances';
 $string['userlist:config:columns'] = 'User list columns';
 $string['userlist:config:header'] = 'User list settings';
 $string['userlist:displayname'] = 'User list';
 $string['userlist:listdata'] = 'List data';
 $string['userlist:pageheading'] = 'List definition for \'{$a}\'';
-
-// Roles list datasource strings.
-$string['roles:displayname'] = 'Roles list';
-$string['roles:config:header'] = 'Role list settings';
-$string['roles:config:list'] = 'Roles included';
-$string['roles:config:duplicates'] = 'Duplicates';
-$string['roles:config:duplicates:all'] = 'Show in all';
-$string['roles:config:duplicates:firstonly'] = 'Show in first';
-$string['roles:config:duplicates:nest'] = 'Show in first with roles';
-$string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';
+$string['visibility_updated'] = 'Visibility updated';

@@ -27,7 +27,7 @@ use mod_cms\local\model\{cms, cms_types};
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datasource_site_test extends \advanced_testcase {
+final class datasource_site_test extends \advanced_testcase {
     /**
      * Set up before each test
      */
@@ -41,7 +41,7 @@ class datasource_site_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\site::get_shortname
      */
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals('site', dssite::get_shortname());
     }
 
@@ -50,7 +50,7 @@ class datasource_site_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\site::get_data
      */
-    public function test_get_data() {
+    public function test_get_data(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
         $cmstype->set('idnumber', 'test-name');
@@ -73,7 +73,7 @@ class datasource_site_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\site::get_full_cache_key
      */
-    public function test_cache() {
+    public function test_cache(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'somename');
         $cmstype->set('idnumber', 'test-name');

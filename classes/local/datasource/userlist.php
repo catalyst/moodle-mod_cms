@@ -525,7 +525,8 @@ class userlist extends base_mod_cms {
 
         $fields = new \backup_nested_element('userlistfields');
         if ($DB->get_manager()->field_exists('customfield_data', 'valuetrust')) {
-            $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat', 'valuetrust']);
+            $field = new \backup_nested_element('userlistfield', ['id'],
+                ['shortname', 'type', 'value', 'valueformat', 'valuetrust']);
         } else {
             $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat']);
         }
@@ -546,7 +547,7 @@ class userlist extends base_mod_cms {
                         },
                         $fielddata
                     )
-                )
+                ),
             ];
             $fieldsforbackup = array_merge($fieldsforbackup, $this->cfhandler->get_instance_data_for_backup($id));
             // Backup annotations. Check for function existence for the sake of backward compatibility.

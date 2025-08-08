@@ -31,7 +31,7 @@ use mod_cms_generator;
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datasource_userlist_test extends \advanced_testcase {
+final class datasource_userlist_test extends \advanced_testcase {
     use test_import1_trait;
 
     /** Test data for import/export. */
@@ -59,7 +59,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::get_shortname
      */
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals('userlist', dsuserlist::get_shortname());
     }
 
@@ -69,7 +69,7 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::get_config_cache_key
      * @covers \mod_cms\local\datasource\userlist::get_instance_cache_key
      */
-    public function test_no_hash() {
+    public function test_no_hash(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
@@ -94,7 +94,7 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::set_from_import
      * @covers \mod_cms\local\datasource\userlist::get_for_export
      */
-    public function test_import() {
+    public function test_import(): void {
         $importdata = json_decode(file_get_contents(self::IMPORT_JSONFILE));
 
         $manager = new manage_content_types();
@@ -156,7 +156,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::config_on_delete
      */
-    public function test_config_delete() {
+    public function test_config_delete(): void {
         global $DB;
 
         $manager = new manage_content_types();
@@ -184,7 +184,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::instance_on_delete
      */
-    public function test_instance_delete() {
+    public function test_instance_delete(): void {
         global $DB;
 
         $cmstype = $this->import();
@@ -215,7 +215,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::instance_form_validation
      */
-    public function test_instance_form_validataion() {
+    public function test_instance_form_validataion(): void {
         $cmstype = $this->import();
         $cmstype->save();
 
@@ -243,7 +243,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::update_instance
      */
-    public function test_update_instance() {
+    public function test_update_instance(): void {
         $cmstype = $this->import();
         $cmstype->save();
 
@@ -332,7 +332,7 @@ class datasource_userlist_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\userlist::get_data
      */
-    public function test_get_data() {
+    public function test_get_data(): void {
         $expected = [
             (object) [
                 'name' => 'John',
@@ -371,7 +371,7 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::instance_backup_define_structure
      * @covers \mod_cms\local\datasource\userlist::restore_define_structure
      */
-    public function test_duplicate() {
+    public function test_duplicate(): void {
         $cmstype = $this->import();
         $course = $this->create_course();
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
@@ -396,7 +396,7 @@ class datasource_userlist_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\userlist::instance_backup_define_structure
      * @covers \mod_cms\local\datasource\userlsit::restore_define_structure
      */
-    public function test_file_backup_and_restore() {
+    public function test_file_backup_and_restore(): void {
         if (!method_exists('\core_customfield\handler', 'backup_define_structure')) {
             $this->markTestSkipped('Only test if backup and restore is supported for embedded files.');
         }
@@ -408,7 +408,7 @@ class datasource_userlist_test extends \advanced_testcase {
         $cmstype = $this->get_generator()->create_cms_type(['datasources' => 'userlist']);
         $cffield = $this->get_generator()->create_datasource_userlist_field($cmstype, [
             'shortname' => 'fielda',
-            'type' => 'textarea'
+            'type' => 'textarea',
         ]);
 
         $fs = get_file_storage();

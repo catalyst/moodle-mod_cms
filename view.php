@@ -33,7 +33,7 @@ $forceview = optional_param('forceview', 0, PARAM_BOOL);
 
 $cm = get_coursemodule_from_id('cms', $id, 0, false, MUST_EXIST);
 
-$course = $DB->get_record('course', array('id' => $cm->course), '*', MUST_EXIST);
+$course = $DB->get_record('course', ['id' => $cm->course], '*', MUST_EXIST);
 $cms = new cms($cm->instance);
 
 $PAGE->set_cm($cm, $course); // Set's up global $COURSE.
@@ -43,7 +43,7 @@ $PAGE->set_context($context);
 require_login($course, true, $cm);
 require_capability('mod/cms:view', $context);
 
-$url = new moodle_url('/mod/cms/view.php', array('id' => $cm->id));
+$url = new moodle_url('/mod/cms/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
 
 // Print the page header.

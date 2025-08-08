@@ -66,7 +66,7 @@ class cmsuserlist_handler extends handler {
      *
      * @return bool
      */
-    public function uses_categories() : bool {
+    public function uses_categories(): bool {
         return false;
     }
 

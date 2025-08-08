@@ -155,7 +155,7 @@ class cms_types_form extends persistent_form {
         if ($cancel) {
             $buttonarray[] = &$mform->createElement('cancel');
         }
-        $mform->addGroup($buttonarray, 'buttonar', '', array(' '), false);
+        $mform->addGroup($buttonarray, 'buttonar', '', [' '], false);
         $mform->closeHeaderBefore('buttonar');
     }
 

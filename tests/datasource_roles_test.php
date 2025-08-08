@@ -33,7 +33,7 @@ require_once(__DIR__ . '/fixtures/test_import2_trait.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-class datasource_roles_test extends \advanced_testcase {
+final class datasource_roles_test extends \advanced_testcase {
     use test_import2_trait;
 
     /** Test data for import/export. */
@@ -53,7 +53,7 @@ class datasource_roles_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\roles::get_shortname
      */
-    public function test_name() {
+    public function test_name(): void {
         $this->assertEquals('roles', dsroles::get_shortname());
     }
 
@@ -63,7 +63,7 @@ class datasource_roles_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\roles::get_config_cache_key
      * @covers \mod_cms\local\datasource\roles::get_instance_cache_key
      */
-    public function test_no_hash() {
+    public function test_no_hash(): void {
         $cmstype = new cms_types();
         $cmstype->set('name', 'name');
         $cmstype->set('idnumber', 'test-name');
@@ -88,7 +88,7 @@ class datasource_roles_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\roles::set_from_import
      * @covers \mod_cms\local\datasource\roles::get_for_export
      */
-    public function test_import() {
+    public function test_import(): void {
         $importdata = json_decode(file_get_contents(self::IMPORT_DATAFILE));
         $manager = new manage_content_types();
         $cmstype = $manager->create((object) [
@@ -114,7 +114,7 @@ class datasource_roles_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\roles::get_cached_data
      * @covers \mod_cms\local\datasource\roles::get_full_cache_key
      */
-    public function test_get_data() {
+    public function test_get_data(): void {
         $cmstype = $this->import();
 
         // Create the course and module.
@@ -277,7 +277,7 @@ class datasource_roles_test extends \advanced_testcase {
                         ],
                     ],
                 ],
-            ]
+            ],
         ];
         if ($duplicates !== 'nest') {
             foreach ($expected->roles as $role) {
@@ -299,7 +299,7 @@ class datasource_roles_test extends \advanced_testcase {
      * @covers \mod_cms\local\datasource\roles::instance_backup_define_structure
      * @covers \mod_cms\local\datasource\roles::restore_define_structure
      */
-    public function test_duplicate() {
+    public function test_duplicate(): void {
         $cmstype = $this->import();
         $course = $this->create_course();
         $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
