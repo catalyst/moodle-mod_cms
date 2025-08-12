@@ -157,8 +157,16 @@ class lib {
         $records = cms::get_records(['typeid' => $typeid]);
         foreach ($records as $cms) {
             $renderer = new renderer($cms);
-            $cms->set('name', $renderer->get_name());
-            $cms->save();
+            try {
+                $cms->set('name', $renderer->get_name());
+                $cms->save();
+            } catch (\Throwable $e ) {
+                $message = 'Error resetting CMS name: ' . $cms->get('name')
+                    . '. CMS id: ' . $cms->get('id')
+                    . '. Course id: ' . $cms->get('course')
+                    . '. Error message: ' . $e->getmessage();
+                throw new \Exception($message);
+            }
         }
     }
 
