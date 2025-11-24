@@ -108,4 +108,37 @@ final class get_course_content_items_test extends \advanced_testcase {
             $this->assertEquals($type['description'], $items[$idx]->get_help());
         }
     }
+
+    /**
+     * Tests the lib::get_course_content_items function for different user roles.
+     * @covers \mod_cms\local\lib::get_course_content_items
+     */
+    public function test_user_get_course_content_items(): void {
+        global $COURSE;
+
+        $types = [
+            [ 'name' => 'CMS1', 'idnumber' => 'test-cms1', 'description' => 'help1', 'isvisible' => 0],
+            [ 'name' => 'CMS2', 'idnumber' => 'test-cms2', 'description' => 'help2', 'isvisible' => 1],
+        ];
+
+        foreach ($types as $type) {
+            $ct = new cms_types(0, (object) $type);
+            $ct->save();
+        }
+
+        $user = get_admin();
+        $teacher = $this->getDataGenerator()->create_and_enrol($COURSE, 'teacher');
+
+        // Get items as admin. Returns both regardless of visibility.
+        $items = lib::get_course_content_items($this->create_default_item(), $user, $COURSE);
+        $this->assertCount(2, $items);
+
+        // Now get items for teacher role (without mod/cms:seeall capability).
+        // Should only return the 1 visible item.
+        $items = lib::get_course_content_items($this->create_default_item(), $teacher, $COURSE);
+
+        $this->assertCount(1, $items);
+        $this->assertEquals('CMS2', $items[0]->get_title()->get_value());
+        $this->assertEquals('help2', $items[0]->get_help());
+    }
 }
