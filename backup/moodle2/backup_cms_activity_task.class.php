@@ -61,11 +61,11 @@ class backup_cms_activity_task extends backup_activity_task {
         $base = preg_quote($CFG->wwwroot, "/");
 
         // Link to the index.
-        $search = "/(".$base."\/mod\/cms\/index.php\?id\=)([0-9]+)/";
+        $search = "/(" . $base . "\/mod\/cms\/index.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@CMSINDEX*$2@$', $content);
 
         // Link to cms view by moduleid.
-        $search = "/(".$base."\/mod\/cms\/view.php\?id\=)([0-9]+)/";
+        $search = "/(" . $base . "\/mod\/cms\/view.php\?id\=)([0-9]+)/";
         $content = preg_replace($search, '$@CMSVIEWBYID*$2@$', $content);
 
         return $content;

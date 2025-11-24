@@ -69,7 +69,7 @@ trait exportable {
             header('Cache-Control: private, must-revalidate, pre-check=0, post-check=0, max-age=0');
             header('Pragma: no-cache');
         }
-        header('Expires: '. gmdate('D, d M Y H:i:s', 0) .' GMT');
+        header('Expires: ' . gmdate('D, d M Y H:i:s', 0) . ' GMT');
         header("Content-Type: $this->mimetype\n");
         header("Content-Disposition: attachment; filename=\"$filename\"");
     }

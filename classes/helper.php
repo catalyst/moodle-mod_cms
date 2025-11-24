@@ -48,8 +48,13 @@ class helper {
      * @param array  $options
      * @return string
      */
-    public static function format_icon_link(string $url, string $icon, string $alt,
-            ?string $iconcomponent = 'moodle', array $options = []): string {
+    public static function format_icon_link(
+        string $url,
+        string $icon,
+        string $alt,
+        ?string $iconcomponent = 'moodle',
+        array $options = []
+    ): string {
         global $OUTPUT;
 
         return $OUTPUT->action_icon(
@@ -72,8 +77,7 @@ class helper {
         global $OUTPUT;
         $confirmaction = new \confirm_action($confirmstring);
         $deleteicon = new \pix_icon('t/delete', get_string('delete'));
-        $link = new \action_link($url, '', $confirmaction, null,  $deleteicon);
+        $link = new \action_link($url, '', $confirmaction, null, $deleteicon);
         return $OUTPUT->render($link);
-
     }
 }

@@ -25,7 +25,6 @@ namespace mod_cms;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class hook_callbacks {
-
     /**
      * Listener for the after_config hook.
      *

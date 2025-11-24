@@ -91,7 +91,7 @@ class roles extends base_mod_cms {
                 (object) ['shortname' => 'editingteacher', 'name' => '', 'coursealias' => ''],
             ];
         } else {
-            require_once($CFG->dirroot .'/user/lib.php');
+            require_once($CFG->dirroot . '/user/lib.php');
 
             $context = \context_course::instance($this->cms->get('course'));
 
@@ -219,7 +219,7 @@ class roles extends base_mod_cms {
     public function config_form_validation(array $data, array $files): array {
         $errors = [];
         $existingroles = array_map(
-            function($record) {
+            function ($record) {
                 return $record->shortname;
             },
             get_all_roles()
@@ -303,7 +303,7 @@ class roles extends base_mod_cms {
 
         // Trim each item.
         $lines = array_map(
-            function($v) {
+            function ($v) {
                 return trim($v);
             },
             $lines
@@ -312,7 +312,7 @@ class roles extends base_mod_cms {
         // Remove empty items.
         return array_filter(
             $lines,
-            function($v) {
+            function ($v) {
                 return $v !== '';
             }
         );

@@ -30,7 +30,6 @@ use moodle_exception;
  * @license     https://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_files_context extends adhoc_task {
-
     /**
      * Factory method to create a new update_files_context task.
      *

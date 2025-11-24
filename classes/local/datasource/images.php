@@ -103,7 +103,10 @@ class images extends base_mod_cms {
         $mform->addElement('header', 'images_heading', get_string('images:config:header', 'cms'));
 
         // Images file manager.
-        $mform->addElement('filemanager', 'images', get_string('images:images', 'cms'),
+        $mform->addElement(
+            'filemanager',
+            'images',
+            get_string('images:images', 'cms'),
             null,
             [
                 'subdirs' => 0,

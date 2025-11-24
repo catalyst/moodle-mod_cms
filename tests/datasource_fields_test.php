@@ -383,8 +383,14 @@ final class datasource_fields_test extends \advanced_testcase {
             'filename'  => 'testtext.txt',
         ];
         $fs->create_file_from_string($filedata, 'text contents');
-        $url = \moodle_url::make_pluginfile_url($filedata['contextid'], $filedata['component'], $filedata['filearea'],
-            $filedata['itemid'], $filedata['filepath'], $filedata['filename']);
+        $url = \moodle_url::make_pluginfile_url(
+            $filedata['contextid'],
+            $filedata['component'],
+            $filedata['filearea'],
+            $filedata['itemid'],
+            $filedata['filepath'],
+            $filedata['filename']
+        );
 
         // Create data for making a module. Add the files to the custom field.
         $instancedata = [
@@ -447,10 +453,12 @@ final class datasource_fields_test extends \advanced_testcase {
         // Check the URL is using correct ids.
         $this->assertStringContainsString(
             '/' . $context->id . '/customfield_textarea/value/' . $itemid . '/' . $filename,
-            $originalexportvalue);
+            $originalexportvalue
+        );
         $this->assertStringContainsString(
             '/' . $newcontext->id . '/customfield_textarea/value/' . $newitemid . '/' . $filename,
-            $newexportvalue);
+            $newexportvalue
+        );
 
         // Check URL is correctly restored.
         $this->assertStringContainsString($url->out(), $originalexportvalue);

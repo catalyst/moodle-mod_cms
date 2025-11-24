@@ -525,8 +525,11 @@ class userlist extends base_mod_cms {
 
         $fields = new \backup_nested_element('userlistfields');
         if ($DB->get_manager()->field_exists('customfield_data', 'valuetrust')) {
-            $field = new \backup_nested_element('userlistfield', ['id'],
-                ['shortname', 'type', 'value', 'valueformat', 'valuetrust']);
+            $field = new \backup_nested_element(
+                'userlistfield',
+                ['id'],
+                ['shortname', 'type', 'value', 'valueformat', 'valuetrust']
+            );
         } else {
             $field = new \backup_nested_element('userlistfield', ['id'], ['shortname', 'type', 'value', 'valueformat']);
         }
@@ -569,13 +572,17 @@ class userlist extends base_mod_cms {
     public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
         $processor = new restore\userlist($stepslib);
 
-        $element = new \restore_path_element('restore_ds_userlist_row',
-                '/activity/cms/instance_datasources/userlist/userlistrows/userlistrow');
+        $element = new \restore_path_element(
+            'restore_ds_userlist_row',
+            '/activity/cms/instance_datasources/userlist/userlistrows/userlistrow'
+        );
         $element->set_processing_object($processor);
         $paths[] = $element;
 
-        $element = new \restore_path_element('restore_ds_userlist_field',
-                '/activity/cms/instance_datasources/userlist/userlistfields/userlistfield');
+        $element = new \restore_path_element(
+            'restore_ds_userlist_field',
+            '/activity/cms/instance_datasources/userlist/userlistfields/userlistfield'
+        );
         $element->set_processing_object($processor);
         $paths[] = $element;
 

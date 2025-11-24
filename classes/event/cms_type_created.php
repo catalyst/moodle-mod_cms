@@ -36,7 +36,6 @@ use core\event\base;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_type_created extends base {
-
     /**
      * Initialise the event data.
      */

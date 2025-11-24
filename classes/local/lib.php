@@ -45,8 +45,11 @@ class lib {
      * @param \stdClass $course
      * @return array
      */
-    public static function get_course_content_items(content_item $defaultmodulecontentitem, \stdClass $user,
-            \stdClass $course): array {
+    public static function get_course_content_items(
+        content_item $defaultmodulecontentitem,
+        \stdClass $user,
+        \stdClass $course
+    ): array {
 
         $context = \context_course::instance($course->id);
 
@@ -60,7 +63,7 @@ class lib {
 
         // Get the types, but only those that are visible.
         $filter = [];
-        if (!has_capability('mod/cms:seeall', $context)) {
+        if (!has_capability('mod/cms:seeall', $context, $user)) {
             $filter['isvisible'] = 1;
         }
         $types = cms_types::get_records($filter);
@@ -160,7 +163,7 @@ class lib {
             try {
                 $cms->set('name', $renderer->get_name());
                 $cms->save();
-            } catch (\Throwable $e ) {
+            } catch (\Throwable $e) {
                 $message = 'Error resetting CMS name: ' . $cms->get('name')
                     . '. CMS id: ' . $cms->get('id')
                     . '. Course id: ' . $cms->get('course')
@@ -236,7 +239,7 @@ class lib {
         if (!$args) {
             $filepath = '/';
         } else {
-            $filepath = '/'.implode('/', $args).'/';
+            $filepath = '/' . implode('/', $args) . '/';
         }
 
         // Retrieve the file from the Files API.

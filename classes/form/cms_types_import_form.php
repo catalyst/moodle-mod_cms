@@ -28,7 +28,6 @@ use Symfony\Component\Yaml\Yaml;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_types_import_form extends \moodleform {
-
     /**
      * Build form for importing workflows.
      *

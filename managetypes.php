@@ -25,7 +25,7 @@
 use mod_cms\manage_content_types;
 
 require_once('../../config.php');
-require_once($CFG->libdir.'/adminlib.php');
+require_once($CFG->libdir . '/adminlib.php');
 
 require_login();
 
@@ -34,4 +34,3 @@ $PAGE->set_context(context_system::instance());
 
 $contenttypes = new manage_content_types();
 $contenttypes->execute($action);
-

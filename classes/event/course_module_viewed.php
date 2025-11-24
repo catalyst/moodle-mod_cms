@@ -35,7 +35,6 @@ use core\event\course_module_viewed as core_course_module_viewed;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course_module_viewed extends core_course_module_viewed {
-
     /**
      * Init method.
      */

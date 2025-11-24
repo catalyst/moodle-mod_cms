@@ -150,7 +150,7 @@ final class cms_types_test extends \advanced_testcase {
         $exportdata = $cmstype->get_for_export();
 
         $this->assertNull($cmstype->get_icon_metadata());
-        $this->assertNotEquals($cachekey,  $cmstype->get_cache_key());
+        $this->assertNotEquals($cachekey, $cmstype->get_cache_key());
         $this->assertEquals($importdata, $exportdata);
     }
 }

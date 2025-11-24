@@ -199,7 +199,7 @@ final class datasource_roles_test extends \advanced_testcase {
      */
     protected function add_user(string $firstname, string $lastname): \stdClass {
         $usernew = new \stdClass();
-        $usernew->username = strtolower($firstname.$lastname);
+        $usernew->username = strtolower($firstname . $lastname);
         $usernew->firstname = $firstname;
         $usernew->lastname = $lastname;
         $usernew->email = $usernew->username . '@x';

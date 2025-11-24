@@ -46,7 +46,6 @@ require_once($CFG->dirroot . '/search/tests/fixtures/testable_core_search.php');
  * @coversDefaultClass \mod_cms\search\activity
  */
 final class search_test extends \advanced_testcase {
-
     /**
      * @var string Area id
      */
@@ -114,7 +113,7 @@ final class search_test extends \advanced_testcase {
      */
     public function test_search_enabled(): void {
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
-        list($componentname, $varname) = $searcharea->get_config_var_name();
+        [$componentname, $varname] = $searcharea->get_config_var_name();
 
         // Enabled by default once global search is enabled.
         $this->assertTrue($searcharea->is_enabled());
@@ -415,7 +414,7 @@ final class search_test extends \advanced_testcase {
         $this->assertDebuggingCalled();
 
         $this->assertStringContainsString(
-            'Error getting mod_cms document for global search. cmid: ' . $cms->cmid . '  courseid: '. $course->id,
+            'Error getting mod_cms document for global search. cmid: ' . $cms->cmid . '  courseid: ' . $course->id,
             reset($debuggingmessages)->message
         );
     }
