@@ -60,7 +60,7 @@ class lib {
 
         // Get the types, but only those that are visible.
         $filter = [];
-        if (!has_capability('mod/cms:seeall', $context)) {
+        if (!has_capability('mod/cms:seeall', $context, $user)) {
             $filter['isvisible'] = 1;
         }
         $types = cms_types::get_records($filter);

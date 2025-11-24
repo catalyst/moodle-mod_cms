@@ -65,6 +65,6 @@ class cms_type_updated extends base {
         $a->userid = $this->userid;
         $a->typeid = $this->objectid;
 
-        return get_string('event:cms_type_updated_desc', 'mod_cms', $a);
+        return get_string('event_cms_type_updated_desc', 'mod_cms', $a);
     }
 }

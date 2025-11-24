@@ -83,7 +83,7 @@ final class get_course_content_items_test extends \advanced_testcase {
             $ct->save();
         }
 
-        $user = (object) [];
+        $user = get_admin();
         $course = (object) [];
 
         $items = lib::get_course_content_items($this->create_default_item(), $user, $COURSE);
