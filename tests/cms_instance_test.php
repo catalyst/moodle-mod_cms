@@ -21,7 +21,7 @@ use mod_cms\local\model\cms;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once( __DIR__ . '/fixtures/test_import1_trait.php');
+require_once(__DIR__ . '/fixtures/test_import1_trait.php');
 
 /**
  * Tests cms instances.
@@ -31,7 +31,7 @@ require_once( __DIR__ . '/fixtures/test_import1_trait.php');
  * @copyright 2023, Catalyst IT
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
-final class cms_instance_test  extends \advanced_testcase {
+final class cms_instance_test extends \advanced_testcase {
     use test_import1_trait;
 
     /**

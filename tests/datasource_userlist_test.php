@@ -425,11 +425,11 @@ final class datasource_userlist_test extends \advanced_testcase {
             'typeid' => $cmstype->get('id'),
             'name' => 'Some module',
             'userlist_fielda_editor' => [[
-                'text' => 'Here is a file: @@PLUGINFILE@@/'.$file1name,
+                'text' => 'Here is a file: @@PLUGINFILE@@/' . $file1name,
                 'format' => FORMAT_HTML,
                 'itemid' => $file1id,
             ], [
-                'text' => 'Here is another file: @@PLUGINFILE@@/'.$file1name,
+                'text' => 'Here is another file: @@PLUGINFILE@@/' . $file1name,
                 'format' => FORMAT_HTML,
                 'itemid' => $file2id,
             ]],

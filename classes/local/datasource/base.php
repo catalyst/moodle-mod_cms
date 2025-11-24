@@ -29,7 +29,6 @@ use mod_cms\local\model\cms_types;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 abstract class base {
-
     /** Datasources provided by this plugin. */
     public const BUILTIN_DATASOURCES = [
         'site',

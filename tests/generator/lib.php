@@ -28,7 +28,6 @@ use core_customfield\field_controller;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class mod_cms_generator extends testing_module_generator {
-
     /** @var int */
     protected $cmstypecount = 0;
 

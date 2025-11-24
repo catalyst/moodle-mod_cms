@@ -43,7 +43,9 @@ use mod_cms\local\renderer;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_types extends persistent {
-    use exportable, importable, persistent_extras;
+    use exportable;
+    use importable;
+    use persistent_extras;
 
     /**
      * Table name.

@@ -57,7 +57,7 @@ function mod_cms_after_config() {
 function cms_supports($feature) {
     global $version;
 
-    switch($feature) {
+    switch ($feature) {
         case FEATURE_IDNUMBER:
         case FEATURE_BACKUP_MOODLE2:
         case FEATURE_NO_VIEW_LINK:
@@ -93,8 +93,11 @@ function cms_supports($feature) {
  * @param stdClass $course
  * @return array
  */
-function cms_get_course_content_items(content_item $defaultmodulecontentitem, stdClass $user,
-    stdClass $course) {
+function cms_get_course_content_items(
+    content_item $defaultmodulecontentitem,
+    stdClass $user,
+    stdClass $course
+) {
     return lib::get_course_content_items($defaultmodulecontentitem, $user, $course);
 }
 

@@ -28,7 +28,6 @@ use mod_cms\local\renderer;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class activity extends \core_search\base_activity {
-
     /**
      * Returns the document associated with this data id.
      *
@@ -77,7 +76,6 @@ class activity extends \core_search\base_activity {
             }
 
             return $doc;
-
         } catch (\Throwable $ex) {
             debugging('Error getting mod_cms document for global search.'
                 . ' cmid: ' . $cm->id . ' '  . ' courseid: ' . $cm->course . ' '

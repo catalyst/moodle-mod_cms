@@ -91,13 +91,13 @@ final class get_course_content_items_test extends \advanced_testcase {
         // Make sure the two arrays have the same ordering so they can be compared by index.
         usort(
             $types,
-            function($a, $b) {
+            function ($a, $b) {
                 return strcmp($a['name'], $b['name']);
             }
         );
         usort(
             $items,
-            function($a, $b) {
+            function ($a, $b) {
                 return strcmp($a->get_title()->get_value(), $b->get_title()->get_value());
             }
         );

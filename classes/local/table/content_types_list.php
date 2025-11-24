@@ -31,7 +31,7 @@ use mod_cms\manage_content_types;
 
 defined('MOODLE_INTERNAL') || die();
 
-require_once($CFG->libdir.'/tablelib.php');
+require_once($CFG->libdir . '/tablelib.php');
 
 /**
  * Content types list table.
@@ -59,7 +59,7 @@ class content_types_list extends \flexible_table {
         global $PAGE, $DB;
 
         $id = $id ?? self::$autoid++;
-        parent::__construct('mod_cms'.$id);
+        parent::__construct('mod_cms' . $id);
 
         $this->define_baseurl($PAGE->url);
         $this->set_attribute('class', 'generaltable admintable w-auto');

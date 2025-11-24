@@ -405,8 +405,12 @@ function xmldb_cms_upgrade($oldversion) {
         foreach ($cmsuserlistdata as $cmsuserlist) {
             if (!empty($userlist[$cmsuserlist->instanceid])) {
                 if ($userlist[$cmsuserlist->instanceid]['contextid'] != $cmsuserlist->contextid) {
-                    $DB->set_field('customfield_data', 'contextid', $userlist[$cmsuserlist->instanceid]['contextid'],
-                        ['id' => $cmsuserlist->id]);
+                    $DB->set_field(
+                        'customfield_data',
+                        'contextid',
+                        $userlist[$cmsuserlist->instanceid]['contextid'],
+                        ['id' => $cmsuserlist->id]
+                    );
                 }
             }
         }

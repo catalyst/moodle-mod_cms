@@ -27,7 +27,6 @@ use core\task\adhoc_task;
  * @license    http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class update_customfield_context extends adhoc_task {
-
     /**
      * Run the task.
      *

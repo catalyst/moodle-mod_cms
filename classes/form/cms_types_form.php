@@ -38,7 +38,6 @@ use mod_cms\local\model\cms_types;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class cms_types_form extends persistent_form {
-
     /** The maximum amount of files allowed. */
     const MAX_FILES = 1;
 
@@ -91,8 +90,12 @@ class cms_types_form extends persistent_form {
         $helptext .= \html_writer::tag('pre', implode(PHP_EOL, $renderer->get_variable_list()));
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
-        $mform->addElement('static', 'iconfile_desc', get_string('icon'),
-            get_string('cms_type:icon_desc', 'mod_cms'));
+        $mform->addElement(
+            'static',
+            'iconfile_desc',
+            get_string('icon'),
+            get_string('cms_type:icon_desc', 'mod_cms')
+        );
         $mform->addElement(
             'filemanager',
             'iconfile',
@@ -128,8 +131,12 @@ class cms_types_form extends persistent_form {
     public function add_datasource_select_element() {
         $mform = $this->_form;
         $labels = dsbase::get_datasource_labels();
-        $mform->addElement('static', 'datasources_desc', get_string('datasources', 'mod_cms'),
-                get_string('datasources_desc', 'mod_cms'));
+        $mform->addElement(
+            'static',
+            'datasources_desc',
+            get_string('datasources', 'mod_cms'),
+            get_string('datasources_desc', 'mod_cms')
+        );
         $boxes = [];
         foreach ($labels as $shortname => $label) {
             $name = 'ds_' . $shortname;
@@ -144,7 +151,7 @@ class cms_types_form extends persistent_form {
      * @param bool $cancel
      * @param null $submitlabel Not used
      */
-    public function add_action_buttons($cancel = true, $submitlabel=null) {
+    public function add_action_buttons($cancel = true, $submitlabel = null) {
         $mform = $this->_form;
 
         $classarray = ['class' => 'form-submit'];

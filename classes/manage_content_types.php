@@ -35,7 +35,6 @@ use mod_cms\local\table\content_types_list;
  * @license     http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class manage_content_types {
-
     /** @var \renderer_base Locally cached $OUTPUT object. */
     protected $output;
 
@@ -61,7 +60,7 @@ class manage_content_types {
     public function execute(string $action): void {
         $this->set_external_page();
         $this->add_breadcrumb($action);
-        switch($action) {
+        switch ($action) {
             case 'add':
             case 'edit':
                 $this->edit($action, optional_param('id', null, PARAM_INT));
@@ -101,6 +100,7 @@ class manage_content_types {
                     null,
                     notification::NOTIFY_SUCCESS
                 );
+                // Fall through.
             case 'hide':
                 $this->set_visibility(required_param('id', PARAM_INT), false);
                 redirect(
@@ -109,6 +109,7 @@ class manage_content_types {
                     null,
                     notification::NOTIFY_SUCCESS
                 );
+                // Fall through.
             case 'view':
             default:
                 $this->view();
@@ -133,7 +134,7 @@ class manage_content_types {
     protected function add_breadcrumb(string $action) {
         global $PAGE;
 
-        switch($action) {
+        switch ($action) {
             case 'add':
                 $PAGE->navbar->add($this->get_new_heading());
                 break;
