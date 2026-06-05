@@ -36,6 +36,7 @@ abstract class base {
         'images',
         'userlist',
         'roles',
+        'course',
     ];
 
     /** @var array List of datasource class names in use. */
