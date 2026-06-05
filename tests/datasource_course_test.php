@@ -106,6 +106,9 @@ final class datasource_course_test extends \advanced_testcase {
         $this->assertTrue(property_exists($data, 'summary'));
         $this->assertTrue(property_exists($data, 'idnumber'));
         $this->assertTrue(property_exists($data, 'courseimage'));
+        $this->assertTrue(property_exists($data, 'fields'));
+        // No custom fields defined in test, fields should be an empty object.
+        $this->assertInstanceOf(\stdClass::class, $data->fields);
         // No image uploaded in test, so courseimage should be empty string.
         $this->assertSame('', $data->courseimage);
     }

@@ -52,13 +52,20 @@ class course extends base_mod_cms {
      */
     public function get_data(): \stdClass {
         if ($this->cms->issample) {
+            $fields = new \stdClass();
+            $handler = \core_course\customfield\course_handler::create();
+            foreach ($handler->get_fields() as $field) {
+                $shortname = $field->get('shortname');
+                $fields->$shortname = get_string('sample_value', 'mod_cms');
+            }
             return (object) [
-                'fullname'  => get_string('course:sample:fullname', 'mod_cms'),
-                'shortname' => get_string('course:sample:shortname', 'mod_cms'),
-                'courseurl' => '#',
-                'summary'   => get_string('course:sample:summary', 'mod_cms'),
-                'idnumber'  => '',
+                'fullname'    => get_string('course:sample:fullname', 'mod_cms'),
+                'shortname'   => get_string('course:sample:shortname', 'mod_cms'),
+                'courseurl'   => '#',
+                'summary'     => get_string('course:sample:summary', 'mod_cms'),
+                'idnumber'    => '',
                 'courseimage' => '',
+                'fields'      => $fields,
             ];
         }
 
@@ -82,6 +89,13 @@ class course extends base_mod_cms {
             )->out(false);
         }
 
+        $fields = new \stdClass();
+        $handler = \core_course\customfield\course_handler::create();
+        foreach ($handler->get_instance_data($courseid) as $data) {
+            $shortname = $data->get_field()->get('shortname');
+            $fields->$shortname = $data->export_value() ?? '';
+        }
+
         return (object) [
             'fullname'    => format_string($course->fullname),
             'shortname'   => format_string($course->shortname),
@@ -89,6 +103,7 @@ class course extends base_mod_cms {
             'summary'     => format_text($course->summary, $course->summaryformat),
             'idnumber'    => $course->idnumber,
             'courseimage' => $courseimage,
+            'fields'      => $fields,
         ];
     }
 
