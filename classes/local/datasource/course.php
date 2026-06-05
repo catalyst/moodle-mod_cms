@@ -35,7 +35,6 @@ namespace mod_cms\local\datasource;
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class course extends base_mod_cms {
-
     /**
      * Get the display name.
      *
