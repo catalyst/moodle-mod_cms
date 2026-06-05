@@ -27,6 +27,7 @@ defined('MOODLE_INTERNAL') || die();
 
 $string['addnewtype'] = 'Add new content type';
 $string['cachedef_cms_content'] = 'CMS content';
+$string['cachedef_cms_content_course'] = 'CMS course datasource';
 $string['cachedef_cms_content_fields'] = 'CMS fields datasource';
 $string['cachedef_cms_content_images'] = 'CMS images datasource';
 $string['cachedef_cms_content_roles'] = 'CMS roles datasource';
