@@ -60,6 +60,13 @@ $definitions = [
         'staticacceleration' => false,
         'canuselocalstore' => true,
     ],
+    'cms_content_course' => [
+        'mode' => cache_store::MODE_APPLICATION,
+        'simplekeys' => true,
+        'simpledata' => true,
+        'staticacceleration' => false,
+        'canuselocalstore' => true,
+    ],
     'cms_name' => [
         'mode' => cache_store::MODE_APPLICATION,
         'simplekeys' => true,
