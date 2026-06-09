@@ -33,4 +33,16 @@ $observers = [
         'eventname' => 'core\event\role_unassigned',
         'callback' => '\mod_cms\local\datasource\roles::on_role_changed',
     ],
+    [
+        'eventname' => 'core_customfield\event\field_created',
+        'callback' => '\mod_cms\local\datasource\course::on_course_customfield_changed',
+    ],
+    [
+        'eventname' => 'core_customfield\event\field_updated',
+        'callback' => '\mod_cms\local\datasource\course::on_course_customfield_changed',
+    ],
+    [
+        'eventname' => 'core_customfield\event\field_deleted',
+        'callback' => '\mod_cms\local\datasource\course::on_course_customfield_changed',
+    ],
 ];
