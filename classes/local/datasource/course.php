@@ -130,26 +130,31 @@ class course extends base_mod_cms {
     }
 
     /**
-     * Returns a constant config cache key — this datasource has no configurable data.
+     * Returns a config cache key derived from a stored revision counter.
+     *
+     * The counter is bumped by {@see on_course_customfield_changed()} whenever a course
+     * custom field definition is created, updated, or deleted, so that both the datasource
+     * cache and the renderer caches (cms_content, cms_name) are automatically invalidated.
      *
      * @return string
      */
     public function get_config_cache_key(): ?string {
-        return '';
+        return (string) (int) get_config('mod_cms', 'course_fields_rev');
     }
 
     /**
-     * Nothing to update — the config cache key is a constant.
+     * Nothing to update — the config cache key is managed via the course_fields_rev config setting.
      */
     public function update_config_cache_key() {
-        // No config data to hash.
+        // Key is derived from course_fields_rev, not stored in the CMS type.
     }
 
     /**
      * Called when a course custom field definition is created, updated, or deleted.
      *
-     * Purges the course datasource cache so that the updated field list is reflected
-     * in CMS type previews (managetypes.php) and rendered instances.
+     * Bumps the course_fields_rev config counter so that get_config_cache_key() returns a
+     * new value, invalidating both the datasource cache and the renderer caches (cms_content,
+     * cms_name) for all CMS instances that use the course datasource.
      *
      * @param \core\event\base $event
      */
@@ -167,6 +172,7 @@ class course extends base_mod_cms {
             return;
         }
 
+        set_config('course_fields_rev', (int) get_config('mod_cms', 'course_fields_rev') + 1, 'mod_cms');
         \cache::make('mod_cms', 'cms_content_course')->purge();
     }
 }
