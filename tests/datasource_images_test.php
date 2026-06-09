@@ -160,10 +160,11 @@ final class datasource_images_test extends \advanced_testcase {
 
         $cache = \cache::make('mod_cms', 'cms_content_' . dsimages::get_shortname());
         // Nothing in cache yet.
-        $this->assertFalse($cache->get($newkey));
+        $fullkey = $ds->get_full_cache_key();
+        $this->assertFalse($cache->get($fullkey));
         $data = $ds->get_cached_data();
         // Cache should now have data in it.
-        $this->assertEquals($data, $cache->get($newkey));
+        $this->assertEquals($data, $cache->get($fullkey));
     }
 
     /**
