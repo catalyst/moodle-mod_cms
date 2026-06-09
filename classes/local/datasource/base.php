@@ -413,7 +413,8 @@ abstract class base {
     }
 
     /**
-     * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys.
+     * Gets the current cache key used for this datasource for this instance. It concatenates the instance and config keys,
+     * and includes the current language so that language-filtered content is cached separately per language.
      * If either key is null, then this function returns null.
      *
      * @return string|null
@@ -424,7 +425,7 @@ abstract class base {
         if (is_null($ikey) || is_null($ckey)) {
             return null;
         }
-        return $ikey . $ckey;
+        return $ikey . $ckey . current_language();
     }
 
     /**
