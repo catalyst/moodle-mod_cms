@@ -144,4 +144,29 @@ class course extends base_mod_cms {
     public function update_config_cache_key() {
         // No config data to hash.
     }
+
+    /**
+     * Called when a course custom field definition is created, updated, or deleted.
+     *
+     * Purges the course datasource cache so that the updated field list is reflected
+     * in CMS type previews (managetypes.php) and rendered instances.
+     *
+     * @param \core\event\base $event
+     */
+    public static function on_course_customfield_changed(\core\event\base $event): void {
+        global $DB;
+
+        // Use the record snapshot to get the categoryid — safe for deleted fields too.
+        $fieldrecord = $event->get_record_snapshot('customfield_field', $event->objectid);
+        if (!$fieldrecord) {
+            return;
+        }
+
+        $component = $DB->get_field('customfield_category', 'component', ['id' => $fieldrecord->categoryid]);
+        if ($component !== 'core_course') {
+            return;
+        }
+
+        \cache::make('mod_cms', 'cms_content_course')->purge();
+    }
 }
