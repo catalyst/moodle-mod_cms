@@ -1,5 +1,6 @@
 {
     "config": {
+        "prepend-autoloader": false,
         "platform": {
             "php": "7.1"
         }
