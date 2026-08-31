@@ -52,7 +52,7 @@ echo $OUTPUT->header();
 
 // Render the content of the mod.
 $renderer = new renderer($cms);
-echo $renderer->get_html();
+echo format_text($renderer->get_html(), FORMAT_HTML, ['context' => $context, 'noclean' => true]);
 
 // Finish the page.
 echo $OUTPUT->footer();
