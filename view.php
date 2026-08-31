@@ -45,6 +45,7 @@ require_capability('mod/cms:view', $context);
 
 $url = new moodle_url('/mod/cms/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
+$PAGE->add_body_class('limitedwidth');
 
 // Print the page header.
 echo $OUTPUT->header();
