@@ -216,6 +216,18 @@ abstract class base {
     abstract public function get_data(): \stdClass;
 
     /**
+     * Constructs a portable data structure without generated display markup where supported.
+     *
+     * Datasources that format values for display should override this method. The default preserves backwards
+     * compatibility for datasources whose output is already portable.
+     *
+     * @return \stdClass
+     */
+    public function get_portable_data(): \stdClass {
+        return $this->get_data();
+    }
+
+    /**
      * Constructs the data structure to act as the data source. Uses a cache.
      *
      * @return \stdClass

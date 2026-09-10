@@ -104,6 +104,34 @@ final class renderer_test extends \advanced_testcase {
     }
 
     /**
+     * Test that portable rendering requests portable datasource values.
+     *
+     * @covers \mod_cms\local\renderer::get_portable_html
+     * @covers \mod_cms\local\datasource\base::get_portable_data
+     */
+    public function test_get_portable_html(): void {
+        $labels = dsbase::get_datasource_labels(false);
+        if (!array_key_exists(dsnull::get_shortname(), $labels)) {
+            dsbase::add_datasource_class('\\mod_cms\\null_datasource');
+        }
+
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'Portable content',
+            'idnumber' => 'test-portable-content',
+            'mustache' => '<p>{{null_datasource.a}}</p>',
+            'datasources' => 'null_datasource',
+        ]);
+
+        $renderer = new renderer($cmstype->get_sample_cms());
+
+        $this->assertSame('<p>A</p>', $renderer->get_html());
+        $this->assertSame('<p>Portable A</p>', $renderer->get_portable_html());
+        $this->assertSame('<p>A</p>', $renderer->get_html());
+        $this->assertSame('<p>Portable A</p>', (new renderer($cmstype->get_sample_cms()))->get_portable_html());
+    }
+
+    /**
      * Tests null keys.
      * Tests that a datasource with a null key with casue the overall HTML to no be cached, but not interfere with the caching
      * of other datasources.

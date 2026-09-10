@@ -22,6 +22,7 @@ use mod_cms\customfield\cmsfield_handler;
 use mod_cms\local\datasource\fields as dsfields;
 use mod_cms\local\model\cms;
 use mod_cms\local\model\cms_types;
+use mod_cms\local\renderer;
 use mod_cms_generator;
 
 defined('MOODLE_INTERNAL') || die();
@@ -319,6 +320,93 @@ final class datasource_fields_test extends \advanced_testcase {
         $data = $ds->get_cached_data();
         $this->assertEquals($data, $cache->get($newkey));
         $this->assertEquals($data, $ds->get_data());
+    }
+
+    /**
+     * Tests portable rendering of editor content with filtered media and embedded files.
+     *
+     * @covers \mod_cms\local\datasource\fields::get_portable_data
+     * @covers \mod_cms\local\renderer::get_portable_html
+     * @covers \customfield_mutextadvanced\data_controller::export_value_unfiltered
+     */
+    public function test_portable_editor_media(): void {
+        global $USER;
+
+        filter_set_global_state('mediaplugin', TEXTFILTER_ON);
+        filter_set_global_state('displayh5p', TEXTFILTER_ON);
+
+        $course = get_course(SITEID);
+        $cmstype = $this->get_generator()->create_cms_type([
+            'datasources' => 'fields',
+            'mustache' => '{{{fields.media}}}',
+        ]);
+        $category = $this->get_generator()->create_datasource_fields_category($cmstype);
+        $this->get_generator()->create_datasource_fields_field([
+            'categoryid' => $category->get('id'),
+            'shortname' => 'media',
+            'type' => 'mutextadvanced',
+            'configdata' => [
+                'fieldtype' => 'editor',
+                'displaysize' => 50,
+                'displayrows' => 5,
+            ],
+        ]);
+
+        $draftitemid = file_get_unused_draft_itemid();
+        $usercontext = \context_user::instance($USER->id);
+        foreach (['video.webm', 'example.h5p'] as $filename) {
+            get_file_storage()->create_file_from_string([
+                'contextid' => $usercontext->id,
+                'component' => 'user',
+                'filearea' => 'draft',
+                'itemid' => $draftitemid,
+                'filepath' => '/',
+                'filename' => $filename,
+            ], $filename . ' contents');
+        }
+
+        $source = '<a href="https://youtu.be/XNpXpcv7MRo">YouTube</a>'
+            . '<video controls><source src="@@PLUGINFILE@@/video.webm" type="video/webm"></video>'
+            . '<div class="h5p-placeholder" contenteditable="false">@@PLUGINFILE@@/example.h5p</div>'
+            . '<iframe src="https://example.com/embed"></iframe>';
+        $module = create_module((object) [
+            'modulename' => 'cms',
+            'course' => $course->id,
+            'section' => 0,
+            'visible' => true,
+            'typeid' => $cmstype->get('id'),
+            'name' => 'Portable media',
+            'customfield_media' => [
+                'text' => $source,
+                'format' => FORMAT_HTML,
+                'itemid' => $draftitemid,
+            ],
+        ]);
+
+        $cm = get_coursemodule_from_id('cms', $module->coursemodule, 0, false, MUST_EXIST);
+        $cms = new cms($cm->instance);
+        $context = context_module::instance($cm->id);
+        $renderer = new renderer($cms);
+
+        $display = $renderer->get_html();
+        $portable = $renderer->get_portable_html();
+
+        $this->assertStringContainsString('mediaplugin_videojs', $display);
+        $this->assertStringContainsString('h5p-iframe', $display);
+        $this->assertStringNotContainsString('mediaplugin_videojs', $portable);
+        $this->assertStringNotContainsString('id_videojs_', $portable);
+        $this->assertStringContainsString('https://youtu.be/XNpXpcv7MRo', $portable);
+        $this->assertStringContainsString('<iframe src="https://example.com/embed"></iframe>', $portable);
+        $this->assertStringContainsString(
+            '/' . $context->id . '/customfield_mutextadvanced/value/',
+            $portable
+        );
+        $this->assertStringContainsString('/video.webm', $portable);
+        $this->assertStringContainsString('/example.h5p', $portable);
+
+        // Portable rendering must not populate or reuse the normal rendered-content cache.
+        $this->assertSame($display, $renderer->get_html());
+        $this->assertSame($portable, (new renderer($cms))->get_portable_html());
     }
 
     /**

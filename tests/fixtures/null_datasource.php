@@ -50,4 +50,16 @@ class null_datasource extends dsbase {
             'b' => 'B',
         ];
     }
+
+    /**
+     * Pulls portable data from the datasource.
+     *
+     * @return \stdClass
+     */
+    public function get_portable_data(): \stdClass {
+        return (object) [
+            'a' => 'Portable A',
+            'b' => 'Portable B',
+        ];
+    }
 }
