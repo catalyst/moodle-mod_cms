@@ -327,10 +327,15 @@ final class datasource_fields_test extends \advanced_testcase {
      *
      * @covers \mod_cms\local\datasource\fields::get_portable_data
      * @covers \mod_cms\local\renderer::get_portable_html
-     * @covers \customfield_mutextadvanced\data_controller::export_value_unfiltered
      */
     public function test_portable_editor_media(): void {
         global $USER;
+
+        if (!method_exists(\customfield_mutextadvanced\data_controller::class, 'export_value_unfiltered')) {
+            $this->markTestSkipped(
+                'Portable editor media requires customfield_mutextadvanced with export_value_unfiltered().'
+            );
+        }
 
         filter_set_global_state('mediaplugin', TEXTFILTER_ON);
         filter_set_global_state('displayh5p', TEXTFILTER_ON);

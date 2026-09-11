@@ -174,6 +174,7 @@ class renderer {
      * Resolves a mustache template using CMS data.
      *
      * @param string $varname The name of the template to use.
+     * @param bool $portable whether to request portable datasource values
      * @return string
      */
     protected function resolve_mustache(string $varname, bool $portable = false): string {

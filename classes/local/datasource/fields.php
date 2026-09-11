@@ -77,7 +77,10 @@ class fields extends base_mod_cms {
     }
 
     /**
-     * Pulls portable, unfiltered data from the custom fields datasource.
+     * Pulls portable data from the custom fields datasource.
+     *
+     * Fields can provide an unfiltered value specifically for portable export. Fields without that API fall back
+     * to their normal exported value.
      *
      * @return \stdClass
      */
