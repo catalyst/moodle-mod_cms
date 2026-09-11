@@ -47,9 +47,10 @@ class renderer {
     /**
      * Get the data array for the cms.
      *
+     * @param bool $portable whether to request portable datasource values
      * @return \stdClass
      */
-    public function get_data(): \stdClass {
+    public function get_data(bool $portable = false): \stdClass {
         $data = new \stdClass();
         $data->name = $this->cms->get('name');
         $data->icon = $this->cms->get_type()->get_type_icon();
@@ -59,7 +60,7 @@ class renderer {
 
         foreach (dsbase::get_datasources($this->cms) as $ds) {
             $name = $ds::get_shortname();
-            $data->$name = $ds->get_cached_data();
+            $data->$name = $portable ? $ds->get_portable_data() : $ds->get_cached_data();
         }
 
         // Create a debug variable that contains the whole structure.
@@ -125,6 +126,17 @@ class renderer {
     }
 
     /**
+     * Render portable HTML without generated display markup where supported by the datasources.
+     *
+     * Portable output is not cached because it differs from normal display output.
+     *
+     * @return string
+     */
+    public function get_portable_html(): string {
+        return $this->resolve_mustache('mustache', true);
+    }
+
+    /**
      * Renders the template label with the data and returns the result.
      *
      * @return string
@@ -162,10 +174,11 @@ class renderer {
      * Resolves a mustache template using CMS data.
      *
      * @param string $varname The name of the template to use.
+     * @param bool $portable whether to request portable datasource values
      * @return string
      */
-    protected function resolve_mustache(string $varname): string {
-        $data = $this->get_data();
+    protected function resolve_mustache(string $varname, bool $portable = false): string {
+        $data = $this->get_data($portable);
         $mustache = self::get_mustache();
         $template = $this->cms->get_type()->get($varname);
         return $mustache->render($template, $data);

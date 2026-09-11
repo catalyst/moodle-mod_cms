@@ -77,6 +77,30 @@ class fields extends base_mod_cms {
     }
 
     /**
+     * Pulls portable data from the custom fields datasource.
+     *
+     * Fields can provide an unfiltered value specifically for portable export. Fields without that API fall back
+     * to their normal exported value.
+     *
+     * @return \stdClass
+     */
+    public function get_portable_data(): \stdClass {
+        $instancedata = $this->cfhandler->get_instance_data($this->cms->get('id'), true);
+        $customfields = new \stdClass();
+        foreach ($instancedata as $field) {
+            $shortname = $field->get_field()->get('shortname');
+            if ($this->cms->issample) {
+                $customfields->$shortname = $this->get_sample($field);
+            } else if (method_exists($field, 'export_value_unfiltered')) {
+                $customfields->$shortname = $field->export_value_unfiltered();
+            } else {
+                $customfields->$shortname = $field->export_value();
+            }
+        }
+        return $customfields;
+    }
+
+    /**
      * Get a sample value for a custom field.
      *
      * @param \core_customfield\data_controller $field
