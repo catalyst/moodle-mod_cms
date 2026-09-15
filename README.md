@@ -11,8 +11,9 @@ The following maps the plugin version to use depending on your Moodle version.
 
 | Moodle version    | Branch            |
 |-------------------| ------------------|
+| Moodle 5.3 to 5.3 | MOODLE_503_STABLE |
+| Moodle 4.1 to 5.2 | MOODLE_401_STABLE |
 | Moodle 3.9 to 4.0 | MOODLE_39_STABLE  |
-| Moodle 4.1 to 4.5 | MOODLE_401_STABLE |
 
 ## Installation
 
