@@ -458,6 +458,11 @@ final class datasource_userlist_test extends \advanced_testcase {
         // Check that they are different.
         $this->assertNotEquals($file1->get_content(), $file2->get_content());
 
+        // The name is derived from the type's template, so set one for the course module to be listed.
+        $cms->set('name', 'Some module');
+        $cms->save();
+        rebuild_course_cache($course->id, true);
+
         // Duplicate the module (which is done via backup and restore).
         $newcm = duplicate_module($course, $cm);
         $newcms = new cms($newcm->instance);
