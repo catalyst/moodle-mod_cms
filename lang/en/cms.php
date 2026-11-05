@@ -75,7 +75,9 @@ $string['import_cms_type'] = 'Import content type';
 $string['import_file'] = 'Import file';
 $string['instance:header'] = 'Activity fields';
 $string['instance:name'] = 'Activity name template';
-$string['instance:name_help'] = 'A template for the name of each activity created from this type. It can use the same variables as the content template, so the name can come from the data. This is the name shown on the course page, and in the activity header if that is enabled.';
+$string['instance:name_help'] = 'A template for the name of each activity created from this type. It can use the same variables as the content template, so the name can come from the data. This is the name shown on the course page, and in the activity header if that is enabled.
+
+If you want a different name for each instance, add a custom field for it and use it here, for example {{fields.name}}.';
 $string['manage_types_return'] = 'Return to manage types';
 $string['managetypes'] = 'Manage content types';
 $string['maxgrade'] = 'Default max grade';
