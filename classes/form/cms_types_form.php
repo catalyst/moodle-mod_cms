@@ -64,6 +64,14 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
+        $mform->addElement(
+            'advcheckbox',
+            'showheader',
+            get_string('showheader', 'mod_cms'),
+            get_string('showheader_desc', 'mod_cms')
+        );
+        $mform->addHelpButton('showheader', 'showheader', 'mod_cms');
+
         $this->add_datasource_select_element();
 
         $mform->addElement('header', 'instance_heading', get_string('instance:header', 'mod_cms'));

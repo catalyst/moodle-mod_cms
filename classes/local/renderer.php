@@ -121,7 +121,25 @@ class renderer {
      * @return string
      */
     public function get_html(): string {
-        return $this->get_content('cms_content', 'mustache');
+        $html = $this->get_content('cms_content', 'mustache');
+        if ($this->cms->get_type()->get('showheader')) {
+            $html = $this->get_header_html() . $html;
+        }
+        return $html;
+    }
+
+    /**
+     * Renders the activity icon and name, styled like an activity in the course page.
+     *
+     * @return string
+     */
+    protected function get_header_html(): string {
+        $data = $this->get_data();
+        $output = \core\di::get(\core\output\renderer_helper::class)->get_core_renderer();
+        return $output->render_from_template('mod_cms/activity_header', [
+            'icon' => $data->icon,
+            'name' => $data->name,
+        ]);
     }
 
     /**
