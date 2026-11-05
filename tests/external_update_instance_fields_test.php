@@ -62,6 +62,36 @@ final class external_update_instance_fields_test extends \advanced_testcase {
     }
 
     /**
+     * Tests that a textarea field, which is saved through an editor element, is updated.
+     *
+     * @covers \mod_cms\external\update_instance_fields::execute
+     */
+    public function test_execute_textarea(): void {
+        global $DB;
+        $this->resetAfterTest();
+        $this->setAdminUser();
+
+        $generator = $this->getDataGenerator()->get_plugin_generator('mod_cms');
+        $cmstype = $generator->create_cms_type(['datasources' => 'fields', 'title_mustache' => 'Notes']);
+        $category = $generator->create_datasource_fields_category($cmstype);
+        $generator->create_datasource_fields_field([
+            'categoryid' => $category->get('id'),
+            'shortname' => 'notes',
+            'type' => 'textarea',
+        ]);
+        $course = $this->create_course();
+        $moduleinfo = $this->create_module($cmstype->get('id'), $course->id);
+
+        update_instance_fields::execute($moduleinfo->coursemodule, [
+            ['shortname' => 'notes', 'value' => '<ul><li>1:Phil</li><li>2:Bob</li></ul>'],
+        ]);
+
+        $data = $DB->get_records('customfield_data', ['instanceid' => $moduleinfo->instance]);
+        $values = array_map(fn($d) => $d->value, $data);
+        $this->assertContains('<ul><li>1:Phil</li><li>2:Bob</li></ul>', $values);
+    }
+
+    /**
      * Tests that users without the capability are refused.
      *
      * @covers \mod_cms\external\update_instance_fields::execute

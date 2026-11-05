@@ -25,8 +25,8 @@
 
 defined('MOODLE_INTERNAL') || die();
 
-$plugin->version = 2026083101;
-$plugin->release = 2026083101;
+$plugin->version = 2026083102;
+$plugin->release = 2026083102;
 $plugin->requires = 2026081800; // Moodle 5.3 and above.
 $plugin->supported = [503, 503]; // Moodle 5.3.
 $plugin->component = 'mod_cms';
