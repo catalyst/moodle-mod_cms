@@ -77,7 +77,7 @@ class cms_types_form extends persistent_form {
 
         $mform->addElement('header', 'instance_heading', get_string('instance:header', 'mod_cms'));
 
-        $mform->addElement('text', 'title_mustache', get_string('instance:name', 'mod_cms'));
+        $mform->addElement('text', 'title_mustache', get_string('instance:name', 'mod_cms'), ['size' => 60]);
         $mform->addHelpButton('title_mustache', 'instance:name', 'mod_cms');
         $mform->addRule('title_mustache', get_string('required'), 'required', null, 'client');
 
