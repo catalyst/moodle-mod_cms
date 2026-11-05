@@ -102,7 +102,7 @@ class roles extends base_mod_cms {
 
             // Get a list of users from the database.
             $userids = array_keys($usersroles);
-            $users = user_get_users_by_id($userids);
+            $users = \core\user::get_users_by_id($userids);
             foreach ($users as $user) {
                 $user->fullname = fullname($user);
             }
