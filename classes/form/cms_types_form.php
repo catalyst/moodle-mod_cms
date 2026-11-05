@@ -52,7 +52,7 @@ class cms_types_form extends persistent_form {
 
         $mform = $this->_form;
 
-        $mform->addElement('text', 'name', get_string('name'));
+        $mform->addElement('text', 'name', get_string('name'), ['size' => 60]);
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
