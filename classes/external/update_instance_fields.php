@@ -21,12 +21,20 @@ use mod_cms\local\datasource\fields as dsfields;
 use mod_cms\local\model\cms;
 use mod_cms\local\renderer;
 
+defined('MOODLE_INTERNAL') || die();
+
 // Moodle 4.1 has the external API classes in the global namespace, later versions in core_external.
 if (!class_exists('core_external\\external_api')) {
     global $CFG;
     require_once($CFG->libdir . '/externallib.php');
-    foreach (['external_api', 'external_function_parameters', 'external_multiple_structure',
-              'external_single_structure', 'external_value'] as $class) {
+    $externalclasses = [
+        'external_api',
+        'external_function_parameters',
+        'external_multiple_structure',
+        'external_single_structure',
+        'external_value',
+    ];
+    foreach ($externalclasses as $class) {
         class_alias($class, 'core_external\\' . $class);
     }
 }
