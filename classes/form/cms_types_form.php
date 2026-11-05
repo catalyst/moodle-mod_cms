@@ -121,6 +121,11 @@ class cms_types_form extends persistent_form {
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($cmstype) as $ds) {
             $ds->config_form_definition($mform);
+            // Keep the sections of enabled data sources open.
+            $heading = $ds::get_shortname() . '_heading';
+            if ($mform->elementExists($heading)) {
+                $mform->setExpanded($heading, true);
+            }
         }
 
         // Add a heading.
