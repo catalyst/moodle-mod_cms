@@ -66,14 +66,12 @@ class content_types_list extends \flexible_table {
 
         // Column definition.
         $this->define_columns([
-            'icon',
             'name',
             'numinstances',
             'actions',
         ]);
 
         $this->define_headers([
-            '',
             get_string('table:name', 'mod_cms'),
             get_string('table:numinstances', 'mod_cms'),
             get_string('actions'),
@@ -85,21 +83,6 @@ class content_types_list extends \flexible_table {
     }
 
     /**
-     * Display icon, if any.
-     *
-     * @param cms_types $type
-     *
-     * @return string
-     */
-    protected function col_icon(cms_types $type): string {
-        $iconurl = $type->get_type_icon();
-        if (is_null($iconurl)) {
-            return '';
-        }
-        return \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon']);
-    }
-
-    /**
      * Display name column.
      *
      * @param cms_types $type
@@ -107,6 +90,14 @@ class content_types_list extends \flexible_table {
      * @return string
      */
     protected function col_name(cms_types $type): string {
+        $content = s($type->get('name'));
+        $iconurl = $type->get_type_icon();
+        if (!is_null($iconurl)) {
+            // Use the same markup as an activity icon in the course page.
+            $img = \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => '', 'class' => 'activityicon nofilter']);
+            $icon = \html_writer::div($img, 'activity-icon activityiconcontainer smaller content isbranded courseicon me-2');
+            $content = $icon . $content;
+        }
         return \html_writer::link(
             new \moodle_url(
                 manage_content_types::get_base_url(),
@@ -115,7 +106,8 @@ class content_types_list extends \flexible_table {
                     'action' => 'edit',
                 ]
             ),
-            $type->get('name')
+            $content,
+            ['class' => 'd-flex align-items-center']
         );
     }
 
