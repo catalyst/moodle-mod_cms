@@ -424,6 +424,11 @@ final class datasource_fields_test extends \advanced_testcase {
         $file = $fs->get_file($context->id, 'customfield_textarea', 'value', $itemid, '/', $filename);
         $this->assertNotEmpty($file);
 
+        // The name is derived from the type's template, so set one for the course module to be listed.
+        $cms->set('name', 'Some module');
+        $cms->save();
+        rebuild_course_cache($course->id, true);
+
         // Duplicate the module (which is done via backup and restore).
         $newcm = duplicate_module($course, $cm);
         $newcms = new cms($newcm->instance);
