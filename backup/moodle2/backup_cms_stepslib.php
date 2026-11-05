@@ -67,6 +67,7 @@ class backup_cms_activity_structure_step extends backup_activity_structure_step 
             'title_mustache',
             'mustache',
             'datasources',
+            'showheader',
             'customdata',
             'usermodified',
             'timecreated',

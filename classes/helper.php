@@ -39,6 +39,22 @@ class helper {
     public const YAML_DUMP_INDENT_LEVEL = 2;
 
     /**
+     * Renders the activity icon and name, styled like an activity in the course page.
+     *
+     * @param string|null $icon URL of the icon
+     * @param string $name
+     * @return string
+     */
+    public static function render_activity_header(?string $icon, string $name): string {
+        global $OUTPUT;
+
+        return $OUTPUT->render_from_template('mod_cms/activity_header', [
+            'icon' => $icon,
+            'name' => $name,
+        ]);
+    }
+
+    /**
      * Get a filler icon for display in the actions column of a table.
      *
      * @param string $url

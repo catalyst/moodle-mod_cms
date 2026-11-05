@@ -425,5 +425,15 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024090305, 'cms');
     }
 
+    if ($oldversion < 2024090317) {
+        // Add the option to show the activity header above the content.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('showheader', XMLDB_TYPE_INTEGER, '1', null, XMLDB_NOTNULL, null, '0', 'isvisible');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        upgrade_mod_savepoint(true, 2024090317, 'cms');
+    }
+
     return true;
 }

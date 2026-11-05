@@ -88,6 +88,10 @@ class cms_types extends persistent {
                 'type' => PARAM_TEXT,
                 'default' => '',
             ],
+            'showheader' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
             'customdata' => [
                 'type' => PARAM_TEXT,
                 'default' => '{}',
