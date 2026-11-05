@@ -88,9 +88,10 @@ class renderer {
                 $lines = array_merge($lines, $this->looper($value, $prefix . '  '));
                 $lines[] = $prefix . '{{/' . $key . '}}';
             } else if (is_array($value)) {
-                if (is_object($value[0])) {
+                $first = reset($value);
+                if (is_object($first)) {
                     $lines[] = $prefix . '{{#' . $key . '}} // As an array of objects';
-                    $lines = array_merge($lines, $this->looper($value[0], $prefix . '  '));
+                    $lines = array_merge($lines, $this->looper($first, $prefix . '  '));
                     $lines[] = $prefix . '{{/' . $key . '}}';
                 } else {
                     $lines[] = $prefix . '{{#' . $key . '}} // As an array of values';
