@@ -94,6 +94,8 @@ class update_instance_fields extends \core_external\external_api {
         $updated = [];
         foreach ($fields as $field) {
             $data->{'customfield_' . $field['shortname']} = $field['value'];
+            // Textarea fields read their value from an editor element; other types ignore it.
+            $data->{'customfield_' . $field['shortname'] . '_editor'} = ['text' => $field['value'], 'format' => FORMAT_HTML];
             $updated[] = $field['shortname'];
         }
 
