@@ -45,13 +45,14 @@ require_capability('mod/cms:view', $context);
 
 $url = new moodle_url('/mod/cms/view.php', ['id' => $cm->id]);
 $PAGE->set_url($url);
+$PAGE->add_body_class('limitedwidth');
 
 // Print the page header.
 echo $OUTPUT->header();
 
 // Render the content of the mod.
 $renderer = new renderer($cms);
-echo $renderer->get_html();
+echo format_text($renderer->get_html(), FORMAT_HTML, ['context' => $context, 'noclean' => true]);
 
 // Finish the page.
 echo $OUTPUT->footer();

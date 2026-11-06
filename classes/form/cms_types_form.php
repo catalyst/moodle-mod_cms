@@ -48,7 +48,7 @@ class cms_types_form extends persistent_form {
      * Form definition.
      */
     protected function definition() {
-        global $CFG;
+        global $CFG, $OUTPUT;
 
         $mform = $this->_form;
 
@@ -135,7 +135,11 @@ class cms_types_form extends persistent_form {
 
         // Rendered previews.
         $html = $renderer->get_html();
-        $mform->addElement('static', 'preview', get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')), $html);
+        // A raw html element spans the full width of the form, rather than sitting in the value column.
+        $mform->addElement('html', $OUTPUT->render_from_template('mod_cms/type_preview', [
+            'hint' => get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')),
+            'content' => $html,
+        ]));
 
         $this->add_action_buttons();
     }
@@ -146,18 +150,16 @@ class cms_types_form extends persistent_form {
     public function add_datasource_select_element() {
         $mform = $this->_form;
         $labels = dsbase::get_datasource_labels();
-        $mform->addElement(
-            'static',
-            'datasources_desc',
-            get_string('datasources', 'mod_cms'),
-            get_string('datasources_desc', 'mod_cms')
-        );
-        $boxes = [];
+        $mform->addElement('header', 'datasources_heading', get_string('datasources', 'mod_cms'));
+        $mform->addElement('static', 'datasources_desc', '', get_string('datasources_desc', 'mod_cms'));
+        $descriptions = dsbase::get_datasource_descriptions();
         foreach ($labels as $shortname => $label) {
-            $name = 'ds_' . $shortname;
-            $boxes[] = $mform->createElement('checkbox', $name, $label, null);
+            $text = \html_writer::span(s($label), 'fw-bold');
+            if (!empty($descriptions[$shortname])) {
+                $text .= \html_writer::empty_tag('br') . \html_writer::span(s($descriptions[$shortname]), 'text-muted small');
+            }
+            $mform->addElement('checkbox', 'ds_' . $shortname, $shortname, $text);
         }
-        $mform->addGroup($boxes);
     }
 
     /**
@@ -227,6 +229,23 @@ class cms_types_form extends persistent_form {
             $ds->config_form_default_data($data);
         }
         return $data;
+    }
+
+    /**
+     * Get anchor links to each major section of the form.
+     *
+     * @return array Each item has 'text' and 'url'.
+     */
+    public function get_section_links(): array {
+        $links = [['text' => get_string('general'), 'url' => '#fitem_id_name']];
+        foreach ($this->_form->_elements as $element) {
+            if ($element->getType() !== 'header' || $element->getName() === '') {
+                continue;
+            }
+            $element->_generateId();
+            $links[] = ['text' => $element->toHtml(), 'url' => '#' . $element->getAttribute('id')];
+        }
+        return $links;
     }
 
     /**
