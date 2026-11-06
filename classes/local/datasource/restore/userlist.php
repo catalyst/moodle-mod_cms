@@ -19,6 +19,7 @@ namespace mod_cms\local\datasource\restore;
 use mod_cms\customfield\cmsuserlist_handler;
 use mod_cms\local\datasource\userlist as dsuserlist;
 use mod_cms\local\model\cms;
+use mod_cms\local\model\cms_types;
 
 /**
  * Restore processor for userlist.
@@ -40,6 +41,18 @@ class userlist {
     public function __construct(\restore_cms_activity_structure_step $stepslib) {
         $this->stepslib = $stepslib;
         $stepslib->add_to_after_party($this);
+    }
+
+    /**
+     * Restores the userlist configuration to the CMS type record.
+     *
+     * @param array $data
+     */
+    public function process_restore_ds_userlist_config(array $data) {
+        $newtypeid = $this->stepslib->get_new_parentid('cms_types');
+        $cmstype = new cms_types($newtypeid);
+        $cmstype->set_custom_data('userlist_config', ['heading' => $data['heading']]);
+        $cmstype->save();
     }
 
     /**
