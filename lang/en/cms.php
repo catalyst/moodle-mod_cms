@@ -117,6 +117,7 @@ $string['roles:displayname'] = 'Roles list';
 $string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';
 $string['sample_value'] = 'Sample value';
 $string['search:activity'] = 'CMS - activity information';
+$string['sections'] = 'Sections';
 $string['settings'] = 'Custom content type settings';
 $string['showheader'] = 'Show activity header';
 $string['showheader_desc'] = 'Show the icon and name above the content, like other activities in the course page.';

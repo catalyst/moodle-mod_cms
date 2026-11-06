@@ -241,7 +241,7 @@ class manage_content_types {
      * @param int|null $id   If no ID is provided, that means we are creating a new one
      */
     protected function edit(string $action, ?int $id = null): void {
-        global $CFG, $PAGE;
+        global $CFG, $OUTPUT, $PAGE;
 
         $PAGE->set_url(new \moodle_url(self::get_base_url(), ['action' => $action, 'id' => $id]));
         // Use Moodle's standard content max width rather than stretching the form across the whole page.
@@ -301,7 +301,10 @@ class manage_content_types {
             }
         }
 
-        $form->display();
+        echo $OUTPUT->render_from_template('mod_cms/type_edit_layout', [
+            'toc' => $form->get_section_links(),
+            'form' => $form->render(),
+        ]);
         $this->footer();
     }
 
