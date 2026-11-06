@@ -150,7 +150,7 @@ class roles extends base_mod_cms {
             $alreadyadded = false;
 
             // We use rolesdata to ensure correct ordering.
-            foreach ($rolesdata as $shortname => $roledata) {
+            foreach (array_keys($rolesdata) as $shortname) {
                 foreach ($rolerecords as $record) {
                     if ($record->shortname !== $shortname) {
                         continue;

@@ -34,9 +34,6 @@ class backup_cms_activity_structure_step extends backup_activity_structure_step 
     protected function define_structure() {
         global $DB;
 
-        // To know if we are including userinfo.
-        $userinfo = $this->get_setting_value('userinfo');
-
         $root = new backup_nested_element('cms', ['id'], [
             'course',
             'name',
