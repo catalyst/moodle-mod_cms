@@ -48,7 +48,7 @@ class cms_types_form extends persistent_form {
      * Form definition.
      */
     protected function definition() {
-        global $CFG;
+        global $CFG, $OUTPUT;
 
         $mform = $this->_form;
 
@@ -135,7 +135,11 @@ class cms_types_form extends persistent_form {
 
         // Rendered previews.
         $html = $renderer->get_html();
-        $mform->addElement('static', 'preview', get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')), $html);
+        // A raw html element spans the full width of the form, rather than sitting in the value column.
+        $mform->addElement('html', $OUTPUT->render_from_template('mod_cms/type_preview', [
+            'hint' => get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')),
+            'content' => $html,
+        ]));
 
         $this->add_action_buttons();
     }
