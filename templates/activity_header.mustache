@@ -25,15 +25,17 @@
         "name": "Who will be the next chair?"
     }
 }}
-<div class="cms-activity-header d-flex align-items-center mb-3">
-    {{#icon}}
-    <div class="activity-icon activityiconcontainer smaller content isbranded courseicon align-self-start me-2">
-        <img src="{{{icon}}}" class="activityicon nofilter" alt="">
-    </div>
-    {{/icon}}
-    <div class="activity-name-area activity-instance d-flex flex-column me-2">
-        <div class="activitytitle position-relative align-self-start">
-            <div class="activityname"><span class="instancename">{{name}}</span></div>
+<div class="cms-activity-header activity-item mb-3">
+    <div class="activity-grid">
+        {{#icon}}
+        <div class="activity-icon activityiconcontainer smaller content isbranded courseicon align-self-start me-2">
+            <img src="{{{icon}}}" class="activityicon nofilter" alt="">
+        </div>
+        {{/icon}}
+        <div class="activity-name-area activity-instance d-flex flex-column me-2">
+            <div class="activitytitle position-relative align-self-start">
+                <div class="activityname"><span class="instancename">{{name}}</span></div>
+            </div>
         </div>
     </div>
 </div>
