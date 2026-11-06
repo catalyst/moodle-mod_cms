@@ -71,7 +71,11 @@ class lib {
         foreach ($types as $type) {
             $iconurl = $type->get_type_icon();
             if (!is_null($iconurl)) {
-                $icon = \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon']);
+                // Mark custom icons as branded so that the chooser doesn't recolour them to match the purpose.
+                $icon = \html_writer::empty_tag(
+                    'img',
+                    ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon activityicon nofilter']
+                );
             } else {
                 $icon = $defaultmodulecontentitem->get_icon();
             }
@@ -85,7 +89,8 @@ class lib {
                 $type->get('description'),
                 $defaultmodulecontentitem->get_archetype(),
                 $defaultmodulecontentitem->get_component_name(),
-                method_exists($defaultmodulecontentitem, 'get_purpose') ? $defaultmodulecontentitem->get_purpose() : null
+                method_exists($defaultmodulecontentitem, 'get_purpose') ? $defaultmodulecontentitem->get_purpose() : null,
+                !is_null($iconurl)
             );
         }
 
