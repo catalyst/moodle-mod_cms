@@ -55,8 +55,6 @@ function mod_cms_after_config() {
  * @return bool|null
  */
 function cms_supports($feature) {
-    global $version;
-
     switch ($feature) {
         case FEATURE_IDNUMBER:
         case FEATURE_BACKUP_MOODLE2:
@@ -74,13 +72,9 @@ function cms_supports($feature) {
         default:
     }
 
-    // Version 4.0.0 and later.
-    if ($version >= 2022041900) {
-        switch ($feature) {
-            case FEATURE_MOD_PURPOSE:
-                return MOD_PURPOSE_CONTENT;
-            default:
-        }
+    // Module purposes were added in Moodle 4.0.
+    if (defined('FEATURE_MOD_PURPOSE') && $feature === FEATURE_MOD_PURPOSE) {
+        return MOD_PURPOSE_CONTENT;
     }
     return null;
 }
