@@ -39,7 +39,7 @@ class manage_content_types {
     protected $output;
 
     /** @var cms_types|null A locally stored instance. */
-    protected $_instance = null;
+    protected $instance = null;
 
     /**
      * Constructor.
@@ -159,10 +159,10 @@ class manage_content_types {
      * @return cms_types
      */
     protected function get_instance($id = 0): cms_types {
-        if (!isset($this->_instance)) {
-            $this->_instance = new cms_types($id);
+        if (!isset($this->instance)) {
+            $this->instance = new cms_types($id);
         }
-        return $this->_instance;
+        return $this->instance;
     }
 
     /**

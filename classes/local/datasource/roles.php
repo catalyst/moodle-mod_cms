@@ -150,7 +150,7 @@ class roles extends base_mod_cms {
             $alreadyadded = false;
 
             // We use rolesdata to ensure correct ordering.
-            foreach ($rolesdata as $shortname => $roledata) {
+            foreach (array_keys($rolesdata) as $shortname) {
                 foreach ($rolerecords as $record) {
                     if ($record->shortname !== $shortname) {
                         continue;
@@ -183,6 +183,7 @@ class roles extends base_mod_cms {
 
         // A list of roles to list.
         $mform->addElement('textarea', self::FORM_PREFIX . 'list', get_string('roles:config:list', 'cms'));
+        $mform->addHelpButton(self::FORM_PREFIX . 'list', 'roles:config:list', 'cms');
         $mform->addElement(
             'select',
             self::FORM_PREFIX . 'duplicates',
@@ -193,6 +194,7 @@ class roles extends base_mod_cms {
                 'nest' => get_string('roles:config:duplicates:nest', 'cms'),
             ]
         );
+        $mform->addHelpButton(self::FORM_PREFIX . 'duplicates', 'roles:config:duplicates', 'cms');
     }
 
     /**

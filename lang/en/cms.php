@@ -39,6 +39,10 @@ $string['cms:addinstance'] = 'Add a new custom content instance';
 $string['cms:seeall'] = 'Can see hidden CMS types in the activity chooser';
 $string['cms:view'] = 'View a new custom content instance';
 $string['cms_type:icon_desc'] = 'This icon will be displayed in the activity chooser menu.';
+$string['course:displayname'] = 'Course info';
+$string['course:sample:fullname'] = 'Example Course';
+$string['course:sample:shortname'] = 'EXAMPLE101';
+$string['course:sample:summary'] = 'An example course summary.';
 $string['customfield_manage_heading'] = 'Manage custom fields for content type "{$a}"';
 $string['datasources'] = 'Datasources';
 $string['datasources_desc'] = 'This is a performance measure. Select datasources to be included in this type. Only selected datasources will be configurable,
@@ -74,7 +78,10 @@ $string['import'] = 'Import';
 $string['import_cms_type'] = 'Import content type';
 $string['import_file'] = 'Import file';
 $string['instance:header'] = 'Activity fields';
-$string['instance:name'] = 'Name';
+$string['instance:name'] = 'Activity name template';
+$string['instance:name_help'] = 'A template for the name of each activity created from this type. It can use the same variables as the content template, so the name can come from the data. This is the name shown on the course page, and in the activity header if that is enabled.
+
+If you want a different name for each instance, add a custom field for it and use it here, for example {{fields.name}}.';
 $string['manage_types_return'] = 'Return to manage types';
 $string['managetypes'] = 'Manage content types';
 $string['maxgrade'] = 'Default max grade';
@@ -92,25 +99,32 @@ $string['privacy:metadata:cms'] = 'Custom content type instances';
 $string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
 $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
-$string['course:displayname'] = 'Course info';
-$string['course:sample:fullname'] = 'Example Course';
-$string['course:sample:shortname'] = 'EXAMPLE101';
-$string['course:sample:summary'] = 'An example course summary.';
 $string['roles:config:duplicates'] = 'Duplicates';
 $string['roles:config:duplicates:all'] = 'Show in all';
 $string['roles:config:duplicates:firstonly'] = 'Show in first';
 $string['roles:config:duplicates:nest'] = 'Show in first with roles';
+$string['roles:config:duplicates_help'] = 'Controls what happens when a user has more than one of the listed roles.
+
+* Show in all: the user is listed under every one of their roles.
+* Show in first: the user is listed only under the first of their roles, in the order given in Roles included.
+* Show in first with roles: the user is listed under their first role, along with the shortnames of all their listed roles.';
 $string['roles:config:header'] = 'Role list settings';
 $string['roles:config:list'] = 'Roles included';
+$string['roles:config:list_help'] = 'The shortnames of the roles to list, one per line, for example student or editingteacher. Roles are shown in the order given. If left empty, all roles in the course are listed. Only roles assigned in the course itself are included.';
 $string['roles:displayname'] = 'Roles list';
 $string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';
 $string['sample_value'] = 'Sample value';
 $string['search:activity'] = 'CMS - activity information';
 $string['settings'] = 'Custom content type settings';
+$string['showheader'] = 'Show activity header';
+$string['showheader_desc'] = 'Show the icon and name above the content, like other activities in the course page.';
+$string['showheader_help'] = 'When enabled, the type icon and the name of the activity are shown above the rendered template, in the same style as the other activities in a course.';
 $string['site:displayname'] = 'Site Info';
 $string['some_name'] = 'Some name';
 $string['table:name'] = 'Custom content type';
 $string['table:numinstances'] = 'Number of instances';
+$string['typename'] = 'Type name';
+$string['typename_help'] = 'The name of this content type, shown to administrators and in the activity chooser. It is not displayed on the course page. Use the activity name template below to set the name of each activity.';
 $string['userlist:config:columns'] = 'User list columns';
 $string['userlist:config:header'] = 'User list settings';
 $string['userlist:displayname'] = 'User list';

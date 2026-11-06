@@ -52,7 +52,8 @@ class cms_types_form extends persistent_form {
 
         $mform = $this->_form;
 
-        $mform->addElement('text', 'name', get_string('name'));
+        $mform->addElement('text', 'name', get_string('typename', 'mod_cms'), ['size' => 60]);
+        $mform->addHelpButton('name', 'typename', 'mod_cms');
         $mform->addRule('name', get_string('required'), 'required', null, 'client');
         $mform->setType('name', PARAM_TEXT);
 
@@ -64,11 +65,20 @@ class cms_types_form extends persistent_form {
         $mform->addElement('editor', 'description', get_string('description'));
         $mform->setType('description', PARAM_RAW);
 
+        $mform->addElement(
+            'advcheckbox',
+            'showheader',
+            get_string('showheader', 'mod_cms'),
+            get_string('showheader_desc', 'mod_cms')
+        );
+        $mform->addHelpButton('showheader', 'showheader', 'mod_cms');
+
         $this->add_datasource_select_element();
 
         $mform->addElement('header', 'instance_heading', get_string('instance:header', 'mod_cms'));
 
-        $mform->addElement('text', 'title_mustache', get_string('instance:name', 'mod_cms'));
+        $mform->addElement('text', 'title_mustache', get_string('instance:name', 'mod_cms'), ['size' => 60]);
+        $mform->addHelpButton('title_mustache', 'instance:name', 'mod_cms');
         $mform->addRule('title_mustache', get_string('required'), 'required', null, 'client');
 
         $mform->addElement(
@@ -113,6 +123,11 @@ class cms_types_form extends persistent_form {
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($cmstype) as $ds) {
             $ds->config_form_definition($mform);
+            // Keep the sections of enabled data sources open.
+            $heading = $ds::get_shortname() . '_heading';
+            if ($mform->elementExists($heading)) {
+                $mform->setExpanded($heading, true);
+            }
         }
 
         // Add a heading.
@@ -224,7 +239,7 @@ class cms_types_form extends persistent_form {
         $data = parent::convert_fields($data);
         $datasources = dsbase::get_datasource_labels();
         $selected = [];
-        foreach ($datasources as $shortname => $unused) {
+        foreach (array_keys($datasources) as $shortname) {
             $name = 'ds_' . $shortname;
             if (isset($data->$name)) {
                 $selected[] = $shortname;
