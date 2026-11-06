@@ -60,6 +60,15 @@ class userlist extends base_mod_cms {
     }
 
     /**
+     * Get a description of this datasource.
+     *
+     * @return string
+     */
+    public static function get_description(): string {
+        return get_string('userlist:description', 'mod_cms');
+    }
+
+    /**
      * Constructs a datasource for the given cms.
      *
      * @param cms $cms

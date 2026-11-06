@@ -146,18 +146,16 @@ class cms_types_form extends persistent_form {
     public function add_datasource_select_element() {
         $mform = $this->_form;
         $labels = dsbase::get_datasource_labels();
-        $mform->addElement(
-            'static',
-            'datasources_desc',
-            get_string('datasources', 'mod_cms'),
-            get_string('datasources_desc', 'mod_cms')
-        );
-        $boxes = [];
+        $mform->addElement('header', 'datasources_heading', get_string('datasources', 'mod_cms'));
+        $mform->addElement('static', 'datasources_desc', '', get_string('datasources_desc', 'mod_cms'));
+        $descriptions = dsbase::get_datasource_descriptions();
         foreach ($labels as $shortname => $label) {
-            $name = 'ds_' . $shortname;
-            $boxes[] = $mform->createElement('checkbox', $name, $label, null);
+            $text = \html_writer::span(s($label), 'fw-bold');
+            if (!empty($descriptions[$shortname])) {
+                $text .= \html_writer::empty_tag('br') . \html_writer::span(s($descriptions[$shortname]), 'text-muted small');
+            }
+            $mform->addElement('checkbox', 'ds_' . $shortname, $shortname, $text);
         }
-        $mform->addGroup($boxes);
     }
 
     /**
