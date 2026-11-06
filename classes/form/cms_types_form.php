@@ -232,6 +232,23 @@ class cms_types_form extends persistent_form {
     }
 
     /**
+     * Get anchor links to each major section of the form.
+     *
+     * @return array Each item has 'text' and 'url'.
+     */
+    public function get_section_links(): array {
+        $links = [['text' => get_string('general'), 'url' => '#fitem_id_name']];
+        foreach ($this->_form->_elements as $element) {
+            if ($element->getType() !== 'header' || $element->getName() === '') {
+                continue;
+            }
+            $element->_generateId();
+            $links[] = ['text' => $element->toHtml(), 'url' => '#' . $element->getAttribute('id')];
+        }
+        return $links;
+    }
+
+    /**
      * Convert some fields.
      *
      * @param  \stdClass $data The whole data set.
