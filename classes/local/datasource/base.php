@@ -142,7 +142,25 @@ abstract class base {
     }
 
     /**
-     * Get datasource labels
+     * Get datasource descriptions, indexed by shortname.
+     *
+     * @param bool $optionalonly
+     * @return array
+     */
+    final public static function get_datasource_descriptions(bool $optionalonly = true): array {
+        self::register_datasources();
+
+        $descriptions = [];
+        foreach (self::$datasourceclasses as $classname) {
+            if (!$optionalonly || $classname::is_optional()) {
+                $descriptions[$classname::get_shortname()] = $classname::get_description();
+            }
+        }
+        return $descriptions;
+    }
+
+    /**
+     * Get the labels of the datasources, indexed by shortname.
      *
      * @param bool $optionalonly
      * @return array
@@ -189,6 +207,15 @@ abstract class base {
      * @return string
      */
     abstract public static function get_displayname(): string;
+
+    /**
+     * Get a description of what this datasource provides and where its data comes from.
+     *
+     * @return string
+     */
+    public static function get_description(): string {
+        return '';
+    }
 
     /**
      * Is this datasource enabled for this CMS type?

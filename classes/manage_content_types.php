@@ -244,6 +244,8 @@ class manage_content_types {
         global $CFG, $PAGE;
 
         $PAGE->set_url(new \moodle_url(self::get_base_url(), ['action' => $action, 'id' => $id]));
+        // Use Moodle's standard content max width rather than stretching the form across the whole page.
+        $PAGE->add_body_class('limitedwidth');
         $instance = null;
 
         if (!empty($id)) {

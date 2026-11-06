@@ -43,6 +43,15 @@ class roles extends base_mod_cms {
     }
 
     /**
+     * Get a description of this datasource.
+     *
+     * @return string
+     */
+    public static function get_description(): string {
+        return get_string('roles:description', 'mod_cms');
+    }
+
+    /**
      * Pulls data from the datasource.
      *
      * @return \stdClass
