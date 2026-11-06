@@ -88,9 +88,10 @@ class renderer {
                 $lines = array_merge($lines, $this->looper($value, $prefix . '  '));
                 $lines[] = $prefix . '{{/' . $key . '}}';
             } else if (is_array($value)) {
-                if (is_object($value[0])) {
+                $first = reset($value);
+                if (is_object($first)) {
                     $lines[] = $prefix . '{{#' . $key . '}} // As an array of objects';
-                    $lines = array_merge($lines, $this->looper($value[0], $prefix . '  '));
+                    $lines = array_merge($lines, $this->looper($first, $prefix . '  '));
                     $lines[] = $prefix . '{{/' . $key . '}}';
                 } else {
                     $lines[] = $prefix . '{{#' . $key . '}} // As an array of values';
@@ -121,7 +122,21 @@ class renderer {
      * @return string
      */
     public function get_html(): string {
-        return $this->get_content('cms_content', 'mustache');
+        $html = $this->get_content('cms_content', 'mustache');
+        if ($this->cms->get_type()->get('showheader')) {
+            $html = $this->get_header_html() . $html;
+        }
+        return $html;
+    }
+
+    /**
+     * Renders the activity icon and name, styled like an activity in the course page.
+     *
+     * @return string
+     */
+    protected function get_header_html(): string {
+        $data = $this->get_data();
+        return \mod_cms\helper::render_activity_header($data->icon, $data->name);
     }
 
     /**

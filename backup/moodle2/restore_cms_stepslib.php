@@ -44,7 +44,6 @@ class restore_cms_activity_structure_step extends restore_activity_structure_ste
      */
     protected function define_structure() {
         $paths = [];
-        $userinfo = $this->get_setting_value('userinfo');
 
         $paths[] = new restore_path_element('cms', '/activity/cms');
         $paths[] = new restore_path_element('cms_types', '/activity/cms/cms_types');

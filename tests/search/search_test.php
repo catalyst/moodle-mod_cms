@@ -77,7 +77,7 @@ final class search_test extends \advanced_testcase {
         $this->cmsareaid = \core_search\manager::generate_areaid('mod_cms', 'activity');
 
         // Set \core_search::instance to the mock_search_engine as we don't require the search engine to be working to test this.
-        $search = \testable_core_search::instance();
+        \testable_core_search::instance();
 
         // Name for cms activity is using from "title_mustache".
         $cmstype = new cms_types();
@@ -133,8 +133,6 @@ final class search_test extends \advanced_testcase {
      * @covers ::get_document
      */
     public function test_get_document_recordset(): void {
-        global $DB;
-
         // Returns the instance as long as the area is supported.
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
         $this->assertInstanceOf('\mod_cms\search\activity', $searcharea);
@@ -271,8 +269,6 @@ final class search_test extends \advanced_testcase {
      * @covers ::get_document
      */
     public function test_multiple_contents(): void {
-        global $DB;
-
         // Returns the instance as long as the area is supported.
         $searcharea = \core_search\manager::get_search_area($this->cmsareaid);
         $this->assertInstanceOf('\mod_cms\search\activity', $searcharea);
@@ -290,14 +286,14 @@ final class search_test extends \advanced_testcase {
             'area' => 'cmsfield',
             'itemid' => $cmstype->get('id'),
         ]);
-        $field1 = self::getDataGenerator()->create_custom_field([
+        self::getDataGenerator()->create_custom_field([
             'name' => 'Overview',
             'shortname' => 'overview',
             'type' => 'text',
             'categoryid' => $fieldcategory->get('id'),
             'configdata' => json_encode(['defaultvalue' => 'Default Text Overview']),
         ]);
-        $field2 = self::getDataGenerator()->create_custom_field([
+        self::getDataGenerator()->create_custom_field([
             'name' => 'Details',
             'shortname' => 'details',
             'type' => 'text',

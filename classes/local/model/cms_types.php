@@ -88,6 +88,10 @@ class cms_types extends persistent {
                 'type' => PARAM_TEXT,
                 'default' => '',
             ],
+            'showheader' => [
+                'type' => PARAM_BOOL,
+                'default' => false,
+            ],
             'customdata' => [
                 'type' => PARAM_TEXT,
                 'default' => '{}',
@@ -307,7 +311,7 @@ class cms_types extends persistent {
      */
     public function get_for_export(): \stdClass {
         $export = new \stdClass();
-        foreach (self::define_properties() as $name => $def) {
+        foreach (array_keys(self::define_properties()) as $name) {
             $export->$name = $this->get($name);
         }
         unset($export->customdata);
@@ -343,7 +347,7 @@ class cms_types extends persistent {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
-        foreach (self::define_properties() as $name => $def) {
+        foreach (array_keys(self::define_properties()) as $name) {
             if (isset($data->$name)) {
                 $this->set($name, $data->$name);
             }

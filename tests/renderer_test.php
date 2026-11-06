@@ -104,6 +104,32 @@ final class renderer_test extends \advanced_testcase {
     }
 
     /**
+     * Tests that the activity header is only shown when the type has it enabled.
+     *
+     * @covers \mod_cms\local\renderer::get_html
+     */
+    public function test_get_html_header(): void {
+        $manager = new manage_content_types();
+        $cmstype = $manager->create((object) [
+            'name' => 'somename',
+            'idnumber' => 'test-somename',
+            'mustache' => '<p>Content</p>',
+            'datasources' => '',
+        ]);
+        $cms = $cmstype->get_sample_cms();
+
+        $html = (new renderer($cms))->get_html();
+        $this->assertEquals('<p>Content</p>', $html);
+
+        $cmstype->set('showheader', true);
+        $cmstype->save();
+        $html = (new renderer($cmstype->get_sample_cms()))->get_html();
+        $this->assertStringContainsString('cms-activity-header', $html);
+        $this->assertStringContainsString(get_string('some_name', 'mod_cms'), $html);
+        $this->assertStringEndsWith('<p>Content</p>', $html);
+    }
+
+    /**
      * Tests null keys.
      * Tests that a datasource with a null key with casue the overall HTML to no be cached, but not interfere with the caching
      * of other datasources.
