@@ -119,7 +119,14 @@ class content_types_list extends \flexible_table {
      * @return string
      */
     protected function col_numinstances(cms_types $type): string {
-        return $this->cmscounts[$type->get('id')] ?? '0';
+        $count = (int) ($this->cmscounts[$type->get('id')] ?? 0);
+        if ($count === 0) {
+            return '0';
+        }
+        return \html_writer::link(
+            new \moodle_url('/mod/cms/instances.php', ['typeid' => $type->get('id')]),
+            (string) $count
+        );
     }
 
     /**
