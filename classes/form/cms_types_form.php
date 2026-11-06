@@ -239,7 +239,7 @@ class cms_types_form extends persistent_form {
         $data = parent::convert_fields($data);
         $datasources = dsbase::get_datasource_labels();
         $selected = [];
-        foreach ($datasources as $shortname => $unused) {
+        foreach (array_keys($datasources) as $shortname) {
             $name = 'ds_' . $shortname;
             if (isset($data->$name)) {
                 $selected[] = $shortname;
