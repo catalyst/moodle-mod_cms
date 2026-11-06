@@ -195,6 +195,11 @@ class userlist extends base_mod_cms {
             $names = $this->get_element_names($field);
             $element = $fakeform->getElement($names->cfelementname);
             $element->setName($names->ulelementname);
+            $helphtml = $this->get_field_help_icon($field);
+            if ($helphtml !== '') {
+                // Same slot that addHelpButton() uses, so it renders next to the required icon.
+                $element->_helpbutton = $helphtml;
+            }
             $repeatable[] = $element;
 
             // Sometimes, the default has to be an integer.
@@ -228,6 +233,37 @@ class userlist extends base_mod_cms {
             true,
             'delete'
         );
+    }
+
+    /**
+     * Get a help icon containing the field description, if it has one.
+     *
+     * @param \core_customfield\field_controller $field
+     * @return string HTML, empty if there is no description.
+     */
+    protected function get_field_help_icon(\core_customfield\field_controller $field): string {
+        global $OUTPUT;
+
+        $record = $field->to_record();
+        if (!strlen(trim((string) $record->description))) {
+            return '';
+        }
+        $context = $this->cfhandler->get_configuration_context();
+        $text = file_rewrite_pluginfile_urls(
+            $record->description,
+            'pluginfile.php',
+            $context->id,
+            'core_customfield',
+            'description',
+            $record->id
+        );
+        $text = format_text($text, $record->descriptionformat, ['context' => $context]);
+
+        return $OUTPUT->render_from_template('core/help_icon', [
+            'text' => $text,
+            'alt' => get_string('helpprefix2', '', $field->get_formatted_name()),
+            'ltr' => !right_to_left(),
+        ]);
     }
 
     /**
