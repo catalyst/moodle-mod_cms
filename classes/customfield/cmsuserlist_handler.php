@@ -62,15 +62,6 @@ class cmsuserlist_handler extends handler {
     }
 
     /**
-     * Uses categories
-     *
-     * @return bool
-     */
-    public function uses_categories(): bool {
-        return false;
-    }
-
-    /**
      * URL for configuration of the fields on this handler.
      *
      * @return \moodle_url

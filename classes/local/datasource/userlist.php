@@ -182,7 +182,16 @@ class userlist extends base_mod_cms {
         $repeatno = count($instanceids) ?: self::DEFAULT_NUM_ROWS;
 
         $fields = $this->cfhandler->get_fields();
+        $lastcategoryid = null;
         foreach ($fields as $field) {
+            $category = $field->get_category();
+            if ($category->get('id') !== $lastcategoryid) {
+                $lastcategoryid = $category->get('id');
+                $repeatable[] = $mform->createElement(
+                    'html',
+                    \html_writer::tag('h5', $category->get_formatted_name(), ['class' => 'mt-3 mb-0'])
+                );
+            }
             $names = $this->get_element_names($field);
             $element = $fakeform->getElement($names->cfelementname);
             $element->setName($names->ulelementname);
