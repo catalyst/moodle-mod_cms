@@ -66,6 +66,26 @@ class cms_types_form extends persistent_form {
         $mform->setType('description', PARAM_RAW);
 
         $mform->addElement(
+            'static',
+            'iconfile_desc',
+            get_string('icon'),
+            get_string('cms_type:icon_desc', 'mod_cms')
+        );
+        $mform->addElement(
+            'filemanager',
+            'iconfile',
+            null,
+            null,
+            [
+                'subdirs' => 0,
+                'maxbytes' => $CFG->maxbytes,
+                'maxfiles' => 1,
+                'accepted_types' => ['web_image'],
+                'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
+            ]
+        );
+
+        $mform->addElement(
             'advcheckbox',
             'showheader',
             get_string('showheader', 'mod_cms'),
@@ -99,26 +119,6 @@ class cms_types_form extends persistent_form {
         $helptext = get_string('mustache_help', 'cms', $syntaxlink);
         $helptext .= \html_writer::tag('pre', implode(PHP_EOL, $renderer->get_variable_list()));
         $mform->addElement('static', 'mustache_help', '', $helptext);
-
-        $mform->addElement(
-            'static',
-            'iconfile_desc',
-            get_string('icon'),
-            get_string('cms_type:icon_desc', 'mod_cms')
-        );
-        $mform->addElement(
-            'filemanager',
-            'iconfile',
-            null,
-            null,
-            [
-                'subdirs' => 0,
-                'maxbytes' => $CFG->maxbytes,
-                'maxfiles' => 1,
-                'accepted_types' => ['web_image'],
-                'return_types' => FILE_INTERNAL | FILE_EXTERNAL,
-            ]
-        );
 
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($cmstype) as $ds) {
