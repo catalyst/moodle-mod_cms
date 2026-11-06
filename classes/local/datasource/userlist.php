@@ -86,6 +86,10 @@ class userlist extends base_mod_cms {
      */
     public function get_data(): \stdClass {
         $data = new \stdClass();
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        if (!empty($config->heading)) {
+            $data->heading = $config->heading;
+        }
         $data->columns = [];
         $columndefs = $this->cfhandler->get_fields();
         $data->numcolumns = count($columndefs);
@@ -156,6 +160,10 @@ class userlist extends base_mod_cms {
         // Add a heading.
         $mform->addElement('header', 'userlist_heading', get_string('userlist:config:header', 'cms'));
 
+        $mform->addElement('text', self::FORM_PREFIX . 'listheading', get_string('userlist:config:listheading', 'mod_cms'));
+        $mform->setType(self::FORM_PREFIX . 'listheading', PARAM_TEXT);
+        $mform->addHelpButton(self::FORM_PREFIX . 'listheading', 'userlist:config:listheading', 'mod_cms');
+
         $output = $PAGE->get_renderer('core_customfield');
         $outputpage = new management($this->cfhandler);
 
@@ -163,6 +171,16 @@ class userlist extends base_mod_cms {
         $html = $output->render($outputpage);
 
         $mform->addElement('static', 'userlist', get_string('userlist:config:columns', 'mod_cms'), $html);
+    }
+
+    /**
+     * Add extra data needed to add to the config form.
+     *
+     * @param mixed $data
+     */
+    public function config_form_default_data($data) {
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $data->userlist_listheading = $config->heading ?? '';
     }
 
     /**
@@ -219,7 +237,13 @@ class userlist extends base_mod_cms {
         $repeatable[] = $mform->createElement('submit', 'delete', 'Remove', [], false);
 
         // Add a heading.
-        $mform->addElement('header', 'heading', get_string('userlist:listdata', 'mod_cms'));
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $heading = trim((string) ($config->heading ?? ''));
+        $mform->addElement(
+            'header',
+            'heading',
+            $heading !== '' ? format_string($heading) : get_string('userlist:listdata', 'mod_cms')
+        );
 
         // Add the repeated elements.
         $form->repeat_elements(
@@ -420,7 +444,20 @@ class userlist extends base_mod_cms {
         if (count($categories) === 0) {
             $this->cfhandler->create_category();
         }
+        $this->set_list_heading($data->userlist_listheading ?? '');
         $this->update_config_cache_key();
+    }
+
+    /**
+     * Save the custom heading used for the list in the instance form.
+     *
+     * @param string $heading Empty to use the default heading.
+     */
+    protected function set_list_heading(string $heading) {
+        $heading = trim($heading);
+        $cmstype = $this->cms->get_type();
+        $cmstype->set_custom_data('userlist_config', $heading === '' ? null : ['heading' => $heading]);
+        $cmstype->save();
     }
 
     /**
@@ -453,6 +490,8 @@ class userlist extends base_mod_cms {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
+        $this->set_list_heading($data->heading ?? '');
+
         // There needs to be at least one category. So create it if it doesn't exist.
         $categories = $this->cfhandler->get_categories_with_fields();
         if (count($categories) === 0) {
@@ -560,6 +599,11 @@ class userlist extends base_mod_cms {
      * @param \backup_nested_element $element
      */
     public function config_backup_define_structure(\backup_nested_element $element) {
+        $userlist = new \backup_nested_element('userlistconfig', [], ['heading']);
+        $element->add_child($userlist);
+
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $userlist->set_source_array(empty($config->heading) ? [] : [['heading' => $config->heading]]);
     }
 
     /**
@@ -625,6 +669,10 @@ class userlist extends base_mod_cms {
      */
     public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
         $processor = new restore\userlist($stepslib);
+
+        $element = new \restore_path_element('restore_ds_userlist_config', '/activity/cms/cms_types/config_datasources/userlistconfig');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
 
         $element = new \restore_path_element(
             'restore_ds_userlist_row',
