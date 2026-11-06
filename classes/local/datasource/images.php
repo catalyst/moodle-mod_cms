@@ -49,6 +49,15 @@ class images extends base_mod_cms {
     }
 
     /**
+     * Get a description of this datasource.
+     *
+     * @return string
+     */
+    public static function get_description(): string {
+        return get_string('images:description', 'mod_cms');
+    }
+
+    /**
      * Get the metadata for the images stored with this datasource.
      *
      * @return array

@@ -19,6 +19,7 @@ namespace mod_cms\local;
 use core_course\local\entity\{content_item, string_title};
 use mod_cms\local\datasource\base as dsbase;
 use mod_cms\local\datasource\images as dsimages;
+use mod_cms\local\datasource\traits\hashcache;
 use mod_cms\local\model\{cms, cms_types};
 
 
@@ -159,6 +160,16 @@ class lib {
     public static function reset_cms_names(int $typeid) {
         $records = cms::get_records(['typeid' => $typeid]);
         foreach ($records as $cms) {
+            // Instances created before a datasource was enabled have no stored hash, so create it quietly up front.
+            foreach (dsbase::get_datasources($cms) as $ds) {
+                if (
+                    in_array(hashcache::class, class_uses($ds))
+                    && empty($cms->get_custom_data($ds::get_shortname() . 'instancehash'))
+                ) {
+                    $ds->update_instance_cache_key();
+                }
+            }
+
             $renderer = new renderer($cms);
             try {
                 $cms->set('name', $renderer->get_name());

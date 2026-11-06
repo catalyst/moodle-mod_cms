@@ -60,6 +60,15 @@ class userlist extends base_mod_cms {
     }
 
     /**
+     * Get a description of this datasource.
+     *
+     * @return string
+     */
+    public static function get_description(): string {
+        return get_string('userlist:description', 'mod_cms');
+    }
+
+    /**
      * Constructs a datasource for the given cms.
      *
      * @param cms $cms
@@ -77,6 +86,10 @@ class userlist extends base_mod_cms {
      */
     public function get_data(): \stdClass {
         $data = new \stdClass();
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        if (!empty($config->heading)) {
+            $data->heading = $config->heading;
+        }
         $data->columns = [];
         $columndefs = $this->cfhandler->get_fields();
         $data->numcolumns = count($columndefs);
@@ -147,6 +160,10 @@ class userlist extends base_mod_cms {
         // Add a heading.
         $mform->addElement('header', 'userlist_heading', get_string('userlist:config:header', 'cms'));
 
+        $mform->addElement('text', self::FORM_PREFIX . 'listheading', get_string('userlist:config:listheading', 'mod_cms'));
+        $mform->setType(self::FORM_PREFIX . 'listheading', PARAM_TEXT);
+        $mform->addHelpButton(self::FORM_PREFIX . 'listheading', 'userlist:config:listheading', 'mod_cms');
+
         $output = $PAGE->get_renderer('core_customfield');
         $outputpage = new management($this->cfhandler);
 
@@ -154,6 +171,16 @@ class userlist extends base_mod_cms {
         $html = $output->render($outputpage);
 
         $mform->addElement('static', 'userlist', get_string('userlist:config:columns', 'mod_cms'), $html);
+    }
+
+    /**
+     * Add extra data needed to add to the config form.
+     *
+     * @param mixed $data
+     */
+    public function config_form_default_data($data) {
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $data->userlist_listheading = $config->heading ?? '';
     }
 
     /**
@@ -173,10 +200,24 @@ class userlist extends base_mod_cms {
         $repeatno = count($instanceids) ?: self::DEFAULT_NUM_ROWS;
 
         $fields = $this->cfhandler->get_fields();
+        $lastcategoryid = null;
         foreach ($fields as $field) {
+            $category = $field->get_category();
+            if ($category->get('id') !== $lastcategoryid) {
+                $lastcategoryid = $category->get('id');
+                $repeatable[] = $mform->createElement(
+                    'html',
+                    \html_writer::tag('h5', $category->get_formatted_name(), ['class' => 'mt-3 mb-0'])
+                );
+            }
             $names = $this->get_element_names($field);
             $element = $fakeform->getElement($names->cfelementname);
             $element->setName($names->ulelementname);
+            $helphtml = $this->get_field_help_icon($field);
+            if ($helphtml !== '') {
+                // Same slot that addHelpButton() uses, so it renders next to the required icon.
+                $element->_helpbutton = $helphtml;
+            }
             $repeatable[] = $element;
 
             // Sometimes, the default has to be an integer.
@@ -196,7 +237,13 @@ class userlist extends base_mod_cms {
         $repeatable[] = $mform->createElement('submit', 'delete', 'Remove', [], false);
 
         // Add a heading.
-        $mform->addElement('header', 'heading', get_string('userlist:listdata', 'mod_cms'));
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $heading = trim((string) ($config->heading ?? ''));
+        $mform->addElement(
+            'header',
+            'heading',
+            $heading !== '' ? format_string($heading) : get_string('userlist:listdata', 'mod_cms')
+        );
 
         // Add the repeated elements.
         $form->repeat_elements(
@@ -210,6 +257,37 @@ class userlist extends base_mod_cms {
             true,
             'delete'
         );
+    }
+
+    /**
+     * Get a help icon containing the field description, if it has one.
+     *
+     * @param \core_customfield\field_controller $field
+     * @return string HTML, empty if there is no description.
+     */
+    protected function get_field_help_icon(\core_customfield\field_controller $field): string {
+        global $OUTPUT;
+
+        $record = $field->to_record();
+        if (!strlen(trim((string) $record->description))) {
+            return '';
+        }
+        $context = $this->cfhandler->get_configuration_context();
+        $text = file_rewrite_pluginfile_urls(
+            $record->description,
+            'pluginfile.php',
+            $context->id,
+            'core_customfield',
+            'description',
+            $record->id
+        );
+        $text = format_text($text, $record->descriptionformat, ['context' => $context]);
+
+        return $OUTPUT->render_from_template('core/help_icon', [
+            'text' => $text,
+            'alt' => get_string('helpprefix2', '', $field->get_formatted_name()),
+            'ltr' => !right_to_left(),
+        ]);
     }
 
     /**
@@ -366,7 +444,20 @@ class userlist extends base_mod_cms {
         if (count($categories) === 0) {
             $this->cfhandler->create_category();
         }
+        $this->set_list_heading($data->userlist_listheading ?? '');
         $this->update_config_cache_key();
+    }
+
+    /**
+     * Save the custom heading used for the list in the instance form.
+     *
+     * @param string $heading Empty to use the default heading.
+     */
+    protected function set_list_heading(string $heading) {
+        $heading = trim($heading);
+        $cmstype = $this->cms->get_type();
+        $cmstype->set_custom_data('userlist_config', $heading === '' ? null : ['heading' => $heading]);
+        $cmstype->save();
     }
 
     /**
@@ -399,6 +490,8 @@ class userlist extends base_mod_cms {
      * @param \stdClass $data
      */
     public function set_from_import(\stdClass $data) {
+        $this->set_list_heading($data->heading ?? '');
+
         // There needs to be at least one category. So create it if it doesn't exist.
         $categories = $this->cfhandler->get_categories_with_fields();
         if (count($categories) === 0) {
@@ -506,6 +599,11 @@ class userlist extends base_mod_cms {
      * @param \backup_nested_element $element
      */
     public function config_backup_define_structure(\backup_nested_element $element) {
+        $userlist = new \backup_nested_element('userlistconfig', [], ['heading']);
+        $element->add_child($userlist);
+
+        $config = $this->cms->get_type()->get_custom_data('userlist_config');
+        $userlist->set_source_array(empty($config->heading) ? [] : [['heading' => $config->heading]]);
     }
 
     /**
@@ -571,6 +669,10 @@ class userlist extends base_mod_cms {
      */
     public static function restore_define_structure(array $paths, \restore_cms_activity_structure_step $stepslib): array {
         $processor = new restore\userlist($stepslib);
+
+        $element = new \restore_path_element('restore_ds_userlist_config', '/activity/cms/cms_types/config_datasources/userlistconfig');
+        $element->set_processing_object($processor);
+        $paths[] = $element;
 
         $element = new \restore_path_element(
             'restore_ds_userlist_row',
