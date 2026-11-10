@@ -213,6 +213,11 @@ class lib {
     public static function cm_info_dynamic(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
         $cminfo->set_name($cms->get('name'));
+        // Core uses this icon in the page header and elsewhere, instead of the generic plugin icon.
+        $icon = $cms->get_type()->get_type_icon();
+        if ($icon) {
+            $cminfo->set_icon_url(new \core\url($icon));
+        }
         // Set the navigation URL so this module participates in linear navigation.
         // FEATURE_NO_VIEW_LINK suppresses the default $cm->url, so we must set it explicitly.
         $cminfo->set_navigation_url(new \core\url('/mod/cms/view.php', ['id' => $cminfo->id]));
