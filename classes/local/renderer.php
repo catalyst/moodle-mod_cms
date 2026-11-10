@@ -119,11 +119,12 @@ class renderer {
     /**
      * Renders the template with the data and returns the content.
      *
+     * @param bool $withheader Whether to prepend the activity header, if the type has it enabled.
      * @return string
      */
-    public function get_html(): string {
+    public function get_html(bool $withheader = true): string {
         $html = $this->get_content('cms_content', 'mustache');
-        if ($this->cms->get_type()->get('showheader')) {
+        if ($withheader && $this->cms->get_type()->get('showheader')) {
             $html = $this->get_header_html() . $html;
         }
         return $html;

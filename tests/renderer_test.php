@@ -127,6 +127,9 @@ final class renderer_test extends \advanced_testcase {
         $this->assertStringContainsString('cms-activity-header', $html);
         $this->assertStringContainsString(get_string('some_name', 'mod_cms'), $html);
         $this->assertStringEndsWith('<p>Content</p>', $html);
+
+        $html = (new renderer($cmstype->get_sample_cms()))->get_html(false);
+        $this->assertEquals('<p>Content</p>', $html);
     }
 
     /**
