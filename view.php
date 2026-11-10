@@ -52,9 +52,9 @@ $PAGE->add_body_class('limitedwidth');
 // Print the page header.
 echo $OUTPUT->header();
 
-// Render the content of the mod.
+// Render the content of the mod. The activity header is only for the course page, as this page has its own title.
 $renderer = new renderer($cms);
-echo format_text($renderer->get_html(), FORMAT_HTML, ['context' => $context, 'noclean' => true]);
+echo format_text($renderer->get_html(false), FORMAT_HTML, ['context' => $context, 'noclean' => true]);
 
 // Finish the page.
 echo $OUTPUT->footer();
