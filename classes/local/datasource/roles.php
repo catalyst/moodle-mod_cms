@@ -193,6 +193,21 @@ class roles extends base_mod_cms {
         // A list of roles to list.
         $mform->addElement('textarea', self::FORM_PREFIX . 'list', get_string('roles:config:list', 'cms'));
         $mform->addHelpButton(self::FORM_PREFIX . 'list', 'roles:config:list', 'cms');
+
+        // List the role shortnames assignable at course level, one per line, so they are easy to copy and paste.
+        $courseroleids = get_roles_for_contextlevels(CONTEXT_COURSE);
+        $courseroles = array_filter(get_all_roles(), fn($role) => in_array($role->id, $courseroleids));
+        $shortnames = array_map(
+            fn($role) => s($role->shortname) . ' - ' . s(role_get_name($role, null, ROLENAME_ORIGINAL)),
+            $courseroles
+        );
+        $mform->addElement(
+            'static',
+            self::FORM_PREFIX . 'available',
+            '',
+            \html_writer::tag('div', get_string('roles:config:available', 'cms'), ['class' => 'font-weight-bold']) .
+                \html_writer::div(implode('<br>', $shortnames), 'text-muted')
+        );
         $mform->addElement(
             'select',
             self::FORM_PREFIX . 'duplicates',
