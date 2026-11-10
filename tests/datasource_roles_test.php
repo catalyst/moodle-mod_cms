@@ -156,21 +156,21 @@ final class datasource_roles_test extends \advanced_testcase {
 
         // Test data for 'all'.
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
 
         // Test data for 'firstonly'.
         $config->roles_duplicates = 'firstonly';
         $manager->update($cmstype->get('id'), $config);
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('firstonly', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('firstonly', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
 
         // Test data for 'nest'.
         $config->roles_duplicates = 'nest';
         $manager->update($cmstype->get('id'), $config);
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('nest', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('nest', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
     }
 
@@ -263,9 +263,10 @@ final class datasource_roles_test extends \advanced_testcase {
      *
      * @param string $duplicates
      * @param array $users
+     * @param int $courseid
      * @return object
      */
-    protected function get_expected(string $duplicates, array $users) {
+    protected function get_expected(string $duplicates, array $users, int $courseid) {
         $timezone = \core_date::get_server_timezone();
         $expected = (object) [
             'roles' => [
@@ -283,6 +284,7 @@ final class datasource_roles_test extends \advanced_testcase {
                             'description' => '',
                             'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
                             'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['marysue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['teacher', 'student'],
                         ],
                     ],
@@ -301,6 +303,7 @@ final class datasource_roles_test extends \advanced_testcase {
                             'description' => '',
                             'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
                             'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['marysue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['teacher', 'student'],
                         ],
                         (object) [
@@ -313,6 +316,7 @@ final class datasource_roles_test extends \advanced_testcase {
                             'description' => '',
                             'profileimageurlsmall' => $this->get_avatar_url($users['garydue']),
                             'profileimageurl' => $this->get_avatar_url($users['garydue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['garydue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['student'],
                         ],
                     ],
