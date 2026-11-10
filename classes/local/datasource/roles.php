@@ -28,10 +28,32 @@ use mod_cms\local\model\{cms, cms_types};
  * @license   http://www.gnu.org/copyleft/gpl.html GNU GPL v3 or later
  */
 class roles extends base_mod_cms {
-    use revcache;
+    use revcache {
+        get_instance_cache_key as protected get_revision_cache_key;
+    }
 
     /** Prefix used for form elements. */
     const FORM_PREFIX = 'roles_';
+
+    /** Maximum age in seconds of cached data. Picks up user and role changes that do not trigger a revision update. */
+    const CACHE_TTL = HOURSECS;
+
+    /**
+     * Returns the cache key fragment for the instance data.
+     *
+     * The revision key is combined with a time window, so that cached data expires after CACHE_TTL. The windows are offset
+     * by instance ID so that all instances do not expire at the same moment.
+     *
+     * @return string|null
+     */
+    public function get_instance_cache_key(): ?string {
+        $key = $this->get_revision_cache_key();
+        $id = (int) $this->cms->get('id');
+        if (!empty($id)) {
+            $key .= 't' . intdiv(time() + ($id * 97) % self::CACHE_TTL, self::CACHE_TTL);
+        }
+        return $key;
+    }
 
     /**
      * Get the display name.
