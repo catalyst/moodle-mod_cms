@@ -57,7 +57,7 @@ class roles extends base_mod_cms {
      * @return \stdClass
      */
     public function get_data(): \stdClass {
-        global $CFG;
+        global $CFG, $PAGE;
 
         $data = new \stdClass();
 
@@ -72,19 +72,49 @@ class roles extends base_mod_cms {
         $rolesdata = [];
 
         // Prepares the source material depending on whether this is a sample or real.
+        $context = null;
         if ($this->cms->issample) {
             $users = [
-                123 => (object) ['fullname' => 'Billy Goat'],
-                451 => (object) ['fullname' => 'Jack Horner'],
-                693 => (object) ['fullname' => 'Puss in Boots'],
+                123 => (object) [
+                    'fullname' => 'Billy Goat',
+                    'email' => 'billy.goat@example.com',
+                    'description' => '<p>Billy has taught here for <strong>ten years</strong>.</p>',
+                    'phone1' => '01 2345 6789',
+                    'phone2' => '0400 000 001',
+                    'timezone' => 'Australia/Melbourne',
+                    'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
+                    'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
+                ],
+                451 => (object) [
+                    'fullname' => 'Jack Horner',
+                    'email' => 'jack.horner@example.com',
+                    'description' => '<p>Jack coordinates the <em>nursery rhymes</em> program.</p>',
+                    'phone1' => '01 2345 6790',
+                    'phone2' => '0400 000 002',
+                    'timezone' => 'Australia/Sydney',
+                    'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
+                    'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
+                ],
+                693 => (object) [
+                    'fullname' => 'Puss in Boots',
+                    'email' => 'puss.in.boots@example.com',
+                    'description' => '',
+                    'phone1' => '',
+                    'phone2' => '0400 000 003',
+                    'timezone' => 'Australia/Perth',
+                    'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
+                    'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
+                ],
             ];
 
             $usersroles = [
                 123 => [
                     (object) ['shortname' => 'student'],
                     (object) ['shortname' => 'teacher'],
+                    (object) ['shortname' => 'editingteacher'],
                 ],
                 451 => [
+                    (object) ['shortname' => 'editingteacher'],
                     (object) ['shortname' => 'manager'],
                     (object) ['shortname' => 'student'],
                 ],
@@ -114,6 +144,17 @@ class roles extends base_mod_cms {
             $users = \core\user::get_users_by_id($userids);
             foreach ($users as $user) {
                 $user->fullname = fullname($user);
+                $userpicture = new \user_picture($user);
+                $user->profileimageurlsmall = $userpicture->get_url($PAGE)->out(false);
+                $userpicture->size = 1;
+                $user->profileimageurl = $userpicture->get_url($PAGE)->out(false);
+                $usercontext = \context_user::instance($user->id);
+                $user->description = format_text(
+                    file_rewrite_pluginfile_urls($user->description, 'pluginfile.php', $usercontext->id, 'user', 'profile', null),
+                    $user->descriptionformat,
+                    ['context' => $usercontext]
+                );
+                $user->timezone = \core_date::get_user_timezone($user);
             }
         }
 
@@ -125,7 +166,7 @@ class roles extends base_mod_cms {
                 $shortname = $record->shortname;
                 $rolesdata[$shortname] = new \stdClass();
                 $rolesdata[$shortname]->shortname = $shortname;
-                $rolesdata[$shortname]->name = $record->coursealias ?: $record->name ?: $shortname;
+                $rolesdata[$shortname]->name = role_get_name($record, $context);
                 $rolesdata[$shortname]->users = [];
             }
         } else {
@@ -139,7 +180,7 @@ class roles extends base_mod_cms {
             // Add the course alias name.
             foreach ($rolesincontext as $record) {
                 if (isset($rolesdata[$record->shortname])) {
-                    $rolesdata[$record->shortname]->name = $record->coursealias ?: $record->name ?: $record->shortname;
+                    $rolesdata[$record->shortname]->name = role_get_name($record, $context);
                 }
             }
         }
@@ -150,7 +191,13 @@ class roles extends base_mod_cms {
             $userobj->id = $userid;
             // Add user fields.
             $userobj->fullname = $users[$userid]->fullname;
-            // TODO: In future, more fields may be needed.
+            $userobj->email = $users[$userid]->email;
+            $userobj->phone1 = $users[$userid]->phone1;
+            $userobj->phone2 = $users[$userid]->phone2;
+            $userobj->timezone = $users[$userid]->timezone;
+            $userobj->profileimageurlsmall = $users[$userid]->profileimageurlsmall;
+            $userobj->profileimageurl = $users[$userid]->profileimageurl;
+            $userobj->description = $users[$userid]->description;
 
             if ($showuser === 'nest') {
                 $userobj->roles = [];

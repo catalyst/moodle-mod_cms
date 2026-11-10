@@ -241,6 +241,24 @@ final class datasource_roles_test extends \advanced_testcase {
     }
 
     /**
+     * Gets the expected avatar URL for a user.
+     *
+     * @param \stdClass $user
+     * @param int|null $size Picture size, null for the default (small) size.
+     * @return string
+     */
+    protected function get_avatar_url(\stdClass $user, ?int $size = null): string {
+        global $DB, $PAGE;
+
+        $record = $DB->get_record('user', ['id' => $user->id]);
+        $picture = new \user_picture($record);
+        if ($size !== null) {
+            $picture->size = $size;
+        }
+        return $picture->get_url($PAGE)->out(false);
+    }
+
+    /**
      * Gets the expected data that shoudl be returned by get_data().
      *
      * @param string $duplicates
@@ -248,31 +266,53 @@ final class datasource_roles_test extends \advanced_testcase {
      * @return object
      */
     protected function get_expected(string $duplicates, array $users) {
+        $timezone = \core_date::get_server_timezone();
         $expected = (object) [
             'roles' => [
                 (object) [
                     'shortname' => 'teacher',
-                    'name' => 'teacher',
+                    'name' => 'Non-editing teacher',
                     'users' => [
                         (object) [
                             'id' => $users['marysue']->id,
                             'fullname' => 'Mary Sue',
+                            'email' => 'marysue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
+                            'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
                             'roles' => ['teacher', 'student'],
                         ],
                     ],
                 ],
                 (object) [
                     'shortname' => 'student',
-                    'name' => 'student',
+                    'name' => 'Student',
                     'users' => [
                         (object) [
                             'id' => $users['marysue']->id,
                             'fullname' => 'Mary Sue',
+                            'email' => 'marysue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
+                            'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
                             'roles' => ['teacher', 'student'],
                         ],
                         (object) [
                             'id' => $users['garydue']->id,
                             'fullname' => 'Gary Due',
+                            'email' => 'garydue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['garydue']),
+                            'profileimageurl' => $this->get_avatar_url($users['garydue'], 1),
                             'roles' => ['student'],
                         ],
                     ],
