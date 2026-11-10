@@ -258,6 +258,11 @@ class roles extends base_mod_cms {
             }
         }
 
+        foreach ($rolesdata as $roledata) {
+            $roledata->usercount = count($roledata->users);
+            $roledata->multiple = $roledata->usercount > 1;
+        }
+
         $data->roles = array_values($rolesdata);
 
         return $data;

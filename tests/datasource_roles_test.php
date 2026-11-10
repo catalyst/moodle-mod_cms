@@ -340,6 +340,10 @@ final class datasource_roles_test extends \advanced_testcase {
             unset($expected->roles[1]->users[0]);
             $expected->roles[1]->users = array_values($expected->roles[1]->users);
         }
+        foreach ($expected->roles as $role) {
+            $role->usercount = count($role->users);
+            $role->multiple = $role->usercount > 1;
+        }
         return $expected;
     }
 
