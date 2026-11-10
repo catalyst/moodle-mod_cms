@@ -103,6 +103,8 @@ class roles extends base_mod_cms {
                     'description' => '<p>Billy has taught here for <strong>ten years</strong>.</p>',
                     'phone1' => '01 2345 6789',
                     'phone2' => '0400 000 001',
+                    'city' => 'Melbourne',
+                    'country' => 'Australia',
                     'timezone' => 'Australia/Melbourne',
                     'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
                     'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
@@ -113,6 +115,8 @@ class roles extends base_mod_cms {
                     'description' => '<p>Jack coordinates the <em>nursery rhymes</em> program.</p>',
                     'phone1' => '01 2345 6790',
                     'phone2' => '0400 000 002',
+                    'city' => 'Sydney',
+                    'country' => 'Australia',
                     'timezone' => 'Australia/Sydney',
                     'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
                     'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
@@ -123,6 +127,8 @@ class roles extends base_mod_cms {
                     'description' => '',
                     'phone1' => '',
                     'phone2' => '0400 000 003',
+                    'city' => 'Perth',
+                    'country' => 'Australia',
                     'timezone' => 'Australia/Perth',
                     'profileimageurlsmall' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f2',
                     'profileimageurl' => $CFG->wwwroot . '/theme/image.php/_s/boost/core/1/u/f1',
@@ -163,9 +169,11 @@ class roles extends base_mod_cms {
 
             // Get a list of users from the database.
             $userids = array_keys($usersroles);
+            $countries = get_string_manager()->get_list_of_countries();
             $users = user_get_users_by_id($userids);
             foreach ($users as $user) {
                 $user->fullname = fullname($user);
+                $user->country = $countries[$user->country] ?? '';
                 $userpicture = new \user_picture($user);
                 $user->profileimageurlsmall = $userpicture->get_url($PAGE)->out(false);
                 $userpicture->size = 1;
@@ -218,6 +226,8 @@ class roles extends base_mod_cms {
             $userobj->email = $users[$userid]->email;
             $userobj->phone1 = $users[$userid]->phone1;
             $userobj->phone2 = $users[$userid]->phone2;
+            $userobj->city = $users[$userid]->city;
+            $userobj->country = $users[$userid]->country;
             $userobj->timezone = $users[$userid]->timezone;
             $userobj->profileimageurlsmall = $users[$userid]->profileimageurlsmall;
             $userobj->profileimageurl = $users[$userid]->profileimageurl;
