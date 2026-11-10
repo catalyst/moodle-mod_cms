@@ -207,6 +207,8 @@ class roles extends base_mod_cms {
             }
         }
 
+        $courseid = $this->cms->get('course') ?: SITEID;
+
         // Convert user indexed array to role indexed array.
         foreach ($usersroles as $userid => $rolerecords) {
             $userobj = new \stdClass();
@@ -219,6 +221,7 @@ class roles extends base_mod_cms {
             $userobj->timezone = $users[$userid]->timezone;
             $userobj->profileimageurlsmall = $users[$userid]->profileimageurlsmall;
             $userobj->profileimageurl = $users[$userid]->profileimageurl;
+            $userobj->profileurl = (new \moodle_url('/user/view.php', ['id' => $userid, 'course' => $courseid]))->out(false);
             $userobj->description = $users[$userid]->description;
 
             if ($showuser === 'nest') {
