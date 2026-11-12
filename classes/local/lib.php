@@ -71,7 +71,11 @@ class lib {
         foreach ($types as $type) {
             $iconurl = $type->get_type_icon();
             if (!is_null($iconurl)) {
-                $icon = \html_writer::empty_tag('img', ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon']);
+                // Mark custom icons as branded so that the chooser doesn't recolour them to match the purpose.
+                $icon = \html_writer::empty_tag(
+                    'img',
+                    ['src' => $iconurl->out(), 'alt' => $type->get('name'), 'class' => 'icon activityicon nofilter']
+                );
             } else {
                 $icon = $defaultmodulecontentitem->get_icon();
             }
@@ -85,7 +89,8 @@ class lib {
                 $type->get('description'),
                 $defaultmodulecontentitem->get_archetype(),
                 $defaultmodulecontentitem->get_component_name(),
-                method_exists($defaultmodulecontentitem, 'get_purpose') ? $defaultmodulecontentitem->get_purpose() : null
+                method_exists($defaultmodulecontentitem, 'get_purpose') ? $defaultmodulecontentitem->get_purpose() : null,
+                !is_null($iconurl)
             );
         }
 
@@ -208,6 +213,11 @@ class lib {
     public static function cm_info_dynamic(\cm_info $cminfo) {
         $cms = new cms($cminfo->instance);
         $cminfo->set_name($cms->get('name'));
+        // Core uses this icon in the page header and elsewhere, instead of the generic plugin icon.
+        $icon = $cms->get_type()->get_type_icon();
+        if ($icon) {
+            $cminfo->set_icon_url(new \core\url($icon));
+        }
         // Set the navigation URL so this module participates in linear navigation.
         // FEATURE_NO_VIEW_LINK suppresses the default $cm->url, so we must set it explicitly.
         $cminfo->set_navigation_url(new \core\url('/mod/cms/view.php', ['id' => $cminfo->id]));

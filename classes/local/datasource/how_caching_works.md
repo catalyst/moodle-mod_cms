@@ -17,3 +17,5 @@ The overall content is also cached, using a key derived from the combination of 
 Sometimes a datsource cannot be cached. It's data needs to be recalculated each time. Therefore the overall rendered content for the CMS instance cannot be cached either. In this case the function get_full_cache_key() should return null. This acts as a kind of veto that prevents the CMS from caching the rendered content.
 
 There are several traits the define functions for different caching strategies. nullcache is used when caching is not done. hashcache is used when a hash of the data is used for the instance key. revcache is used for revision based instance cahce keys.
+
+The roles datasource combines its revision key with a one hour time window (`roles::CACHE_TTL`), so that changes to users or role definitions, which do not bump the revision, show up within an hour. The windows are offset by instance ID to avoid every instance expiring at once.
