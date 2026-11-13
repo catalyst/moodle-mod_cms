@@ -227,12 +227,45 @@ class lib {
      * @param \cm_info $cminfo
      */
     public static function cm_info_view(\cm_info $cminfo) {
+        global $PAGE;
         $cms = new cms($cminfo->instance);
         $renderer = new renderer($cms);
-        $content = $renderer->get_html();
-        $cminfo->set_content($content);
+        $renderer->require_js($PAGE);
+        // The template is authored by admins and data sources format their own data, so the content is marked as
+        // formatted. Otherwise core would clean it, and forceclean (eg login as) would strip tags such as canvas.
+        $cminfo->set_content($renderer->get_html(), true);
         // This removes all the 'activity' chrome which makes it easier to style.
         $cminfo->set_custom_cmlist_item(true);
+    }
+
+    /**
+     * Serves the JavaScript of a type, which is generated from the type record rather than stored as a file.
+     *
+     * @param array $args Type id, timestamp and filename. Only the type id is used.
+     * @return bool|null false if not found
+     */
+    protected static function send_type_js(array $args) {
+        $typeid = (int) array_shift($args);
+        if (!cms_types::record_exists($typeid)) {
+            return false;
+        }
+        $type = new cms_types($typeid);
+        $js = (string) $type->get('javascript');
+        if (trim($js) === '') {
+            return false;
+        }
+        // The URL contains the modified time of the type, so the content never changes for a given URL.
+        send_file(
+            $js,
+            clean_filename($type->get('idnumber') . '.js'),
+            YEARSECS,
+            0,
+            true,
+            false,
+            'application/javascript',
+            false,
+            ['cacheability' => 'public', 'immutable' => true]
+        );
     }
 
     /**
@@ -248,6 +281,9 @@ class lib {
      * @return bool|null false if file not found, does not return anything if found - just send the file
      */
     public static function pluginfile($course, $cm, $context, $filearea, $args, $forcedownload, $options = []) {
+        if ($filearea === cms_types::JS_FILE_AREA) {
+            return self::send_type_js($args);
+        }
         // Make sure the filearea is one of those used by the plugin.
         if (!in_array($filearea, [dsimages::FILE_AREA, cms_types::ICON_FILE_AREA])) {
             return false;

@@ -435,5 +435,17 @@ function xmldb_cms_upgrade($oldversion) {
         upgrade_mod_savepoint(true, 2024090317, 'cms');
     }
 
+    if ($oldversion < 2024090322) {
+        // Add the admin authored JavaScript for the type.
+        $table = new xmldb_table('cms_types');
+        $field = new xmldb_field('javascript', XMLDB_TYPE_TEXT, null, null, null, null, null, 'mustache');
+        if (!$dbman->field_exists($table, $field)) {
+            $dbman->add_field($table, $field);
+        }
+        // The persistent does not accept null.
+        $DB->set_field_select('cms_types', 'javascript', '', 'javascript IS NULL');
+        upgrade_mod_savepoint(true, 2024090322, 'cms');
+    }
+
     return true;
 }

@@ -55,6 +55,9 @@ class cms_types extends persistent {
     /** File area name used for storing images. */
     const ICON_FILE_AREA = 'cms_types_icon';
 
+    /** Virtual file area name used for serving the type JavaScript. */
+    const JS_FILE_AREA = 'cms_types_js';
+
     /**
      * Return the definition of the properties of this model.
      *
@@ -83,6 +86,11 @@ class cms_types extends persistent {
             'mustache' => [
                 'type' => PARAM_RAW,
                 'default' => '{{{debug}}}',
+            ],
+            'javascript' => [
+                'type' => PARAM_RAW,
+                'default' => '',
+                'null' => NULL_ALLOWED,
             ],
             'datasources' => [
                 'type' => PARAM_TEXT,
@@ -196,6 +204,28 @@ class cms_types extends persistent {
             );
         }
         return $url;
+    }
+
+    /**
+     * Gets the URL of the JavaScript file of this type, or null if it has none.
+     *
+     * The timestamp in the URL makes browsers refetch the file when the type is changed. The filename is
+     * only informational, to show which type the file is for, and is ignored when serving.
+     *
+     * @return \moodle_url|null
+     */
+    public function get_js_url(): ?\moodle_url {
+        if (trim((string) $this->get('javascript')) === '') {
+            return null;
+        }
+        return \moodle_url::make_pluginfile_url(
+            \context_system::instance()->id,
+            'mod_cms',
+            self::JS_FILE_AREA,
+            $this->get('id'),
+            '/' . $this->get('timemodified') . '/',
+            clean_filename($this->get('idnumber') . '.js')
+        );
     }
 
     /**

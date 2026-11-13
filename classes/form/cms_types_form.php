@@ -48,7 +48,7 @@ class cms_types_form extends persistent_form {
      * Form definition.
      */
     protected function definition() {
-        global $CFG, $OUTPUT;
+        global $CFG, $OUTPUT, $PAGE;
 
         $mform = $this->_form;
 
@@ -120,6 +120,15 @@ class cms_types_form extends persistent_form {
         $helptext .= \html_writer::tag('pre', implode(PHP_EOL, $renderer->get_variable_list()));
         $mform->addElement('static', 'mustache_help', '', $helptext);
 
+        $mform->addElement(
+            'textarea',
+            'javascript',
+            get_string('javascript', 'cms'),
+            ['rows' => 10, 'style' => 'font-family: monospace; font-size: 12px;']
+        );
+        $mform->setType('javascript', PARAM_RAW);
+        $mform->addHelpButton('javascript', 'javascript', 'cms');
+
         // Add form elements for data sources.
         foreach (dsbase::get_datasources($cmstype) as $ds) {
             $ds->config_form_definition($mform);
@@ -135,6 +144,7 @@ class cms_types_form extends persistent_form {
 
         // Rendered previews.
         $html = $renderer->get_html();
+        $renderer->require_js($PAGE);
         // A raw html element spans the full width of the form, rather than sitting in the value column.
         $mform->addElement('html', $OUTPUT->render_from_template('mod_cms/type_preview', [
             'hint' => get_string('preview_with_hint', 'cms', get_string('savechangesanddisplay')),
