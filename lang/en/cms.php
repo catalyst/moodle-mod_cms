@@ -78,7 +78,7 @@ $string['images:images'] = 'Images';
 $string['import'] = 'Import';
 $string['import_cms_type'] = 'Import content type';
 $string['import_file'] = 'Import file';
-$string['instance:header'] = 'Activity fields';
+$string['instance:header'] = 'Activity templates';
 $string['instance:name'] = 'Activity name template';
 $string['instance:name_help'] = 'A template for the name of each activity created from this type. It can use the same variables as the content template, so the name can come from the data. This is the name shown on the course page, and in the activity header if that is enabled.
 
@@ -100,18 +100,19 @@ $string['privacy:metadata:cms'] = 'Custom content type instances';
 $string['privacy:metadata:cms:usermodified'] = 'User who modified the instances';
 $string['privacy:metadata:cms_types'] = 'Custom content types';
 $string['privacy:metadata:cms_types:usermodified'] = 'User who modified the custom content types';
+$string['roles:config:available'] = 'Available course role shortnames';
 $string['roles:config:duplicates'] = 'Duplicates';
 $string['roles:config:duplicates:all'] = 'Show in all';
 $string['roles:config:duplicates:firstonly'] = 'Show in first';
 $string['roles:config:duplicates:nest'] = 'Show in first with roles';
-$string['roles:config:duplicates_help'] = 'Controls what happens when a user has more than one of the listed roles.
+$string['roles:config:duplicates_help'] = 'Controls what happens when a user has more than one of the listed course roles.
 
-* Show in all: the user is listed under every one of their roles.
-* Show in first: the user is listed only under the first of their roles, in the order given in Roles included.
-* Show in first with roles: the user is listed under their first role, along with the shortnames of all their listed roles.';
+* Show in all: the user is listed under every one of their course roles.
+* Show in first: the user is listed only under the first of their course roles, in the order given in Roles included.
+* Show in first with roles: the user is listed under their first role, along with the shortnames of all their listed course roles.';
 $string['roles:config:header'] = 'Role list settings';
 $string['roles:config:list'] = 'Roles included';
-$string['roles:config:list_help'] = 'The shortnames of the roles to list, one per line, for example student or editingteacher. Roles are shown in the order given. If left empty, all roles in the course are listed. Only roles assigned in the course itself are included.';
+$string['roles:config:list_help'] = 'The shortnames of the course roles to list, one per line, for example student or editingteacher. Only roles that can be assigned at course level are available; they are listed below the field. Roles are shown in the order given. If left empty, all course roles are listed. Only roles assigned in the course itself are included.';
 $string['roles:description'] = 'The users with roles in the course, grouped by role. Read from the course\'s role assignments and the user records.';
 $string['roles:displayname'] = 'Roles list';
 $string['roles:error:role_does_not_exist'] = 'Role "{$a}" does nor exist.';

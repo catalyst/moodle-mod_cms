@@ -156,21 +156,21 @@ final class datasource_roles_test extends \advanced_testcase {
 
         // Test data for 'all'.
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('all', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
 
         // Test data for 'firstonly'.
         $config->roles_duplicates = 'firstonly';
         $manager->update($cmstype->get('id'), $config);
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('firstonly', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('firstonly', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
 
         // Test data for 'nest'.
         $config->roles_duplicates = 'nest';
         $manager->update($cmstype->get('id'), $config);
         $data = $this->get_cached_data($dsroles);
-        $expected = $this->get_expected('nest', ['marysue' => $user1, 'garydue' => $user2]);
+        $expected = $this->get_expected('nest', ['marysue' => $user1, 'garydue' => $user2], $course->id);
         $this->assertEquals($expected, $data);
     }
 
@@ -241,38 +241,88 @@ final class datasource_roles_test extends \advanced_testcase {
     }
 
     /**
+     * Gets the expected avatar URL for a user.
+     *
+     * @param \stdClass $user
+     * @param int|null $size Picture size, null for the default (small) size.
+     * @return string
+     */
+    protected function get_avatar_url(\stdClass $user, ?int $size = null): string {
+        global $DB, $PAGE;
+
+        $record = $DB->get_record('user', ['id' => $user->id]);
+        $picture = new \user_picture($record);
+        if ($size !== null) {
+            $picture->size = $size;
+        }
+        return $picture->get_url($PAGE)->out(false);
+    }
+
+    /**
      * Gets the expected data that shoudl be returned by get_data().
      *
      * @param string $duplicates
      * @param array $users
+     * @param int $courseid
      * @return object
      */
-    protected function get_expected(string $duplicates, array $users) {
+    protected function get_expected(string $duplicates, array $users, int $courseid) {
+        $timezone = \core_date::get_server_timezone();
         $expected = (object) [
             'roles' => [
                 (object) [
                     'shortname' => 'teacher',
-                    'name' => 'teacher',
+                    'name' => 'Non-editing teacher',
                     'users' => [
                         (object) [
                             'id' => $users['marysue']->id,
                             'fullname' => 'Mary Sue',
+                            'email' => 'marysue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'city' => '',
+                            'country' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
+                            'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['marysue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['teacher', 'student'],
                         ],
                     ],
                 ],
                 (object) [
                     'shortname' => 'student',
-                    'name' => 'student',
+                    'name' => 'Student',
                     'users' => [
                         (object) [
                             'id' => $users['marysue']->id,
                             'fullname' => 'Mary Sue',
+                            'email' => 'marysue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'city' => '',
+                            'country' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['marysue']),
+                            'profileimageurl' => $this->get_avatar_url($users['marysue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['marysue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['teacher', 'student'],
                         ],
                         (object) [
                             'id' => $users['garydue']->id,
                             'fullname' => 'Gary Due',
+                            'email' => 'garydue@x',
+                            'phone1' => '',
+                            'phone2' => '',
+                            'city' => '',
+                            'country' => '',
+                            'timezone' => $timezone,
+                            'description' => '',
+                            'profileimageurlsmall' => $this->get_avatar_url($users['garydue']),
+                            'profileimageurl' => $this->get_avatar_url($users['garydue'], 1),
+                            'profileurl' => (new \moodle_url('/user/view.php', ['id' => $users['garydue']->id, 'course' => $courseid]))->out(false),
                             'roles' => ['student'],
                         ],
                     ],
@@ -289,6 +339,10 @@ final class datasource_roles_test extends \advanced_testcase {
         if ($duplicates !== 'all') {
             unset($expected->roles[1]->users[0]);
             $expected->roles[1]->users = array_values($expected->roles[1]->users);
+        }
+        foreach ($expected->roles as $role) {
+            $role->usercount = count($role->users);
+            $role->multiple = $role->usercount > 1;
         }
         return $expected;
     }
