@@ -63,6 +63,7 @@ class backup_cms_activity_structure_step extends backup_activity_structure_step 
             'descriptionformat',
             'title_mustache',
             'mustache',
+            'javascript',
             'datasources',
             'showheader',
             'customdata',

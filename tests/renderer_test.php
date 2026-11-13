@@ -73,6 +73,38 @@ final class renderer_test extends \advanced_testcase {
     }
 
     /**
+     * Test that the type javascript file is included in the page once, and not at all when empty.
+     *
+     * @covers \mod_cms\local\renderer::require_js
+     */
+    public function test_require_js(): void {
+        global $PAGE;
+        $withjs = (new manage_content_types())->create((object) [
+            'name' => 'withjs',
+            'idnumber' => 'test-withjs',
+            'datasources' => 'course',
+            'javascript' => 'window.cmstestmarker = 1;',
+        ]);
+        $nojs = (new manage_content_types())->create((object) [
+            'name' => 'nojs',
+            'idnumber' => 'test-nojs',
+            'datasources' => 'course',
+        ]);
+
+        $this->assertNull($nojs->get_js_url());
+        $url = $withjs->get_js_url();
+        $this->assertStringContainsString('/mod_cms/' . cms_types::JS_FILE_AREA . '/' . $withjs->get('id') . '/', $url->out());
+
+        $PAGE->set_url('/');
+        (new renderer($nojs))->require_js($PAGE);
+        (new renderer($withjs))->require_js($PAGE);
+        (new renderer($withjs))->require_js($PAGE);
+        $code = $PAGE->requires->get_end_code();
+        $this->assertEquals(1, substr_count($code, 'test-withjs.js'));
+        $this->assertStringNotContainsString('cmstestmarker', $code);
+    }
+
+    /**
      * Test the renderer::get_html() function.
      *
      * @covers \mod_cms\local\renderer::get_html

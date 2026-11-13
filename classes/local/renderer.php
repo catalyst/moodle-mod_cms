@@ -131,6 +131,22 @@ class renderer {
     }
 
     /**
+     * Includes the JavaScript file of the type in the current page, if the type has any.
+     *
+     * The file is served separately rather than inlined, so that format_text (which strips scripts
+     * when the session is forceclean, eg login as) is bypassed. The page only includes a URL once, so
+     * the script has to deal with every instance of the type on the page.
+     *
+     * @param \moodle_page $page The page to include the file in.
+     */
+    public function require_js(\moodle_page $page): void {
+        $url = $this->cms->get_type()->get_js_url();
+        if ($url) {
+            $page->requires->js($url);
+        }
+    }
+
+    /**
      * Renders the activity icon and name, styled like an activity in the course page.
      *
      * @return string
