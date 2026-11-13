@@ -54,7 +54,9 @@ echo $OUTPUT->header();
 
 // Render the content of the mod. The activity header is only for the course page, as this page has its own title.
 $renderer = new renderer($cms);
-echo format_text($renderer->get_html(false), FORMAT_HTML, ['context' => $context, 'noclean' => true]);
+$renderer->require_js($PAGE);
+// The template is authored by admins and data sources format their own data, so there is no further formatting.
+echo $renderer->get_html(false);
 
 // Finish the page.
 echo $OUTPUT->footer();
