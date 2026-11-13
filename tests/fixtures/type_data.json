@@ -5,6 +5,7 @@
   "descriptionformat": 1,
   "title_mustache": "title",
   "mustache": "{{debug}}",
+  "javascript": "",
   "datasources": [""],
   "isvisible": true,
   "showheader": false,
